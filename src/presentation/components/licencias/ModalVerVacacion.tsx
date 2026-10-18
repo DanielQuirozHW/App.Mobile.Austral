@@ -1,9 +1,7 @@
 // Port de Portal-Austral-Dev -> ModalVerVacacion.tsx ("Vacación solicitada", "Solo lectura").
 // Sirve para la vacación propia y para la del equipo: ambas se normalizan a DetalleVacacion.
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import type { SolicitudDeEquipo, VacacionPropia } from '../../../domain/licencias/tipos';
-import { spacing } from '../../utils/responsive';
 import { AppButton } from '../AppButton';
 import { AppModal } from '../AppModal';
 import { FilaDato } from '../legajo/FilaDato';
@@ -65,5 +63,3 @@ export const ModalVerVacacion: React.FC<ModalVerVacacionProps> = ({ visible, det
     ) : null}
   </AppModal>
 );
-
-export const estilosModalVerVacacion = StyleSheet.create({ separacion: { gap: spacing.lg } });

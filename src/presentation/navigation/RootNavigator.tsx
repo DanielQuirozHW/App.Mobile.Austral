@@ -1,9 +1,10 @@
 // Navegador raíz. Reemplaza al guard de rutas del portal: según el estado de sesión y de puesto se muestran
 // unas pantallas u otras (al cambiar el estado, react-navigation hace la transición solo).
-//   - Firebase todavía no resolvió la sesión              -> Cargando
+//   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio (+ Datos personales para docente / codocente)
+//   - resto                                              -> Inicio + Licencias y vacaciones
+//                                                           (+ Datos personales para docente / codocente)
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
@@ -12,6 +13,7 @@ import { InicioScreen } from '../screens/InicioScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
+import { LicenciasScreen } from '../screens/licencias/LicenciasScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
 import type { RootStackParams } from './tipos';
@@ -59,6 +61,11 @@ export const RootNavigator: React.FC = () => {
               options={{ headerShown: true, title: 'Datos personales', animation: 'slide_from_right' }}
             />
           ) : null}
+          <Stack.Screen
+            name="Licencias"
+            component={LicenciasScreen}
+            options={{ headerShown: true, title: 'Licencias y vacaciones', animation: 'slide_from_right' }}
+          />
         </>
       )}
     </Stack.Navigator>
