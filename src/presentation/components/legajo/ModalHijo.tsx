@@ -97,6 +97,7 @@ export const ModalHijo: React.FC<ModalHijoProps> = ({ modo: modoInicial, onClose
   if (modo === 'ver') {
     const cantidadDocumentos = datos?.adjuntos?.length ?? 0;
     const aCargo = estaACargo(datos);
+    const aCargoCargado = datos?.aCargo != null;
     return (
       <AppModal
         visible
@@ -145,8 +146,14 @@ export const ModalHijo: React.FC<ModalHijoProps> = ({ modo: modoInicial, onClose
           <FilaDato label="Sexo" valor={datos?.generoHijos?.label} />
           <FilaDato
             label="¿Está a cargo?"
-            valor={aCargo ? 'Sí, a cargo' : 'No, sólo informativo'}
-            descripcion={aCargo ? 'Se solicitará comprobante' : 'No genera carga fiscal de Ganancias'}
+            valor={aCargoCargado ? (aCargo ? 'Sí' : 'No') : null}
+            descripcion={
+              aCargoCargado
+                ? aCargo
+                  ? 'Se solicitará comprobante'
+                  : 'No genera carga fiscal de Ganancias'
+                : undefined
+            }
           />
           <FilaDato label="Vínculo" valor="Hijo/a" />
         </View>
@@ -155,10 +162,9 @@ export const ModalHijo: React.FC<ModalHijoProps> = ({ modo: modoInicial, onClose
           <AppText variant="overline" tone="secondary">
             03 · Documentación adjunta
           </AppText>
-          <FilaDato
-            label="Documentos"
-            valor={cantidadDocumentos > 0 ? `${cantidadDocumentos} documento(s) cargado(s)` : null}
-          />
+          <AppText variant="body2" tone="secondary">
+            {`${cantidadDocumentos} ${cantidadDocumentos === 1 ? 'documento cargado' : 'documentos cargados'}.`}
+          </AppText>
         </View>
       </AppModal>
     );

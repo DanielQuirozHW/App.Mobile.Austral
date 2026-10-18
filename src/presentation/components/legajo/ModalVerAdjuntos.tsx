@@ -55,7 +55,8 @@ export const ModalVerAdjuntos: React.FC<ModalVerAdjuntosProps> = ({ documento, o
     <AppModal
       visible
       onClose={onClose}
-      titulo={documento.nombre || 'Documentos del familiar'}
+      titulo="Documentos cargados"
+      subtitulo={documento.nombre}
       pie={<AppButton title="Cerrar" variant="secondary" onPress={onClose} />}
     >
       {cargando ? (
