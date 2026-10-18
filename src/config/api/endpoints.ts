@@ -1,6 +1,7 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
-// escriben los stores del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore).
-// Alcance actual: login, Datos personales y Licencias y vacaciones.
+// escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
+// hooks/formacion/*, hooks/trayectoria/*).
+// Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil (Formación y Trayectoria).
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
 
@@ -50,4 +51,42 @@ export const endpoints = {
 
   /** POST: registro de la consulta de tipos de licencia (el portal lo manda sin esperar la respuesta). */
   logDeConsulta: (): string => api('hrfactors/logDeConsulta'),
+
+  // --- Perfil > Formación ---
+
+  /** POST / PUT / DELETE: títulos de pregrado/grado, posgrado y formación posdoctoral. */
+  titulosGradoPosgrado: (): string => api('hrfactors/titulosgradoposgrado'),
+
+  /** POST multipart: adjunta constancias a un título (parámetro educacionFormal_id). */
+  adjuntoTitulo: (tituloId: string): string =>
+    api(`hrfactors/adjuntosolicitud?educacionFormal_id=${encodeURIComponent(tituloId)}`),
+
+  /** POST / PUT / DELETE: especialidad certificada por organismo/s de salud. */
+  especialidadCertificadaSalud: (): string => api('hrfactors/especialidadcertificadosalud'),
+
+  /** POST / PUT / DELETE: certificaciones y capacitaciones. */
+  certificacion: (): string => api('hrfactors/certificacion'),
+
+  /** POST / PUT / DELETE: idiomas. */
+  idioma: (): string => api('hrfactors/idioma'),
+
+  /** POST / PUT / DELETE: áreas de expertise - áreas de actuación. */
+  areasDeExpertise: (): string => api('hrfactors/areasdeexpertise'),
+
+  // --- Perfil > Trayectoria profesional ---
+
+  /** POST / PUT / DELETE: experiencia laboral fuera del ámbito académico. */
+  experienciaFuera: (): string => api('hrfactors/experienciafuera'),
+
+  /** POST / PUT / DELETE: consultorías externas. */
+  consultoriaExterna: (): string => api('hrfactors/consultoriaexterna'),
+
+  /** POST / PUT / DELETE: comités profesionales o técnicos. */
+  comiteProfesional: (): string => api('hrfactors/comiteprofesional'),
+
+  /** POST / PUT / DELETE: licencias profesionales, membresías y asociaciones. */
+  licProfMembresia: (): string => api('hrfactors/licprofmembresia'),
+
+  /** POST / PUT / DELETE: reconocimientos profesionales (payload en camelCase). */
+  reconocimientosProfesionales: (): string => api('hrfactors/reconocimientos-profesionales'),
 } as const;
