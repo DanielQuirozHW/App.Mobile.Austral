@@ -1,4 +1,4 @@
-// Port de Portal-Austral-Dev -> GestionSolicitudes (columnasGestionSolicitudes) y VacacionesEquipoPendientes.
+// Port de Portal-Austral-Dev -> GestionSolicitudes (columnasGestionSolicitudes), useSolicitudesEquipo y VacacionesEquipoPendientes.
 // Licencias y vacaciones del equipo en una sola lista, con filtros por tipo y colaborador, y la pestaña de días pendientes.
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -7,9 +7,9 @@ import {
   ESTADOS_LICENCIA_A_RESPONDER,
   ESTADO,
   etiquetaEstadoLicencia,
-  etiquetaEstadoVacacion,
 } from '../../../domain/licencias/estados';
 import type { Licencia, SolicitudDeEquipo } from '../../../domain/licencias/tipos';
+import { useAuthStore } from '../../stores/authStore';
 import { useEquipoStore } from '../../stores/equipoStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
@@ -58,6 +58,7 @@ const normalizar = (texto: string): string =>
 export const GestionSeccion: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
+  const empleadoId = useAuthStore((s) => s.user?.empleadoid);
   const licencias = useEquipoStore((s) => s.licencias);
   const vacaciones = useEquipoStore((s) => s.vacaciones);
   const pendientes = useEquipoStore((s) => s.pendientes);
@@ -70,6 +71,7 @@ export const GestionSeccion: React.FC = () => {
   const [vacacionVista, setVacacionVista] = useState<DetalleVacacion | null>(null);
 
   const filas = useMemo<FilaGestion[]>(() => {
+    // useSolicitudesEquipo del portal rotula licencias y vacaciones con etiquetaEstadoLicencia.
     const deLicencias = licencias.datos.map<FilaGestion>((l) => ({
       key: `licencia-${l.id}`,
       tipo: 'Licencia',
@@ -91,7 +93,7 @@ export const GestionSeccion: React.FC = () => {
       desde: s.fechaDesde,
       hasta: s.fechaHasta,
       estado: s.estado,
-      estadoLabel: s.estadoName || etiquetaEstadoVacacion(s.estado),
+      estadoLabel: etiquetaEstadoLicencia(s.estado),
       solicitud: s,
     }));
     return [...deLicencias, ...deVacaciones];
@@ -123,19 +125,30 @@ export const GestionSeccion: React.FC = () => {
     [pendientes.datos, buscado],
   );
 
+  // Licencia: responde quien figura como aprobador 1 de la solicitud (idAprobador1) y solo en los estados a responder.
+  // Vacaciones: RowOptionsVacacionEquipo del portal ofrece Responder en todas las filas con estado Solicitada
+  // (la bandeja ya viene filtrada al equipo del líder).
+  const sePuedeResponder = (fila: FilaGestion): boolean => {
+    if (fila.tipo === 'Licencia') {
+      return (
+        !!empleadoId &&
+        fila.licencia?.idAprobador1 === empleadoId &&
+        ESTADOS_LICENCIA_A_RESPONDER.includes(fila.estado)
+      );
+    }
+    return fila.estado === ESTADO.SOLICITADA;
+  };
+
   const abrir = (fila: FilaGestion) => {
     if (fila.tipo === 'Licencia' && fila.licencia) {
       setLicenciaAbierta(fila.licencia);
       return;
     }
     if (fila.solicitud) {
-      if (fila.solicitud.estado === ESTADO.SOLICITADA) setVacacionAResponder(fila.solicitud);
+      if (sePuedeResponder(fila)) setVacacionAResponder(fila.solicitud);
       else setVacacionVista(detalleDeSolicitud(fila.solicitud));
     }
   };
-
-  const sePuedeResponder = (fila: FilaGestion): boolean =>
-    fila.tipo === 'Licencia' ? ESTADOS_LICENCIA_A_RESPONDER.includes(fila.estado) : fila.estado === ESTADO.SOLICITADA;
 
   return (
     <View style={styles.seccion}>
@@ -187,7 +200,7 @@ export const GestionSeccion: React.FC = () => {
               estado={
                 <View style={styles.chips}>
                   <Etiqueta texto={f.tipo === 'Vacaciones' ? 'Vacaciones' : 'Licencia'} tipo={f.tipo === 'Vacaciones' ? 'advertencia' : 'info'} />
-                  <EstadoChip estado={f.estado} texto={f.estadoLabel} />
+                  <EstadoChip texto={f.estadoLabel} />
                 </View>
               }
               lineas={[

@@ -1,6 +1,6 @@
 // Estados (statuscode) de new_licencia y su agrupación en pestañas.
-// Port de Portal-Austral-Dev: etiquetaEstadoLicencia / getEstadoVacacion, licencias/licencias/page.tsx,
-// licencias/vacaciones/page.tsx (pestañas) y useSolicitudesEquipo (conjuntos de la gestión del líder).
+// Port de Portal-Austral-Dev: etiquetaEstadoLicencia / getEstadoVacacion (src/columns), licencias/licencias/page.tsx,
+// licencias/vacaciones/page.tsx (pestañas) y src/hooks/useSolicitudesEquipo.ts (conjuntos de la gestión del líder).
 
 export const ESTADO = {
   SOLICITADA: 1,
@@ -31,41 +31,26 @@ const ETIQUETAS_LICENCIA: Record<number, string> = {
   [ESTADO.VALIDADA_DOC_PENDIENTE]: 'Validada, documentación pendiente',
 };
 
-// En la grilla de vacaciones el portal escribe dos de las etiquetas distinto (getEstadoVacacion).
+// getEstadoVacacion del portal (src/columns/columnsVacaciones.tsx): solo estos ocho estados tienen
+// etiqueta; cualquier otro (por ejemplo 100000007 y 100000008) es "Desconocido".
 const ETIQUETAS_VACACION: Record<number, string> = {
-  ...ETIQUETAS_LICENCIA,
+  [ESTADO.SOLICITADA]: 'Solicitada',
+  [ESTADO.PENDIENTE_VALIDACION]: 'Pendiente de validación por Dirección de Personas',
+  [ESTADO.VIGENTE]: 'Vigente',
+  [ESTADO.APROBADA]: 'Aprobada',
+  [ESTADO.GOZADA]: 'Gozada',
   [ESTADO.NO_APROBADA]: 'No aprobada',
+  [ESTADO.CANCELADA]: 'Cancelada',
   [ESTADO.EN_CURSO]: 'En Curso',
 };
+
+export const ETIQUETA_ESTADO_DESCONOCIDO = 'Desconocido';
 
 export const etiquetaEstadoLicencia = (estado: number | null | undefined): string =>
   (estado === null || estado === undefined ? undefined : ETIQUETAS_LICENCIA[estado]) ?? '';
 
 export const etiquetaEstadoVacacion = (estado: number | null | undefined): string =>
-  (estado === null || estado === undefined ? undefined : ETIQUETAS_VACACION[estado]) ?? '';
-
-/** Color semántico del estado. El portal usa chips de colores; acá se mapean a los tokens del tema. */
-export type TonoEstado = 'exito' | 'info' | 'advertencia' | 'peligro' | 'neutro';
-
-export const tonoDeEstado = (estado: number | null | undefined): TonoEstado => {
-  switch (estado) {
-    case ESTADO.APROBADA:
-    case ESTADO.GOZADA:
-    case ESTADO.VIGENTE:
-      return 'exito';
-    case ESTADO.SOLICITADA:
-    case ESTADO.EN_CURSO:
-      return 'info';
-    case ESTADO.PENDIENTE_VALIDACION:
-    case ESTADO.PENDIENTE_CERTIFICADO:
-    case ESTADO.VALIDADA_DOC_PENDIENTE:
-      return 'advertencia';
-    case ESTADO.NO_APROBADA:
-      return 'peligro';
-    default:
-      return 'neutro';
-  }
-};
+  (estado === null || estado === undefined ? undefined : ETIQUETAS_VACACION[estado]) ?? ETIQUETA_ESTADO_DESCONOCIDO;
 
 export type PestaniaSolicitudes = 'ingresadas' | 'aprobadas' | 'rechazadas' | 'canceladas';
 
@@ -85,7 +70,7 @@ export const ESTADOS_VACACIONES_POR_PESTANIA: Record<PestaniaSolicitudes, number
   canceladas: [ESTADO.CANCELADA],
 };
 
-/** Gestión de solicitudes del líder (useSolicitudesEquipo). */
+/** Gestión de solicitudes del líder (INGRESADAS / APROBADAS / RECHAZADAS de useSolicitudesEquipo). */
 export const ESTADOS_GESTION: Record<'ingresadas' | 'aprobadas' | 'rechazadas', number[]> = {
   ingresadas: [ESTADO.SOLICITADA, ESTADO.PENDIENTE_VALIDACION, ESTADO.PENDIENTE_CERTIFICADO, ESTADO.VALIDADA_DOC_PENDIENTE],
   aprobadas: [ESTADO.APROBADA, ESTADO.GOZADA, ESTADO.VIGENTE, ESTADO.EN_CURSO],
@@ -122,11 +107,11 @@ export const puedeCancelarLicencia = (estado: number, desdeIso: string | null, h
 };
 
 /**
- * Cancelar una solicitud de vacaciones: no en Gozada, En curso ni No aprobada (RowOptionsVerVacacion del portal).
- * DIFERENCIA: tampoco si ya está Cancelada; el portal ofrece el botón también en esa pestaña.
+ * Cancelar una solicitud de vacaciones: el portal (RowOptionsVerVacacion, columnsVacaciones.tsx) oculta el botón
+ * solo en Gozada, En curso y No aprobada. En Cancelada, Vigente, etc. sí se ofrece.
  */
 export const puedeCancelarVacacion = (estado: number): boolean =>
-  ![ESTADO.GOZADA, ESTADO.EN_CURSO, ESTADO.NO_APROBADA, ESTADO.CANCELADA].includes(estado as never);
+  ![ESTADO.GOZADA, ESTADO.EN_CURSO, ESTADO.NO_APROBADA].includes(estado as never);
 
 /** En vacaciones, Ver se oculta para las que todavía están en trámite (Solicitada y Pendiente de validación). */
 export const puedeVerVacacion = (estado: number): boolean =>

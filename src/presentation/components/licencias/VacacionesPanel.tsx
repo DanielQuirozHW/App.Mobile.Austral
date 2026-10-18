@@ -1,5 +1,6 @@
-// Port de Portal-Austral-Dev -> VacacionesPanel ("Progreso de Vacaciones"): barra con gozados, solicitados y
-// pendientes del período, días disponibles y el botón Solicitar cuando el período está abierto.
+// Port de Portal-Austral-Dev -> VacacionesPanel ("Progreso de Vacaciones") y COLUMNS_VACACIONES (columnsVacaciones.tsx):
+// barra con gozados, solicitados y pendientes del período, los cuatro números de la grilla (días a gozar, solicitados,
+// pendientes y gozados), días disponibles y el botón Solicitar cuando el período está abierto.
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { calcularProgreso } from '../../../domain/licencias/vacaciones';
@@ -27,6 +28,13 @@ export const VacacionesPanel: React.FC<VacacionesPanelProps> = ({ periodo, onSol
     { clave: 'pendientes', texto: 'Pendientes', valor: progreso.pendientes, color: globalColors.info },
   ];
 
+  const numeros = [
+    { clave: 'aGozar', texto: 'Días a gozar', valor: periodo.diasAGozar },
+    { clave: 'solicitados', texto: 'Días solicitados', valor: periodo.diasSolicitados },
+    { clave: 'pendientes', texto: 'Días pendientes', valor: periodo.diasPendientes },
+    { clave: 'gozados', texto: 'Días gozados', valor: periodo.diasGozados },
+  ];
+
   return (
     <View style={styles.card}>
       <View style={styles.encabezado}>
@@ -42,6 +50,17 @@ export const VacacionesPanel: React.FC<VacacionesPanelProps> = ({ periodo, onSol
             Disponibles
           </AppText>
         </View>
+      </View>
+
+      <View style={styles.numeros}>
+        {numeros.map((n) => (
+          <View key={n.clave} style={styles.numero}>
+            <AppText variant="h6">{String(n.valor ?? 0)}</AppText>
+            <AppText variant="caption" tone="secondary">
+              {n.texto}
+            </AppText>
+          </View>
+        ))}
       </View>
 
       <AppText variant="label">Progreso de Vacaciones</AppText>
@@ -86,6 +105,15 @@ const createStyles = (c: ColorTokens) =>
     encabezado: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
     titulos: { flex: 1, gap: spacing.xxs },
     disponibles: { alignItems: 'center' },
+    numeros: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+    numero: {
+      flexGrow: 1,
+      flexBasis: '45%',
+      backgroundColor: c.surfaceSecondary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: spacing.xxs,
+    },
     barra: {
       flexDirection: 'row',
       height: 10,
