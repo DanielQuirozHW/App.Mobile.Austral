@@ -3,7 +3,7 @@
 //   DatosPersonales -> (dashboard)/legajo/datos-personales,
 //   Licencias -> (dashboard)/licencias (licencias, vacaciones, calendario y gestión del equipo),
 //   Formacion -> (dashboard)/perfil/formacion, Trayectoria -> (dashboard)/perfil/trayectoria,
-//   Extension -> (dashboard)/perfil/extension
+//   Extension -> (dashboard)/perfil/extension, GestionAcademica -> (dashboard)/perfil/gestion-academica
 // No hay registro ni recuperar contraseña: las cuentas con usuario y contraseña se crean desde Firebase (decisión 36).
 export type RootStackParams = {
   Cargando: undefined;
@@ -15,4 +15,5 @@ export type RootStackParams = {
   Formacion: undefined;
   Trayectoria: undefined;
   Extension: undefined;
+  GestionAcademica: undefined;
 };

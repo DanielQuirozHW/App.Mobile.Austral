@@ -4,7 +4,7 @@
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
 //   - resto                                              -> Inicio + Licencias y vacaciones + Perfil (Formación,
-//                                                           Trayectoria y Extensión)
+//                                                           Trayectoria, Extensión y Gestión académica)
 //                                                           (+ Datos personales para docente / codocente)
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
 import { LicenciasScreen } from '../screens/licencias/LicenciasScreen';
 import { ExtensionScreen } from '../screens/perfil/ExtensionScreen';
 import { FormacionScreen } from '../screens/perfil/FormacionScreen';
+import { GestionAcademicaScreen } from '../screens/perfil/GestionAcademicaScreen';
 import { TrayectoriaScreen } from '../screens/perfil/TrayectoriaScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
@@ -85,6 +86,11 @@ export const RootNavigator: React.FC = () => {
             name="Extension"
             component={ExtensionScreen}
             options={{ headerShown: true, title: 'Extensión', animation: 'slide_from_right' }}
+          />
+          <Stack.Screen
+            name="GestionAcademica"
+            component={GestionAcademicaScreen}
+            options={{ headerShown: true, title: 'Gestión académica', animation: 'slide_from_right' }}
           />
         </>
       )}
