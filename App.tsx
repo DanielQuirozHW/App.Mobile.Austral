@@ -1,13 +1,12 @@
 import React from 'react';
 import { AppProviders } from './src/presentation/providers/AppProviders';
-import { LoadingScreen } from './src/presentation/components/LoadingScreen';
+import { AppNavigation } from './src/presentation/navigation/AppNavigation';
 
-// Etapa 1: solo la base (providers). La navegación y el estado de sesión
-// reemplazan a LoadingScreen en las etapas 3 y 4.
+// Proveedores (zona segura, teclado, tema, caché de consultas) + navegación raíz.
 function App(): React.JSX.Element {
   return (
     <AppProviders>
-      <LoadingScreen />
+      <AppNavigation />
     </AppProviders>
   );
 }
