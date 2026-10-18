@@ -137,4 +137,18 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: participación en jurados - tribunal. */
   juradosTribunal: (): string => api('hrfactors/investigacion/juradosTribunal'),
+
+  // --- Perfil > Investigación > Actividad I+D ---
+
+  /** POST / PUT / DELETE: financiamiento propio de la UA. */
+  financiamientoPropioUa: (): string => api('hrfactors/investigacion/financiamientoPropioUa'),
+
+  /** POST / PUT / DELETE: financiamiento externo a la UA. */
+  financiamientoExternoUa: (): string => api('hrfactors/investigacion/financiamientoExternoUa'),
+
+  /** POST / PUT / DELETE: formación de tesistas. */
+  formacionTesistas: (): string => api('hrfactors/investigacion/formacionTesistas'),
+
+  /** POST / PUT / DELETE: dirección de investigadores y/o becarios. */
+  investigadoresBecarios: (): string => api('hrfactors/investigacion/investigadoresBecarios'),
 } as const;
