@@ -83,6 +83,7 @@ export const InicioScreen: React.FC = () => {
           onPress={() => navigation.navigate('GestionAcademica')}
         />
         <AppButton title="Docencia" icon="book-outline" onPress={() => navigation.navigate('Docencia')} />
+        <AppButton title="Investigación" icon="flask-outline" onPress={() => navigation.navigate('Investigacion')} />
         <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
       </View>
     </Screen>
