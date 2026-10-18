@@ -3,13 +3,16 @@
 //  - cónyuge: ModalConyuge.tsx; hijos/as: ModalHijos.tsx; bajas: columnsConyuge.tsx / columnsHijos.tsx
 //  - adjuntos: useEnviarArchivos.ts + useAdjuntosHandler.ts
 // Las notificaciones (toasts) las muestra la pantalla; acá se devuelve el resultado o se lanza el error.
+import { mapearAdjunto } from '../../domain/legajo/mapeo';
 import type { FormularioDatosPersonales } from '../../domain/legajo/formulario';
 import type { DatosFamiliar } from '../../domain/legajo/payload';
+import type { Adjunto } from '../../domain/legajo/tipos';
 import {
   actualizarFamiliar,
   cargarAdjuntosDeDocumento,
   crearFamiliar,
   eliminarFamiliar,
+  leerAdjuntosDeDocumento,
   type ArchivoParaCarga,
 } from '../../infrastructure/legajo/familiaresApi';
 import { actualizarLegajo } from '../../infrastructure/legajo/legajoApi';
@@ -55,6 +58,15 @@ const programarRecargaDeDocumentos = (): void => {
   setTimeout(() => {
     void cargarDocumentosFamiliares();
   }, DEMORA_DOCUMENTACION_NUEVA_MS);
+};
+
+/**
+ * Archivos de un documento de familiar, con su contenido en base64 (para abrirlos). A diferencia del portal, que
+ * trae el contenido de todos los adjuntos al cargar la pantalla, acá se pide solo al abrir "Ver adjuntos".
+ */
+export const obtenerAdjuntosDeDocumento = async (documentacionId: string): Promise<Adjunto[]> => {
+  const filas = await leerAdjuntosDeDocumento(empleadoIdActual(), documentacionId);
+  return Array.isArray(filas) ? filas.map(mapearAdjunto) : [];
 };
 
 // ---------------------------------------------------------------------------
