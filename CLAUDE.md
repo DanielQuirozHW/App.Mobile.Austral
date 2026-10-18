@@ -96,7 +96,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
 7. Funciones de Nombramientos y Promoción.
 
-Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyéndolo; no se verifica ejecutando.
+Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
 
 ## Alcance
 
@@ -130,6 +130,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales, incluida Familia (verificado) |
 | `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado; el aspecto NO se toma de ahí) |
 | `.claude/skills/` | Skills de trabajo para este repo |
+| `App.tsx` | Providers + `AppNavigation` |
 | `src/config/env.ts` | Variables de entorno (sin valores) |
 | `src/config/api/` | `apiClient.ts` (axios con reintentos, port del portal), `tokenStore.ts` (token del usuario de servicio), `queryClient.ts` |
 | `src/domain/roles/` | Roles y funciones de Nombramientos/Promoción (port de las reglas del portal) |
@@ -137,13 +138,17 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`) y colección `usuarios` de Firestore |
 | `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
 | `src/application/auth/authService.ts` | Login Microsoft y email, registro, recuperación, logout, escucha de sesión y revalidación |
-| `src/presentation/stores/authStore.ts` | Estado de la sesión (user, loading, cerrandoSesion) |
-| `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal) |
+| `src/presentation/stores/` | `authStore.ts` (user, loading, cerrandoSesion) y `rolStore.ts` (puesto elegido y selección pendiente) |
+| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
+| `src/presentation/screens/auth/` | `LoginScreen`, `RegistroScreen`, `OlvidasteContrasenaScreen`, `SeleccionarPuestoScreen` |
+| `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, cerrar sesión) |
+| `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` permite forzar claro) |
 | `src/presentation/utils/responsive.ts` | Escala, espacios, radios, tamaños de fuente |
-| `src/presentation/components` | Componentes base: `AppText`, `AppButton`, `AppTextField`, `AppIcon`, `Screen`, `LoadingScreen` |
+| `src/presentation/components` | Componentes base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion` |
+| `src/assets/images/logos.ts` | Logos (hoy `null` hasta copiar las imágenes; ver `docs/SETUP-NATIVO.md`) |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
 | `.env.template` | Nombres de variables de entorno, sin valores |
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2 parcial: cliente HTTP y token escritos; faltan el módulo de endpoints y los adaptadores restantes. Etapa 3 parte 1 escrita (servicio de autenticación, roles, errores, store de sesión); faltan las pantallas de ingreso, registro y recuperación y conectar `escucharSesion()` en `AppProviders`. Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2 parcial: cliente HTTP y token escritos; faltan el módulo de endpoints y la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación completa (servicio, roles, errores, stores), pantallas de ingreso, registro, recuperación y selección de puesto, navegación raíz y un Inicio provisorio. Siguen las fotos de perfil y portada (etapa 5) y Datos personales (etapa 6). Todo sin probar. No hay carpetas nativas todavía.
