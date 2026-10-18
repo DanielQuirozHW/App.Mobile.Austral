@@ -76,6 +76,7 @@ export const InicioScreen: React.FC = () => {
           icon="briefcase-outline"
           onPress={() => navigation.navigate('Trayectoria')}
         />
+        <AppButton title="Extensión" icon="people-outline" onPress={() => navigation.navigate('Extension')} />
         <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
       </View>
     </Screen>
