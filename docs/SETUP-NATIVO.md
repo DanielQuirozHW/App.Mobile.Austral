@@ -42,7 +42,16 @@ El nombre `AustralMobile` tiene que coincidir con el `name` de `app.json`.
 
 ## 4. Imágenes y logos del portal
 
-Los archivos binarios no se pueden subir por el conector. Cuando una pantalla los use, copiar desde `public/images` del portal (`HW-Austral/Portal-Austral-Dev`) a `src/assets/images`. Candidatos que existen en el portal: `Logonavbar.png`, `logo_color.png`, `logo_blanco.png`, `logo-horizontal-color.png`, `logo-horizontal-blanco.png`, `favicon.ico`, `profileNull.webp`, `user.webp`. En el portal el fondo de la pantalla de ingreso (`fondo_login.jpg`) se oculta en pantallas chicas; la app no lo usa.
+Los archivos binarios no se pueden subir por el conector. Copiar desde `public/images` del portal (`HW-Austral/Portal-Austral-Dev`) a `src/assets/images`. Candidatos que existen en el portal: `Logonavbar.png`, `logo_color.png`, `logo_blanco.png`, `logo-horizontal-color.png`, `logo-horizontal-blanco.png`, `favicon.ico`, `profileNull.webp`, `user.webp`. En el portal el fondo de la pantalla de ingreso (`fondo_login.jpg`) se oculta en pantallas chicas; la app no lo usa.
+
+**Logo de las pantallas de ingreso**: la pantalla de ingreso del portal usa `logo-horizontal-color.png` (modo claro) y `logo-horizontal-blanco.png` (modo oscuro). Después de copiar esos dos archivos a `src/assets/images`, editar `src/assets/images/logos.ts` y reemplazar los dos `null` por:
+
+```ts
+export const logoHorizontalColor = require('./logo-horizontal-color.png');
+export const logoHorizontalBlanco = require('./logo-horizontal-blanco.png');
+```
+
+Mientras valgan `null`, `LogoAustral` muestra "Universidad Austral" en texto. No se dejaron los `require` en el código porque, con los archivos ausentes, Metro no compila.
 
 ## 5. Qué decide Daniel después de probar
 
