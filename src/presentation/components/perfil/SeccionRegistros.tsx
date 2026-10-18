@@ -36,11 +36,13 @@ interface SeccionRegistrosProps<T> {
   textoAgregar: string;
   /** false oculta el botón de alta (por ejemplo, tope de áreas de expertise). */
   puedeAgregar?: boolean;
+  /** true: solo la acción Ver (lista de solo lectura, como los cargos de gestión académica). */
+  soloLectura?: boolean;
   textoVacio: string;
   /** Para el diálogo: "¿Está seguro de que desea eliminar {sustantivo}?". */
-  sustantivoEliminar: string;
-  mensajes: { eliminando: string; eliminado: string; errorEliminar: string };
-  onEliminar: (item: T) => Promise<void>;
+  sustantivoEliminar?: string;
+  mensajes?: { eliminando: string; eliminado: string; errorEliminar: string };
+  onEliminar?: (item: T) => Promise<void>;
   renderModal: (p: PropsRenderModal<T>) => React.ReactNode;
 }
 
@@ -57,8 +59,9 @@ export function SeccionRegistros<T>({
   lineasDe,
   textoAgregar,
   puedeAgregar = true,
+  soloLectura = false,
   textoVacio,
-  sustantivoEliminar,
+  sustantivoEliminar = 'este registro',
   mensajes,
   onEliminar,
   renderModal,
@@ -68,7 +71,7 @@ export function SeccionRegistros<T>({
   const [eliminando, setEliminando] = useState(false);
 
   const confirmarEliminacion = async () => {
-    if (aEliminar === null) return;
+    if (aEliminar === null || !onEliminar || !mensajes) return;
     setEliminando(true);
     const idToast = toast.loading(mensajes.eliminando);
     try {
@@ -88,7 +91,7 @@ export function SeccionRegistros<T>({
     <SeccionCard numero={numero} titulo={titulo} descripcion={descripcion}>
       {ayuda ? <InfoAlert tipo="info">{ayuda}</InfoAlert> : null}
 
-      {puedeAgregar ? (
+      {puedeAgregar && !soloLectura ? (
         <AppButton title={textoAgregar} icon="add-circle-outline" onPress={() => setModal({ modo: 'nuevo' })} />
       ) : null}
 
@@ -110,12 +113,21 @@ export function SeccionRegistros<T>({
               acciones={
                 <>
                   <AccionIcono icono="eye-outline" etiqueta="Ver" onPress={() => setModal({ modo: 'ver', item })} />
-                  <AccionIcono
-                    icono="create-outline"
-                    etiqueta="Editar"
-                    onPress={() => setModal({ modo: 'editar', item })}
-                  />
-                  <AccionIcono icono="trash-outline" etiqueta="Eliminar" peligro onPress={() => setAEliminar(item)} />
+                  {soloLectura ? null : (
+                    <>
+                      <AccionIcono
+                        icono="create-outline"
+                        etiqueta="Editar"
+                        onPress={() => setModal({ modo: 'editar', item })}
+                      />
+                      <AccionIcono
+                        icono="trash-outline"
+                        etiqueta="Eliminar"
+                        peligro
+                        onPress={() => setAEliminar(item)}
+                      />
+                    </>
+                  )}
                 </>
               }
             />
@@ -125,18 +137,20 @@ export function SeccionRegistros<T>({
 
       {modal ? renderModal({ modo: modal.modo, item: modal.item, onClose: () => setModal(null) }) : null}
 
-      <ConfirmDialog
-        visible={aEliminar !== null}
-        titulo="Confirmar eliminación"
-        textoConfirmar="Eliminar"
-        textoConfirmando="Eliminando..."
-        confirmando={eliminando}
-        peligroso
-        onCancelar={() => setAEliminar(null)}
-        onConfirmar={confirmarEliminacion}
-      >
-        {`¿Está seguro de que desea eliminar ${sustantivoEliminar}? Esta acción no se puede deshacer.`}
-      </ConfirmDialog>
+      {soloLectura ? null : (
+        <ConfirmDialog
+          visible={aEliminar !== null}
+          titulo="Confirmar eliminación"
+          textoConfirmar="Eliminar"
+          textoConfirmando="Eliminando..."
+          confirmando={eliminando}
+          peligroso
+          onCancelar={() => setAEliminar(null)}
+          onConfirmar={confirmarEliminacion}
+        >
+          {`¿Está seguro de que desea eliminar ${sustantivoEliminar}? Esta acción no se puede deshacer.`}
+        </ConfirmDialog>
+      )}
     </SeccionCard>
   );
 }
