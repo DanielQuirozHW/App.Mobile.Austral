@@ -1,6 +1,7 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
 // escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
-// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*, hooks/docencia/*).
+// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*, hooks/docencia/*,
+// hooks/investigacion-perfil/*).
 // Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil.
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
@@ -119,4 +120,21 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: asesoramiento académico. */
   asesoramientoAcademico: (): string => api('hrfactors/asesoramientoAcademico'),
+
+  // --- Perfil > Investigación > Afiliaciones ---
+
+  /** PUT: perfiles de investigación (ORCID, Google Scholar, Research Gate y líneas prioritarias). */
+  investigacionPerfil: (): string => api('hrfactors/investigacion/perfil'),
+
+  /** PUT: categorización externa vigente (se guarda sobre el empleado). */
+  categorizacionExternaVigente: (): string => api('hrfactors/investigacion/categorizacionExterna/vigente'),
+
+  /** POST / PUT: categorización PRINUAR vigente. */
+  categorizacionPrinuarVigente: (): string => api('hrfactors/investigacion/categorizacionPrinuar/vigente'),
+
+  /** POST / PUT / DELETE: pertenencia a centros de investigación / HUA. */
+  perteneciaACentros: (): string => api('hrfactors/investigacion/perteneciaACentros'),
+
+  /** POST / PUT / DELETE: participación en jurados - tribunal. */
+  juradosTribunal: (): string => api('hrfactors/investigacion/juradosTribunal'),
 } as const;
