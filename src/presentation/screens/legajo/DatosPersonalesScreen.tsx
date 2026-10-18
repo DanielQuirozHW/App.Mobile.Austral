@@ -1,7 +1,8 @@
 // Datos personales. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/datos-personales/page.tsx.
 // Secciones, textos, validaciones y flujo de guardado: los del portal. Diferencias propias de la app:
 //  - avisa antes de salir si hay cambios sin guardar (el portal solo usa `beforeunload` del navegador);
-//  - un solo escalonado de campos (una columna) en lugar de la grilla de 12 columnas.
+//  - un solo escalonado de campos (una columna) en lugar de la grilla de 12 columnas;
+//  - sin el breadcrumb "Legajo > Datos personales" (LegajoPageHeader): el título de la pantalla ya lo dice.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -31,7 +32,6 @@ import { ModalConyuge } from '../../components/legajo/ModalConyuge';
 import { PerfilLegajoBanner } from '../../components/legajo/PerfilLegajoBanner';
 import { SeccionCard } from '../../components/SeccionCard';
 import type { RootStackParams } from '../../navigation/tipos';
-import { useAuthStore } from '../../stores/authStore';
 import { useCatalogosStore } from '../../stores/catalogosStore';
 import { useFamiliaStore } from '../../stores/familiaStore';
 import { useLegajoStore } from '../../stores/legajoStore';
@@ -80,7 +80,6 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
 
-  const user = useAuthStore((s) => s.user);
   const legajo = useLegajoStore((s) => s.legajo);
   const conyuge = useFamiliaStore((s) => s.conyuge);
   const paises = useCatalogosStore((s) => s.paises);
@@ -266,15 +265,7 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.pantalla}>
       <ScrollFormulario ref={scrollRef} contentContainerStyle={styles.contenido}>
-        <PerfilLegajoBanner
-          nombre={legajo.new_nombredepila ?? ''}
-          apellido={legajo.new_apellidos ?? ''}
-          numeroLegajo={legajo.new_numerolegajo}
-          cargo={legajo.posicion}
-          facultad={legajo.denominacionPersonal}
-          sede={legajo.localidad?.label ?? undefined}
-          fotoUrl={user?.photoURL}
-        />
+        <PerfilLegajoBanner localidadLabel={legajo.localidad?.label || undefined} />
 
         <InfoAlert>
           <AppText variant="body2">
