@@ -14,7 +14,7 @@ export type TextTone =
   | 'warning';
 
 interface AppTextProps extends TextProps {
-  /** Token de la escala tipográfica. Por defecto bodyMd. */
+  /** Token de la escala tipográfica del portal (h1…h6, body1, body2, button, label, caption, overline, helper). Por defecto body1. */
   variant?: TypographyToken;
   /** Color semántico, tomado del tema. */
   tone?: TextTone;
@@ -27,7 +27,7 @@ interface AppTextProps extends TextProps {
  * includeFontPadding va como estilo (es un estilo de Text en Android, no una prop).
  */
 export const AppText: React.FC<AppTextProps> = ({
-  variant = 'bodyMd',
+  variant = 'body1',
   tone = 'default',
   locked = false,
   style,

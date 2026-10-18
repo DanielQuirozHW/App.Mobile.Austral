@@ -1,104 +1,128 @@
-// Tokens de color de la app.
+// Tokens de color de la app. Son los del portal de Austral.
 //
-// Los NOMBRES de los tokens siguen los del prototipo de referencia para que las reglas de UI
-// (docs/contexto/prototipo-estructura.md) se apliquen igual. Los VALORES son los del prototipo
-// y son provisorios: pertenecen a la marca de ese prototipo, no a la de Austral.
-// Pendiente de Daniel: definir la paleta de la app (ver docs/PENDIENTES.md).
+// Fuente (HW-Austral/Portal-Austral-Dev):
+//   - src/@core/theme/palette/index.ts  (paleta "Austral UI Kit v2", modo claro y oscuro)
+//   - src/app/(blank)/login-portal/page.tsx  (colores propios de la pantalla de ingreso)
+//
+// Los tokens marcados "derivado" no existen tal cual en el portal: son variantes con transparencia
+// de colores del portal, necesarias para fondos de estado, superposición y sombras.
 //
 // Regla: ningún componente escribe colores a mano. Todo sale de useThemeColors().globalColors.
 
 export const lightColors = {
-  primary: '#2B70B8',
-  primaryLight: 'rgba(43, 112, 184, 0.12)',
-  primaryDark: '#1C5391',
+  // Primario: azul Austral (palette.primary, customColors.azulPrimario / azulDark / azulLight)
+  primary: '#2E3092',
+  primaryLight: '#E8E9F6',
+  primaryDark: '#1E2270',
 
-  secondary: '#2E8E9D',
-  secondaryLight: 'rgba(46, 142, 157, 0.14)',
-  secondaryDark: '#1D6C78',
+  // Secundario: cian de acento (palette.secondary, customColors.cianAcento / cianLight)
+  secondary: '#4FC3D7',
+  secondaryLight: '#E0F6FA',
+  secondaryDark: '#3AABBF',
 
-  background: '#F5F5F8',
+  // Fondos (bodyBg, paperBg, tableHeaderBg)
+  background: '#F7F8FC',
   card: '#FFFFFF',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  surfaceSecondary: '#F1EEF7',
-  inputBackground: '#F8F7FB',
-  inputDisabled: '#EAE7F0',
+  surfaceSecondary: '#E8E9F6',
+  inputBackground: '#FFFFFF',
+  inputDisabled: '#F7F8FC', // derivado: el portal solo atenúa el borde del campo deshabilitado
 
-  text: '#14101F',
-  textSecondary: '#5C5868',
-  textTertiary: '#8F889B',
-  textInverse: '#F2EEF8',
+  // Texto (palette.text)
+  text: '#1A1C4B',
+  textSecondary: '#5A5C80',
+  textTertiary: '#9496B8',
+  textInverse: '#FFFFFF',
 
-  border: '#DFD9E8',
-  borderLight: '#F2EFF7',
-  hairline: 'rgba(20, 16, 32, 0.08)',
+  // Bordes: borde de campo (overrides/input.ts) y divisor (palette.divider)
+  border: 'rgba(46, 48, 146, 0.25)',
+  borderLight: 'rgba(46, 48, 146, 0.15)',
+  hairline: 'rgba(46, 48, 146, 0.15)',
 
-  success: '#2E9D6E',
-  successLight: 'rgba(46, 157, 110, 0.14)',
-  warning: '#D48B12',
-  warningLight: 'rgba(212, 139, 18, 0.14)',
-  danger: '#D14A54',
-  dangerLight: 'rgba(209, 74, 84, 0.14)',
+  // Estados (palette.success / warning / error / info). Las variantes "Light" son derivadas.
+  success: '#43A047',
+  successLight: 'rgba(67, 160, 71, 0.14)',
+  warning: '#FFB400',
+  warningLight: 'rgba(255, 180, 0, 0.14)',
+  danger: '#FF4C51',
+  dangerLight: 'rgba(255, 76, 81, 0.14)',
   dangerOn: '#FFFFFF',
-  info: '#5A6FD4',
-  infoLight: 'rgba(90, 111, 212, 0.14)',
+  info: '#2E3092',
+  infoLight: 'rgba(46, 48, 146, 0.08)',
 
-  overlay: 'rgba(20, 16, 31, 0.5)',
-  shadow: 'rgba(20, 16, 31, 0.08)',
+  overlay: 'rgba(26, 28, 75, 0.5)', // derivado
+  shadow: 'rgba(46, 48, 146, 0.20)', // sombra de los botones (overrides/button.ts)
 
-  accentPrimary: '#2B70B8',
-  accentPrimaryMuted: 'rgba(43, 112, 184, 0.12)',
+  // Acentos semánticos
+  accentPrimary: '#2E3092',
+  accentPrimaryMuted: 'rgba(46, 48, 146, 0.08)', // palette.action.selected
   accentPrimaryOn: '#FFFFFF',
-  accentCta: '#E06D10',
-  accentCtaMuted: 'rgba(224, 109, 16, 0.12)',
-  accentCtaOn: '#FFFFFF',
+  accentCta: '#4FC3D7',
+  accentCtaMuted: 'rgba(79, 195, 215, 0.14)', // derivado
+  accentCtaOn: '#1A1C4B',
+  accentBeige: '#F5EDD8', // customColors.beigeAcento
+
+  // Pantalla de ingreso (login-portal/page.tsx)
+  authBackground: '#FFF3E9',
+  authInk: '#000000',
+  authButtonBg: '#2E3092',
+  authButtonText: '#FFFFFF',
+  authButtonPressed: '#CDDEF2',
 };
 
 export type ColorTokens = Record<keyof typeof lightColors, string>;
 
 export const darkColors: ColorTokens = {
-  primary: '#7BB3E8',
-  primaryLight: 'rgba(123, 179, 232, 0.18)',
-  primaryDark: '#4A8EC4',
+  primary: '#4FC3D7',
+  primaryLight: 'rgba(79, 195, 215, 0.14)',
+  primaryDark: '#3AABBF',
 
-  secondary: '#5BC7D5',
-  secondaryLight: 'rgba(91, 199, 213, 0.18)',
-  secondaryDark: '#2E8E9D',
+  secondary: '#4FC3D7',
+  secondaryLight: 'rgba(79, 195, 215, 0.12)',
+  secondaryDark: '#3AABBF',
 
-  background: '#0E0B16',
-  card: '#1E182C',
-  surface: '#1E182C',
-  surfaceElevated: '#282236',
-  surfaceSecondary: '#332B44',
-  inputBackground: '#201A30',
-  inputDisabled: '#191421',
+  background: '#0E1014',
+  card: '#15171D',
+  surface: '#15171D',
+  surfaceElevated: '#1C1F27',
+  surfaceSecondary: '#1C1F27',
+  inputBackground: '#15171D',
+  inputDisabled: '#1C1F27',
 
-  text: '#F2EEF8',
-  textSecondary: '#B0A8C0',
-  textTertiary: '#7A7388',
-  textInverse: '#14101F',
+  text: '#F0F2FF',
+  textSecondary: '#9BA3C2',
+  textTertiary: '#5A6080',
+  textInverse: '#0E1014',
 
-  border: '#3B3548',
-  borderLight: '#2B2634',
+  border: 'rgba(79, 195, 215, 0.12)',
+  borderLight: 'rgba(255, 255, 255, 0.08)',
   hairline: 'rgba(255, 255, 255, 0.08)',
 
-  success: '#4FBC8F',
-  successLight: 'rgba(79, 188, 143, 0.22)',
-  warning: '#E5A53C',
-  warningLight: 'rgba(229, 165, 60, 0.22)',
-  danger: '#E37480',
-  dangerLight: 'rgba(227, 116, 128, 0.22)',
-  dangerOn: '#14101F',
-  info: '#8897E0',
-  infoLight: 'rgba(136, 151, 224, 0.22)',
+  success: '#66BB6A',
+  successLight: 'rgba(102, 187, 106, 0.18)',
+  warning: '#FFA726',
+  warningLight: 'rgba(255, 167, 38, 0.18)',
+  danger: '#FF6B6B',
+  dangerLight: 'rgba(255, 107, 107, 0.18)',
+  dangerOn: '#F0F2FF',
+  info: '#4FC3D7',
+  infoLight: 'rgba(79, 195, 215, 0.12)',
 
   overlay: 'rgba(0, 0, 0, 0.6)',
-  shadow: 'rgba(0, 0, 0, 0.5)',
+  shadow: 'rgba(0, 0, 0, 0.30)',
 
-  accentPrimary: '#7BB3E8',
-  accentPrimaryMuted: 'rgba(123, 179, 232, 0.16)',
-  accentPrimaryOn: '#0B1A26',
-  accentCta: '#F58A3B',
-  accentCtaMuted: 'rgba(245, 138, 59, 0.18)',
-  accentCtaOn: '#14101F',
+  accentPrimary: '#4FC3D7',
+  accentPrimaryMuted: 'rgba(79, 195, 215, 0.12)',
+  accentPrimaryOn: '#0A2A30',
+  accentCta: '#4FC3D7',
+  accentCtaMuted: 'rgba(79, 195, 215, 0.16)',
+  accentCtaOn: '#0E1014',
+  accentBeige: '#F5EDD8',
+
+  authBackground: '#2E3092',
+  authInk: '#FFFFFF',
+  authButtonBg: '#FFFFFF',
+  authButtonText: '#2E3092',
+  authButtonPressed: '#D9DEE4',
 };

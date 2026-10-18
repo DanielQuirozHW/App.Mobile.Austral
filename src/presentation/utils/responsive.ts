@@ -18,6 +18,7 @@ export const scaleFont = (size: number): number => {
   return Math.round(PixelRatio.roundToNearestPixel(acotado));
 };
 
+// El portal usa una unidad de 4 px (theme.spacing(n) = 0.25 rem × n).
 export const spacing = {
   xxs: scale(2),
   xs: scale(4),
@@ -29,15 +30,18 @@ export const spacing = {
   xxxl: scale(32),
 };
 
+// Radios del portal: botones y campos 6 px (shape.borderRadius y overrides), tarjetas 10 px (overrides/card.ts).
 export const borderRadius = {
-  xs: scale(6),
-  sm: scale(8),
-  md: scale(12),
-  input: scale(14),
-  lg: scale(16),
-  xl: scale(20),
-  xxl: scale(24),
-  xxxl: scale(30),
+  xs: scale(4),
+  sm: scale(6),
+  md: scale(8),
+  input: scale(6),
+  button: scale(6),
+  card: scale(10),
+  lg: scale(12),
+  xl: scale(16),
+  xxl: scale(20),
+  xxxl: scale(24),
   round: scale(999),
 };
 
@@ -49,19 +53,6 @@ export const iconSizes = {
   xl: scale(28),
   xxl: scale(32),
   xxxl: scale(40),
-};
-
-/** Tamaños de fuente por plataforma (iOS usa un punto más en cada escalón). */
-export const platformFontSizes = {
-  xs: Platform.OS === 'ios' ? scaleFont(11) : scaleFont(10),
-  sm: Platform.OS === 'ios' ? scaleFont(13) : scaleFont(12),
-  md: Platform.OS === 'ios' ? scaleFont(15) : scaleFont(14),
-  lg: Platform.OS === 'ios' ? scaleFont(17) : scaleFont(16),
-  xl: Platform.OS === 'ios' ? scaleFont(19) : scaleFont(18),
-  xxl: Platform.OS === 'ios' ? scaleFont(22) : scaleFont(20),
-  xxxl: Platform.OS === 'ios' ? scaleFont(26) : scaleFont(24),
-  huge: Platform.OS === 'ios' ? scaleFont(30) : scaleFont(28),
-  massive: Platform.OS === 'ios' ? scaleFont(34) : scaleFont(32),
 };
 
 /** Control del escalado de fuente del sistema (Dynamic Type / tamaño de fuente de Android). */
@@ -94,6 +85,6 @@ export const platformSpecific = {
       default: {},
     }),
 
-  cardRadius: Platform.OS === 'ios' ? borderRadius.xl : borderRadius.lg,
-  buttonRadius: Platform.OS === 'ios' ? borderRadius.xxl : borderRadius.lg,
+  cardRadius: borderRadius.card,
+  buttonRadius: borderRadius.button,
 };

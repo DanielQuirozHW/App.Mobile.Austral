@@ -26,6 +26,8 @@ const colorDeTexto = (variant: ButtonVariant, disabled: boolean, c: ColorTokens)
   return c.accentPrimary;
 };
 
+// Botones del portal (overrides/button.ts): texto en mayúsculas y negrita, radio 6, alto grande 44.
+// primary = contained, secondary = outlined con borde del color primario.
 const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean) => {
   const fondo = disabled
     ? c.inputDisabled
@@ -35,13 +37,14 @@ const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean)
         ? c.danger
         : 'transparent';
   const borde = disabled ? c.border : variant === 'secondary' ? c.accentPrimary : 'transparent';
+  const conSombra = !disabled && variant !== 'secondary';
 
   return StyleSheet.create({
     button: {
       minHeight: platformSpecific.minTouchTarget,
       borderRadius: platformSpecific.buttonRadius,
       paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.md,
+      paddingVertical: spacing.sm,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
@@ -49,8 +52,12 @@ const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean)
       backgroundColor: fondo,
       borderWidth: 1,
       borderColor: borde,
+      ...(conSombra ? platformSpecific.shadow(2) : {}),
     },
-    pressed: { opacity: 0.85 },
+    pressed: {
+      opacity: 0.85,
+      backgroundColor: variant === 'secondary' ? c.primaryLight : fondo,
+    },
   });
 };
 

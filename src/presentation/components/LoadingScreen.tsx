@@ -16,7 +16,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ message }) => {
     <View style={[styles.container, { backgroundColor: globalColors.background }]}>
       <ActivityIndicator size="large" color={globalColors.accentPrimary} />
       {message ? (
-        <AppText variant="bodyMd" tone="secondary" style={styles.message}>
+        <AppText variant="body2" tone="secondary" style={styles.message}>
           {message}
         </AppText>
       ) : null}

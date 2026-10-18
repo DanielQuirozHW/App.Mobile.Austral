@@ -20,7 +20,7 @@ interface AppTextFieldProps extends Omit<TextInputProps, 'style'> {
   /** Mensaje de error. Si hay, el campo se marca en rojo. */
   error?: string;
   helperText?: string;
-  /** Agrega un asterisco a la etiqueta. */
+  /** Agrega un asterisco rojo a la etiqueta. */
   required?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 }
@@ -31,6 +31,8 @@ interface EstadoVisual {
   editable: boolean;
 }
 
+// Campo del portal (overrides/input.ts): etiqueta arriba (no flotante), borde de 1.5 px, radio 6,
+// borde azul al enfocar, borde rojo con error. Deshabilitado: el texto conserva su color.
 const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual) => {
   const borde = estado.hasError ? c.danger : estado.focused ? c.accentPrimary : c.border;
 
@@ -40,7 +42,7 @@ const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual
       minHeight: platformSpecific.minTouchTarget,
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 1,
+      borderWidth: 1.5,
       borderColor: borde,
       borderRadius: borderRadius.input,
       backgroundColor: estado.editable ? c.inputBackground : c.inputDisabled,
@@ -48,8 +50,8 @@ const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual
     },
     input: {
       flex: 1,
-      ...t.bodyLg,
-      color: estado.editable ? c.text : c.textTertiary,
+      ...t.body1,
+      color: c.text,
       paddingVertical: spacing.sm,
       includeFontPadding: false,
     },
@@ -96,8 +98,13 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
   return (
     <View style={[styles.wrapper, containerStyle]}>
       {label ? (
-        <AppText variant="labelMd" tone="secondary">
-          {required ? `${label} *` : label}
+        <AppText variant="label" tone="secondary">
+          {label}
+          {required ? (
+            <AppText variant="label" tone="danger">
+              {' *'}
+            </AppText>
+          ) : null}
         </AppText>
       ) : null}
 
@@ -128,7 +135,7 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
             style={styles.toggle}
           >
             <AppIcon
-              name={oculto ? 'eye-outline' : 'eye-off-outline'}
+              name={oculto ? 'eye-off-outline' : 'eye-outline'}
               size={iconSizes.lg}
               color={globalColors.textSecondary}
             />
@@ -137,11 +144,11 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
       </View>
 
       {hayError ? (
-        <AppText variant="caption" tone="danger">
+        <AppText variant="helper" tone="danger">
           {error}
         </AppText>
       ) : helperText ? (
-        <AppText variant="caption" tone="tertiary">
+        <AppText variant="helper" tone="tertiary">
           {helperText}
         </AppText>
       ) : null}
