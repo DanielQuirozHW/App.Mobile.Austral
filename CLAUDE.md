@@ -75,7 +75,7 @@ Todo se accede por el conector MCP de GitHub. La escritura va solo en este repo.
 
 ## Stack (resumen; el detalle y las versiones están en `docs/STACK.md`)
 
-React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios y el aspecto del portal, Reanimated, React Native Firebase (login con Microsoft), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, datetimepicker, react-native-dotenv.
+React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios y el aspecto del portal, Reanimated, React Native Firebase (login con Microsoft, Firestore, Storage), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, datetimepicker, react-native-dotenv.
 
 ## Cómo se construye
 
@@ -92,7 +92,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 2. Cliente HTTP, token y endpoints; adaptadores de almacenamiento.
 3. Autenticación (Microsoft, email/contraseña, validación del empleado, `usuarios` en Firestore, cierre de sesión). Sin registro ni recuperación.
 4. Navegación, selección de puesto y guardas por rol.
-5. Foto de perfil y de portada.
+5. Foto de perfil y cabecera del legajo (la portada no se construye; decisión 46).
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
 7. Funciones de Nombramientos y Promoción.
 
@@ -101,7 +101,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 ## Alcance
 
 - Autenticación: se migra lo que hace el portal, **salvo registro y recuperar contraseña** (decisión 36: las cuentas con usuario y contraseña las crea Austral en Firebase). El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Se mantiene la selección de puesto. Sin probar y con credenciales vacías.
-- Foto de perfil y de portada: se migran en la medida en que el portal las tiene.
+- Foto de perfil: migrada. Foto de portada: no (decisión 46).
 - Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Es de lo último que se construye.
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
 - Los demás módulos del MVP están por definir. No se asume ni se construye ninguno hasta que se confirme.
@@ -136,11 +136,12 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/domain/roles/` | Roles y funciones de Nombramientos/Promoción (port de las reglas del portal) |
 | `src/domain/auth/` | Tipos de sesión y textos de error (`authError.ts`) |
 | `src/domain/legajo/` | Datos personales sin UI: tipos, opciones fijas, mapeo del CRM, validación (yup), formulario, payloads, teléfono, fechas, archivos, tipo de contratación |
-| `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`) y colección `usuarios` de Firestore |
+| `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`), colección `usuarios` de Firestore (`usuariosFirestore.ts`) y fotos en Storage (`fotosStorage.ts`) |
 | `src/infrastructure/legajo/` | Llamadas a la API de Datos personales: legajo, familiares y adjuntos, catálogos, credencial de servicio |
-| `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara) y visor de adjuntos |
+| `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara), selección de la foto de perfil y visor de adjuntos |
 | `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
 | `src/application/auth/authService.ts` | Login Microsoft y email, logout, escucha de sesión y revalidación |
+| `src/application/auth/fotoPerfilService.ts` | Cambio de foto de perfil (Storage + `usuarios`) |
 | `src/application/legajo/legajoService.ts` | Flujos de Datos personales (guardar legajo, cónyuge, hijos/as, bajas, adjuntos) |
 | `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `toastStore` |
 | `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
@@ -151,11 +152,11 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/presentation/utils/` | `responsive.ts` (escala, espacios, radios) y `toast.ts` (avisos) |
 | `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
 | `src/presentation/components/form/` | Campos de formulario: `SelectField`, `DateField`, `FormTextField`, `FormSelectField`, `FormDateField`, `FormTileSelector`, `ScrollFormulario` |
-| `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos`, `PerfilLegajoBanner`, `FilaDato` |
+| `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos`, `PerfilLegajoBanner` (cabecera con foto de perfil), `FilaDato` |
 | `src/assets/images/logos.ts` | Logos (hoy `null` hasta copiar las imágenes; ver `docs/SETUP-NATIVO.md`) |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
 | `.env.template` | Nombres de variables de entorno, sin valores |
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 6 escrita: Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar. Siguen las fotos de perfil y portada (etapa 5, con la lectura de `LegajoPageHeader` / `UserProfileBanner`) y las funciones de Nombramientos y Promoción (etapa 7). Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar. Sigue la etapa 7: uso de las funciones de Nombramientos y Promoción en navegación y guardas. Todo sin probar. No hay carpetas nativas todavía.

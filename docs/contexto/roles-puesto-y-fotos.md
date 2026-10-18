@@ -37,6 +37,12 @@
 ## Foto de perfil y portada
 
 - Imágenes en Firebase Storage: perfil `{uid}/foto perfil`, portada `{uid}/foto portada`. Las URLs se guardan en el documento de `usuarios` (`photoURL`, `photoPORTADA`).
-- `UserProfileBanner.tsx` y `PerfilHeader.tsx` (`P:src/app/(dashboard)/legajo/_components/`): subida de foto de perfil (png, jpg, jpeg) convertida a blob, actualización vía `actualizarFotoPerfil`, iniciales como respaldo y rol visible. `PerfilHeader` incluye `actualizarFotoPortada`; falta confirmar si hay UI que la use (ver PENDIENTES).
+- `actualizarFotoPerfil(imgEditada: Blob)` (`P:src/context/AuthContext.tsx`): aviso "Cargando..."; `uploadBytes` a `{uid}/foto perfil`; `getDownloadURL`; busca el documento de `usuarios` con `where('uid','==',uid)`; `updateDoc(photoURL)`; actualiza `user.photoURL`; "Tu foto se ha cargado correctamente.". Errores: "Usuario no encontrado.", "UID de usuario no definido.", "Error al actualizar la foto de perfil". `actualizarFotoPortada` es igual con `{uid}/foto portada` y `photoPORTADA`.
+- Cabecera del legajo (`P:src/app/(dashboard)/legajo/_components/UserProfileBanner.tsx`, **leído**): tarjeta con avatar (72 px; foto o iniciales con `getInitials(user.fullname)`), botón de cámara de 24 px que abre el selector de archivos (acepta png, jpg, jpeg; si no: "El formato de la foto debe ser png/jpg/jpeg"), nombre completo, puesto (`DOCENTE`, `STAFF`, `DOCENTE · STAFF`) y la sede (`localidadLabel`). **No muestra foto de portada.** `LegajoPageHeader.tsx` es solo un breadcrumb "Legajo > {página}".
+- La carpeta `_components/component` del portal tiene también un `PerfilHeader.tsx`; la página de Datos personales importa `UserProfileBanner`, no `PerfilHeader`. No se leyó `PerfilHeader` ni se confirmó si alguna pantalla lo usa, por eso la portada no se migra (ver PENDIENTES).
 - Reglas de Storage/Firestore (`P:firestore.rules`): cualquier usuario autenticado lee y escribe todo. Es del portal; la app no lo toca.
 - El prototipo (`config/adapters/firebase-uses.ts`) ya tiene un patrón para esto: `uploadBytes` + `getDownloadURL` + `updateDoc` del documento `usuarios` por `uid`, y `updateProfile` aislado en un try/catch. **Se toma el patrón, no la ruta**: el prototipo usa `foto_perfil` y el portal `foto perfil`.
+
+## En la app
+
+`infrastructure/auth/fotosStorage.ts` (Storage), `infrastructure/archivos/seleccionFoto.ts` (galería o cámara, valida png/jpg/jpeg), `application/auth/fotoPerfilService.ts` (flujo del portal) y `presentation/components/legajo/PerfilLegajoBanner.tsx` (cabecera).
