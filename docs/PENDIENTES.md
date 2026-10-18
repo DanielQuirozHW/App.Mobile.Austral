@@ -5,32 +5,29 @@ Se actualiza. Tres tipos: decisiones de Daniel, tareas externas al código y cos
 ## Decisiones de Daniel
 
 - Qué otros módulos entran en el MVP después de Datos personales.
-- **Seguridad del usuario de servicio**: el portal incluye sus credenciales en el bundle web (`NEXT_PUBLIC_*`). Si la app replica el esquema, quedan dentro del APK/IPA. Decisión del equipo.
-- Foto de perfil y de portada (forman parte del `AuthContext` del portal): confirmar si entran con el login.
-- Funciones de Nombramientos y Promoción: el portal las calcula en el login y las guarda en la sesión. Confirmar si se migran con el login o junto con esos módulos.
-- Pantalla de selección de puesto cuando el usuario es docente y codocente: se migra (está en el login); falta leer cómo la resuelve el portal.
-- Fechas: el portal usa `dayjs` y el prototipo `moment`. Se define en el plan.
-- Librerías de UI y de formularios para la app (el prototipo usa UI Kitten y React Native Paper). Se define en el plan.
-- Cómo se resuelve la advertencia de cambios sin guardar (en web es `beforeunload`; en mobile corresponde una confirmación al salir).
+- Fechas: el portal usa `dayjs` y el prototipo `moment`. Se propone en el plan.
+- Librerías de UI y de formularios: el prototipo usa UI Kitten (Eva) y React Native Paper. Se propone en el plan.
+- Advertencia de cambios sin guardar (en web es `beforeunload`; en mobile corresponde una confirmación al salir). Se propone en el plan.
 
-## Tareas externas al código (las hace Daniel)
+## Tareas externas al código (las hace Daniel, más adelante)
 
-- Registrar las apps iOS y Android en el proyecto Firebase del portal. Necesario para el login y para SAML.
-- Definir y configurar cómo funciona SAML en mobile (en el portal es `signInWithPopup`, propio de web).
+- Registrar las apps iOS y Android en el proyecto Firebase del portal (necesario para el login y SAML).
+- Definir cómo funciona SAML en mobile (en el portal es `signInWithPopup`, propio de web).
 - Definir la URL de continuación del correo de recuperación de contraseña (en el portal es `{origin}/login`).
 - Cargar los valores reales en un `.env` local (nombres en `.env.template`). Nunca se commitean.
 - Archivos de configuración de Firebase para mobile (`google-services.json`, `GoogleService-Info.plist`): están en `.gitignore`.
-- Verificar la discrepancia del nombre de la variable del sender id de Firebase: el código del portal lee `..._MASSAGING_SENDER_ID`, y su README dice `MESSAGING`.
+- Variable del sender id de Firebase: el código del portal lee `..._MASSAGING_SENDER_ID` y su README dice `MESSAGING`. Vale el código.
 - Todas las pruebas.
 
-## Falta leer antes de construir
+## Falta confirmar en el código del portal
 
-Ver el final de cada documento de `docs/contexto/`. Lo principal:
-
-- Portal, auth: `roleContext.tsx`, `ProtectedRoute`, `/seleccionar-puesto`, pantallas de login/registro/recuperación, `useAuth.ts`, `authError.ts`, `data-encrypt`, `firestore.rules`, y los resolvedores de funciones de Nombramientos y Promoción.
-- Portal, Datos personales: `tipoContratacion.ts`, modales de cónyuge e hijos, adjuntos, columnas, hooks de catálogos, `LegajoPageHeader`, `UserProfileBanner`.
-- API: controllers (`HROneClickController`, `ConsultafetchController`, `V1/*`), `Program.cs`, y diferencia entre `consultafetch` y `consultafetchs`.
-- Prototipo: `skill-rn-ui.md`, `theme.json`, archivos de tema, componentes compartidos, navegadores y `firebase-uses.ts`.
+- Foto de portada: `PerfilHeader.tsx` tiene `actualizarFotoPortada`, pero no se confirmó que exista una pantalla que la use ni dónde se muestra `photoPORTADA`. Se lee antes de construir esa parte.
+- Ruta de la foto de perfil en Storage: el portal usa `{uid}/foto perfil` (con espacio) y el prototipo `{uid}/foto_perfil`. Vale el portal.
+- Tipos de archivo y tamaño que acepta `FileUploaderMultiple` (adjuntos).
+- Detalle de campos de `ModalConyuge` (se vuelve a leer al construirlo).
+- Componentes de campo del portal (`CustomTextField`, `CustomSearchSelect`, `CustomDateField`): solo se necesita el comportamiento, la UI se hace con los patrones RN.
+- API: controllers (`HROneClickController`, `ConsultafetchController`, `V1/*`) y diferencia entre `consultafetch` y `consultafetchs`, si hiciera falta para algún contrato.
+- Documentos de contexto por actualizar con lo leído: `portal-auth-y-tenant.md` y `cliente-http-y-endpoints.md` (ver `roles-puesto-y-fotos.md` para lo nuevo).
 
 ## Siguiente paso
 
