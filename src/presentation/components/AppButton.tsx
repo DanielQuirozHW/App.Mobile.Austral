@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ActivityIndicator, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { useThemeColors } from '../theme/theme';
 import { ColorTokens } from '../theme/colors';
-import { iconSizes, platformSpecific, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../utils/responsive';
 import { AppIcon, AppIconName } from './AppIcon';
 import { AppText } from './AppText';
 
@@ -15,6 +15,10 @@ interface AppButtonProps {
   loading?: boolean;
   disabled?: boolean;
   icon?: AppIconName;
+  /** true: el ícono va después del texto (endIcon del portal). */
+  iconAlFinal?: boolean;
+  /** true: botón grande de la pantalla de ingreso (alto 52 y radio 10, como login/page.tsx). */
+  grande?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
 }
@@ -28,7 +32,7 @@ const colorDeTexto = (variant: ButtonVariant, disabled: boolean, c: ColorTokens)
 
 // Botones del portal (overrides/button.ts): texto en mayúsculas y negrita, radio 6, alto grande 44.
 // primary = contained, secondary = outlined con borde del color primario.
-const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean) => {
+const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean, grande: boolean) => {
   const fondo = disabled
     ? c.inputDisabled
     : variant === 'primary'
@@ -41,8 +45,8 @@ const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean)
 
   return StyleSheet.create({
     button: {
-      minHeight: platformSpecific.minTouchTarget,
-      borderRadius: platformSpecific.buttonRadius,
+      minHeight: grande ? scale(52) : platformSpecific.minTouchTarget,
+      borderRadius: grande ? borderRadius.card : platformSpecific.buttonRadius,
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.sm,
       flexDirection: 'row',
@@ -68,16 +72,26 @@ export const AppButton = React.memo(function AppButton({
   loading = false,
   disabled = false,
   icon,
+  iconAlFinal = false,
+  grande = false,
   style,
   accessibilityLabel,
 }: AppButtonProps) {
   const { globalColors } = useThemeColors();
   const inactivo = disabled || loading;
   const styles = useMemo(
-    () => createStyles(globalColors, variant, inactivo),
-    [globalColors, variant, inactivo],
+    () => createStyles(globalColors, variant, inactivo, grande),
+    [globalColors, variant, inactivo, grande],
   );
   const color = colorDeTexto(variant, inactivo, globalColors);
+
+  // Con `loading` el portal cambia el ícono final por un spinner y mantiene el texto ("Ingresando...").
+  const iconoInicio = icon && !iconAlFinal ? <AppIcon name={icon} size={iconSizes.md} color={color} /> : null;
+  const iconoFinal = loading ? (
+    <ActivityIndicator color={color} size="small" />
+  ) : icon && iconAlFinal ? (
+    <AppIcon name={icon} size={iconSizes.md} color={color} />
+  ) : null;
 
   return (
     <Pressable
@@ -89,16 +103,11 @@ export const AppButton = React.memo(function AppButton({
       accessibilityState={{ disabled: inactivo, busy: loading }}
       style={({ pressed }) => [styles.button, pressed && styles.pressed, style]}
     >
-      {loading ? (
-        <ActivityIndicator color={color} />
-      ) : (
-        <>
-          {icon ? <AppIcon name={icon} size={iconSizes.md} color={color} /> : null}
-          <AppText variant="button" locked style={{ color }}>
-            {title}
-          </AppText>
-        </>
-      )}
+      {iconoInicio}
+      <AppText variant="button" locked style={{ color }}>
+        {title}
+      </AppText>
+      {iconoFinal}
     </Pressable>
   );
 });

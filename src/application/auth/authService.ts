@@ -1,12 +1,14 @@
 // Flujos de autenticación. Port de Portal-Austral-Dev -> src/context/AuthContext.tsx
 // La navegación NO se hace acá (el portal usa router.replace): el navegador reacciona al estado de authStore.
 //
-// DIFERENCIAS CONSCIENTES respecto del portal (todas documentadas en docs/DECISIONES.md y PENDIENTES.md):
+// DIFERENCIAS CONSCIENTES respecto del portal (documentadas en docs/DECISIONES.md y PENDIENTES.md):
 //  - Microsoft: signInWithRedirect del SDK nativo con OAuthProvider('microsoft.com') en vez de signInWithPopup + provider SAML.
 //  - `recordar`: el portal solo guarda userData cifrado en localStorage; la persistencia de sesión es del SDK de Firebase.
 //    En la app no hay nada equivalente que guardar: Firebase persiste la sesión por sí mismo.
 //  - Recuperar contraseña: sin actionCodeSettings (en el portal la URL de continuación es el origin web + /login).
 //  - Se evita enviar `undefined` a Firestore (photoURL/photoPORTADA ausentes se guardan como '').
+//  - Mientras corre un login/registro la escucha de sesión NO publica el usuario (ver `autenticando`).
+//    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
 import {
   OAuthProvider,
   createUserWithEmailAndPassword,
@@ -41,15 +43,36 @@ import {
   buscarUsuarioPorUid,
   crearUsuarioConId,
   leerUsuarioPorId,
-  referenciaUsuarioPorId,
   type UsuarioDoc,
 } from '../../infrastructure/auth/usuariosFirestore';
 import { CLAVE_ROL_SELECCIONADO, borrarTexto } from '../../infrastructure/storage/almacenamiento';
 import { useAuthStore } from '../../presentation/stores/authStore';
+import { useRolStore } from '../../presentation/stores/rolStore';
 
 // ---------------------------------------------------------------------------
 // Utilidades
 // ---------------------------------------------------------------------------
+
+// true mientras corre un login o un registro. La escucha de sesión no publica el usuario en ese lapso:
+// lo publica el propio flujo cuando terminó de validar (o no lo publica si la validación falla).
+let autenticando = false;
+
+const conAutenticacion = async <T>(accion: () => Promise<T>): Promise<T> => {
+  autenticando = true;
+  try {
+    return await accion();
+  } finally {
+    autenticando = false;
+  }
+};
+
+/** Publica el usuario. Si tiene dos puestos, marca la selección pendiente ANTES, para que no se vea la pantalla de inicio. */
+const publicarUsuario = (user: UserData, puestos: string | string[]): ResultadoLogin => {
+  const variosPuestos = Array.isArray(puestos) && puestos.length > 1;
+  if (variosPuestos) useRolStore.getState().marcarSeleccionPendiente();
+  useAuthStore.getState().setUser(user);
+  return { requiereSeleccionDePuesto: variosPuestos };
+};
 
 /** Valida al empleado contra el BO. Cierra la sesión de Firebase SOLO si la cuenta realmente no existe. */
 const validarEmpleado = async (email: string, variante: VarianteConsulta) => {
@@ -84,47 +107,45 @@ const usuarioDesdeDoc = (data: Record<string, any>): UserData => ({
 // Login con email y contraseña (handleLogin)
 // ---------------------------------------------------------------------------
 
-export const loginConEmail = async ({ email, password }: LoginParams): Promise<ResultadoLogin> => {
-  const credencial = await signInWithEmailAndPassword(getAuth(), email, password);
-  const { empleado, funciones, puesto } = await validarEmpleado(email, 'email');
+export const loginConEmail = ({ email, password }: LoginParams): Promise<ResultadoLogin> =>
+  conAutenticacion(async () => {
+    const credencial = await signInWithEmailAndPassword(getAuth(), email, password);
+    const { empleado, funciones, puesto } = await validarEmpleado(email, 'email');
 
-  const uid = credencial.user.uid;
-  const usuario = await buscarUsuarioPorUid(uid);
-  // Igual que el portal: si no hay documento en `usuarios`, no se hace nada más.
-  if (!usuario) return { requiereSeleccionDePuesto: false };
+    const uid = credencial.user.uid;
+    const usuario = await buscarUsuarioPorUid(uid);
+    // Igual que el portal: si no hay documento en `usuarios`, no se hace nada más.
+    if (!usuario) return { requiereSeleccionDePuesto: false };
 
-  const datos = usuario.data;
-  // El nombre sale del BO (fresco), no del documento.
-  const fullname = empleado.new_name || datos.fullname;
+    const datos = usuario.data;
+    // El nombre sale del BO (fresco), no del documento.
+    const fullname = empleado.new_name || datos.fullname;
 
-  await actualizarUsuario(usuario.ref, {
-    puesto,
-    funcionNombramientos: funciones.nombramientos,
-    funcionPromocion: funciones.promocion,
-    fullname,
+    await actualizarUsuario(usuario.ref, {
+      puesto,
+      funcionNombramientos: funciones.nombramientos,
+      funcionPromocion: funciones.promocion,
+      fullname,
+    });
+
+    const roles = Array.isArray(puesto) ? puesto : [puesto];
+    const comunes: UserData = {
+      empleadoid: datos.empleadoid,
+      usuarioPortalRh: datos.usuarioPortalRh,
+      photoURL: datos.photoURL,
+      photoPORTADA: datos.photoPORTADA,
+      puesto: roles,
+      funcionNombramientos: funciones.nombramientos,
+      funcionPromocion: funciones.promocion,
+      uid,
+      email: datos.correoElectronico,
+      fullname,
+    };
+
+    // Dos puestos: array. Uno solo: el valor suelto (como el portal).
+    if (roles.length > 1) return publicarUsuario({ ...comunes, puesto: roles }, roles);
+    return publicarUsuario({ ...comunes, puesto: roles[0] }, roles[0]);
   });
-
-  const roles = Array.isArray(puesto) ? puesto : [puesto];
-  const comunes: UserData = {
-    empleadoid: datos.empleadoid,
-    usuarioPortalRh: datos.usuarioPortalRh,
-    photoURL: datos.photoURL,
-    photoPORTADA: datos.photoPORTADA,
-    puesto: roles,
-    funcionNombramientos: funciones.nombramientos,
-    funcionPromocion: funciones.promocion,
-    uid,
-    email: datos.correoElectronico,
-    fullname,
-  };
-
-  if (roles.length > 1) {
-    useAuthStore.getState().setUser({ ...comunes, puesto: roles });
-    return { requiereSeleccionDePuesto: true };
-  }
-  useAuthStore.getState().setUser({ ...comunes, puesto: roles[0] });
-  return { requiereSeleccionDePuesto: false };
-};
 
 // ---------------------------------------------------------------------------
 // Login con cuenta Microsoft @austral (handleLoginSAML)
@@ -137,6 +158,7 @@ export class LoginCanceladoError extends Error {
   }
 }
 
+// Textos de handleError del portal.
 const MSG_CUENTAS_DISTINTAS =
   'Ya existe una cuenta con diferentes credenciales. Si te registraste con correo y contraseña, debes usar ese metodo.';
 const MSG_PROVEEDOR_DESHABILITADO =
@@ -145,92 +167,90 @@ const MSG_ERROR_GENERICO_LOGIN = 'Hubo un error al iniciar sesión, por favor in
 
 const mensajeDeErrorMicrosoft = (error: any): string => {
   if (error?.code === 'auth/account-exists-with-different-credential') return MSG_CUENTAS_DISTINTAS;
-  if (error?.code === 'auth/operation-not-allowed') return MSG_PROVEEDOR_DISTINTO_O_DESHABILITADO();
+  if (error?.code === 'auth/operation-not-allowed') return MSG_PROVEEDOR_DESHABILITADO;
   return MSG_ERROR_GENERICO_LOGIN;
 };
-// (función auxiliar para mantener el mensaje del portal en un solo lugar)
-function MSG_PROVEEDOR_DISTINTO_O_DESHABILITADO(): string {
-  return MSG_PROVEEDOR_DESHABILITADO;
-}
 
 // Códigos que el portal trata como "el usuario cerró el popup" (no se muestra nada).
 // A VERIFICAR: el código que devuelve el SDK nativo al cancelar (ver docs/PENDIENTES.md).
 const CODIGOS_CANCELACION = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
 
-export const loginConMicrosoft = async (): Promise<ResultadoLogin> => {
-  let usuarioFirebase;
-  try {
-    const proveedor = new OAuthProvider('microsoft.com');
-    if (env.microsoftTenant) proveedor.setCustomParameters({ tenant: env.microsoftTenant });
-    const resultado = await signInWithRedirect(getAuth(), proveedor);
-    usuarioFirebase = resultado.user;
-  } catch (error: any) {
-    if (CODIGOS_CANCELACION.includes(error?.code)) throw new LoginCanceladoError();
-    throw new Error(mensajeDeErrorMicrosoft(error));
-  }
+export const loginConMicrosoft = (): Promise<ResultadoLogin> =>
+  conAutenticacion(async () => {
+    let usuarioFirebase;
+    try {
+      const proveedor = new OAuthProvider('microsoft.com');
+      if (env.microsoftTenant) proveedor.setCustomParameters({ tenant: env.microsoftTenant });
+      const resultado = await signInWithRedirect(getAuth(), proveedor);
+      usuarioFirebase = resultado.user;
+    } catch (error: any) {
+      if (CODIGOS_CANCELACION.includes(error?.code)) throw new LoginCanceladoError();
+      throw new Error(mensajeDeErrorMicrosoft(error));
+    }
 
-  try {
-    const { empleado, funciones, puesto } = await validarEmpleado(usuarioFirebase.email ?? '', 'microsoft');
-    const uid = usuarioFirebase.uid;
-    const existente = await leerUsuarioPorId(uid);
+    try {
+      const { empleado, funciones, puesto } = await validarEmpleado(usuarioFirebase.email ?? '', 'microsoft');
+      const uid = usuarioFirebase.uid;
+      const existente = await leerUsuarioPorId(uid);
 
-    const nuevo: UserData = {
-      empleadoid: empleado.new_empleadoid ?? '',
-      usuarioPortalRh: empleado.new_correoelectronicoportal ?? '',
-      fullname: empleado.new_name ?? '',
-      photoURL: existente?.data.photoURL ?? '',
-      photoPORTADA: existente?.data.photoPORTADA ?? '',
-      puesto,
-      funcionNombramientos: funciones.nombramientos,
-      funcionPromocion: funciones.promocion,
-      uid,
-      email: empleado.new_correoelectronicoportal ?? '',
-    };
+      const nuevo: UserData = {
+        empleadoid: empleado.new_empleadoid ?? '',
+        usuarioPortalRh: empleado.new_correoelectronicoportal ?? '',
+        fullname: empleado.new_name ?? '',
+        photoURL: existente?.data.photoURL ?? '',
+        photoPORTADA: existente?.data.photoPORTADA ?? '',
+        puesto,
+        funcionNombramientos: funciones.nombramientos,
+        funcionPromocion: funciones.promocion,
+        uid,
+        email: empleado.new_correoelectronicoportal ?? '',
+      };
 
-    if (existente) await actualizarUsuario(existente.ref, nuevo);
-    else await crearUsuarioConId(uid, nuevo);
+      if (existente) await actualizarUsuario(existente.ref, nuevo);
+      else await crearUsuarioConId(uid, nuevo);
 
-    useAuthStore.getState().setUser(nuevo);
-    return { requiereSeleccionDePuesto: Array.isArray(puesto) && puesto.length > 1 };
-  } catch (error: any) {
-    // Los errores de validación ya traen su mensaje final; el resto es el genérico del portal.
-    const conocido = [MSG_ERROR_TRANSITORIO, MSG_CUENTA_INEXISTENTE_O_DESHABILITADA];
-    if (conocido.includes(error?.message)) throw error;
-    throw new Error('Hubo un error al iniciar sesión, por favor intente más tarde');
-  }
-};
+      return publicarUsuario(nuevo, puesto);
+    } catch (error: any) {
+      // Los errores de validación ya traen su mensaje final; el resto es el genérico del portal.
+      const conocidos = [MSG_ERROR_TRANSITORIO, MSG_CUENTA_INEXISTENTE_O_DESHABILITADA];
+      if (conocidos.includes(error?.message)) throw error;
+      throw new Error(MSG_ERROR_GENERICO_LOGIN);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // Registro (handleRegister)
 // ---------------------------------------------------------------------------
 
-export const registrar = async ({ email, password }: RegisterParams): Promise<void> => {
-  // El portal usa el token ya cargado al arrancar; acá se asegura (single-flight, no duplica el POST).
-  await useTokenStore.getState().loginToken();
-  const token = useTokenStore.getState().token?.token ?? '';
+export const registrar = ({ email, password }: RegisterParams): Promise<void> =>
+  conAutenticacion(async () => {
+    // El portal usa el token ya cargado al arrancar; acá se asegura (single-flight, no duplica el POST).
+    await useTokenStore.getState().loginToken();
+    const token = useTokenStore.getState().token?.token ?? '';
 
-  const datos = await buscarEmpleadoParaRegistro(email, token);
-  if (!datos) throw new Error(MSG_CUENTA_INEXISTENTE);
+    const datos = await buscarEmpleadoParaRegistro(email, token);
+    if (!datos) throw new Error(MSG_CUENTA_INEXISTENTE);
 
-  const credencial = await createUserWithEmailAndPassword(getAuth(), email, password);
-  const uid = credencial.user.uid;
+    const credencial = await createUserWithEmailAndPassword(getAuth(), email, password);
+    const uid = credencial.user.uid;
 
-  await agregarUsuario({
-    correoElectronico: email,
-    empleadoid: datos.new_empleadoid,
-    fullname: datos.new_name,
-    ownerid: datos._ownerid_value,
-    uid,
-    usuarioPortalRh: email,
-    puesto: datos._new_puesto_value ?? '',
-    photoURL: '',
-    photoPORTADA: '',
+    await agregarUsuario({
+      correoElectronico: email,
+      empleadoid: datos.new_empleadoid,
+      fullname: datos.new_name,
+      ownerid: datos._ownerid_value,
+      uid,
+      usuarioPortalRh: email,
+      puesto: datos._new_puesto_value ?? '',
+      photoURL: '',
+      photoPORTADA: '',
+    });
+
+    // En el portal la escucha de sesión se dispara al crear la cuenta, antes de que exista el documento:
+    // se carga el usuario recién creado.
+    const usuario = await buscarUsuarioPorUid(uid);
+    if (usuario) useAuthStore.getState().setUser(usuarioDesdeDoc(usuario.data));
   });
-
-  // La escucha de sesión se dispara al crear la cuenta, antes de que exista el documento: se recarga el usuario.
-  const usuario = await buscarUsuarioPorUid(uid);
-  if (usuario) useAuthStore.getState().setUser(usuarioDesdeDoc(usuario.data));
-};
 
 // ---------------------------------------------------------------------------
 // Recuperar contraseña (handleForgotPassword)
@@ -252,6 +272,7 @@ export const cerrarSesion = async (): Promise<void> => {
   try {
     await signOut(getAuth());
     store.setUser(null);
+    useRolStore.getState().reiniciar();
     await borrarTexto(CLAVE_ROL_SELECCIONADO);
     setTimeout(() => useAuthStore.getState().setCerrandoSesion(false), 1500);
   } catch (error) {
@@ -320,7 +341,7 @@ const revalidarPuestoEnBackground = async (ref: UsuarioDoc['ref'], correo: strin
 
 /**
  * Escucha el estado de Firebase Auth. Devuelve la función para dejar de escuchar.
- * Se llama una sola vez al arrancar la app (ver AppProviders).
+ * Se llama una sola vez al arrancar la app (ver RootNavigator).
  */
 export const escucharSesion = (): (() => void) => {
   // El portal pide el token de servicio al montar el provider.
@@ -331,7 +352,8 @@ export const escucharSesion = (): (() => void) => {
     if (usuarioFirebase) {
       try {
         const usuario = await buscarUsuarioPorUid(usuarioFirebase.uid);
-        if (usuario) {
+        // Si hay un login en curso, el usuario lo publica el propio flujo (ver `autenticando`).
+        if (usuario && !autenticando) {
           store.setUser(usuarioDesdeDoc(usuario.data));
           void revalidarPuestoEnBackground(usuario.ref, usuario.data.correoElectronico);
         }
@@ -353,5 +375,3 @@ export const escucharSesion = (): (() => void) => {
     detenerRenovacionPeriodica();
   };
 };
-
-export { referenciaUsuarioPorId };

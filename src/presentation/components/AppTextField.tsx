@@ -17,6 +17,8 @@ import { AppText } from './AppText';
 
 interface AppTextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string;
+  /** Variante de la etiqueta: 'label' (11 px, 600) o 'overline' (mayúsculas, como el ingreso del portal). */
+  labelVariant?: 'label' | 'overline';
   /** Mensaje de error. Si hay, el campo se marca en rojo. */
   error?: string;
   helperText?: string;
@@ -72,6 +74,7 @@ const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual
 export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function AppTextField(
   {
     label,
+    labelVariant = 'label',
     error,
     helperText,
     required,
@@ -98,10 +101,10 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
   return (
     <View style={[styles.wrapper, containerStyle]}>
       {label ? (
-        <AppText variant="label" tone="secondary">
+        <AppText variant={labelVariant} tone="secondary">
           {label}
           {required ? (
-            <AppText variant="label" tone="danger">
+            <AppText variant={labelVariant} tone="danger">
               {' *'}
             </AppText>
           ) : null}
