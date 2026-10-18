@@ -34,11 +34,13 @@ El nombre `AustralMobile` tiene que coincidir con el `name` de `app.json`.
 | **Fuentes Montserrat** 400, 500, 600 y 700 (Google Fonts) en `android/app/src/main/assets/fonts` e iOS (`Info.plist` + target). Nombres: `Montserrat-Regular`, `Montserrat-Medium`, `Montserrat-SemiBold`, `Montserrat-Bold` | Tipografía del portal (`src/styles/fonts.ts`). |
 | Plugin de Babel de `react-native-worklets` (último en la lista) | Reanimated 4. Ya está en `babel.config.js`. |
 | Bloquear la orientación en vertical (Android: `screenOrientation` en el manifest; iOS: orientaciones permitidas) | `responsive.ts` calcula la escala una sola vez al iniciar. |
-| Permisos de cámara y galería (`AndroidManifest.xml`, `Info.plist`) | Foto de perfil/portada y adjuntos. |
+| Permiso de **cámara** (`android.permission.CAMERA` en `AndroidManifest.xml`; `NSCameraUsageDescription` en `Info.plist`) y de **galería** (`NSPhotoLibraryUsageDescription` en iOS) | Foto de perfil/portada y adjuntos de familiares (`launchCamera`, `launchImageLibrary`). |
+| Configuración de `@react-native-documents/picker` y `@react-native-documents/viewer` según su README (en Android el visor puede necesitar el `FileProvider` y el identificador de la aplicación) | Elegir y abrir adjuntos (PDF, imágenes, DOC, DOCX). |
+| Configuración de `react-native-blob-util` según su README | Escribir en caché los adjuntos que llegan en base64 antes de abrirlos. |
+| Configuración de `@react-native-community/datetimepicker` según su README | Selector de fecha nativo. |
 | Fuentes de íconos de `@react-native-vector-icons/ionicons` | Configuración del paquete (ver su README). |
 | Keychain: descripción de Face ID en `Info.plist` si se usa biometría | Lo indica el README de react-native-keychain. |
 | Reiniciar Metro con `--reset-cache` después de crear o cambiar `.env` | react-native-dotenv inlinea las variables al compilar. |
-| Definir la URL de continuación del correo de recuperación de contraseña | En el portal es `{origin}/login`. |
 
 ## 4. Imágenes y logos del portal
 
@@ -57,3 +59,4 @@ Mientras valgan `null`, `LogoAustral` muestra "Universidad Austral" en texto. No
 
 - Si el `uid` que devuelve el login con Microsoft coincide con el de SAML (los documentos de `usuarios` y las fotos están indexados por `uid`).
 - Si hace falta restringir el login al dominio de Austral con la variable `MICROSOFT_TENANT`.
+- Las cuentas con usuario y contraseña se crean en Firebase Auth y necesitan su documento en la colección `usuarios` (decisión 36).

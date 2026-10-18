@@ -41,7 +41,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 8. No tomar como fuente la documentación de los otros repos (README, ARCHITECTURE, CLAUDE.md, etc.): puede estar desactualizada o mal. Vale el código. Si no coinciden, se avisa la discrepancia.
 9. No clonar, hacer fork ni copiar contenido o historial del prototipo. Del prototipo se toma estructura y forma de programar, no contenido, lógica ni aspecto.
 10. No arrastrar errores heredados del prototipo (por ejemplo el typo "Protoype" o su README genérico de React Native).
-11. No construir módulos que no estén confirmados, ni agregar funcionalidades extra.
+11. No construir módulos que no estén confirmados, ni agregar funcionalidades extra. Registro y recuperar contraseña **no** se construyen (decisión 36).
 12. No inventar endpoints, payloads ni reglas de negocio: si no están en el código, se pregunta.
 13. No presentar como verificado algo que se supuso.
 14. No preguntar por la publicación de las apps ni por el registro en Firebase: se deja todo preparado y Daniel lo hace cuando decida.
@@ -75,7 +75,7 @@ Todo se accede por el conector MCP de GitHub. La escritura va solo en este repo.
 
 ## Stack (resumen; el detalle y las versiones están en `docs/STACK.md`)
 
-React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios y el aspecto del portal, Reanimated, React Native Firebase (login con Microsoft), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, react-native-dotenv.
+React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios y el aspecto del portal, Reanimated, React Native Firebase (login con Microsoft), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, datetimepicker, react-native-dotenv.
 
 ## Cómo se construye
 
@@ -90,7 +90,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 
 1. Base del proyecto (hecha): configuración, entorno, tema del portal, responsive, componentes base, providers.
 2. Cliente HTTP, token y endpoints; adaptadores de almacenamiento.
-3. Autenticación (Microsoft, email/contraseña, registro, recuperación, validación del empleado, `usuarios` en Firestore, cierre de sesión).
+3. Autenticación (Microsoft, email/contraseña, validación del empleado, `usuarios` en Firestore, cierre de sesión). Sin registro ni recuperación.
 4. Navegación, selección de puesto y guardas por rol.
 5. Foto de perfil y de portada.
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
@@ -100,7 +100,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 
 ## Alcance
 
-- Autenticación: se migra TODO lo que hace el portal. El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Sin probar y con credenciales vacías.
+- Autenticación: se migra lo que hace el portal, **salvo registro y recuperar contraseña** (decisión 36: las cuentas con usuario y contraseña las crea Austral en Firebase). El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Se mantiene la selección de puesto. Sin probar y con credenciales vacías.
 - Foto de perfil y de portada: se migran en la medida en que el portal las tiene.
 - Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Es de lo último que se construye.
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
@@ -132,23 +132,30 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `.claude/skills/` | Skills de trabajo para este repo |
 | `App.tsx` | Providers + `AppNavigation` |
 | `src/config/env.ts` | Variables de entorno (sin valores) |
-| `src/config/api/` | `apiClient.ts` (axios con reintentos, port del portal), `tokenStore.ts` (token del usuario de servicio), `queryClient.ts` |
+| `src/config/api/` | `apiClient.ts` (axios con reintentos, port del portal), `tokenStore.ts` (token del usuario de servicio), `endpoints.ts` (rutas), `fetchXml.ts` (consultas FetchXML), `apiError.ts`, `queryClient.ts` |
 | `src/domain/roles/` | Roles y funciones de Nombramientos/Promoción (port de las reglas del portal) |
 | `src/domain/auth/` | Tipos de sesión y textos de error (`authError.ts`) |
+| `src/domain/legajo/` | Datos personales sin UI: tipos, opciones fijas, mapeo del CRM, validación (yup), formulario, payloads, teléfono, fechas, archivos, tipo de contratación |
 | `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`) y colección `usuarios` de Firestore |
+| `src/infrastructure/legajo/` | Llamadas a la API de Datos personales: legajo, familiares y adjuntos, catálogos, credencial de servicio |
+| `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara) y visor de adjuntos |
 | `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
-| `src/application/auth/authService.ts` | Login Microsoft y email, registro, recuperación, logout, escucha de sesión y revalidación |
-| `src/presentation/stores/` | `authStore.ts` (user, loading, cerrandoSesion) y `rolStore.ts` (puesto elegido y selección pendiente) |
-| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
-| `src/presentation/screens/auth/` | `LoginScreen`, `RegistroScreen`, `OlvidasteContrasenaScreen`, `SeleccionarPuestoScreen` |
-| `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, cerrar sesión) |
+| `src/application/auth/authService.ts` | Login Microsoft y email, logout, escucha de sesión y revalidación |
+| `src/application/legajo/legajoService.ts` | Flujos de Datos personales (guardar legajo, cónyuge, hijos/as, bajas, adjuntos) |
+| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `toastStore` |
+| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
+| `src/presentation/screens/auth/` | `LoginScreen`, `SeleccionarPuestoScreen` |
+| `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, acceso a Datos personales, cerrar sesión) |
+| `src/presentation/screens/legajo/DatosPersonalesScreen.tsx` | Pantalla de Datos personales |
 | `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` permite forzar claro) |
-| `src/presentation/utils/responsive.ts` | Escala, espacios, radios, tamaños de fuente |
-| `src/presentation/components` | Componentes base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion` |
+| `src/presentation/utils/` | `responsive.ts` (escala, espacios, radios) y `toast.ts` (avisos) |
+| `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
+| `src/presentation/components/form/` | Campos de formulario: `SelectField`, `DateField`, `FormTextField`, `FormSelectField`, `FormDateField`, `FormTileSelector`, `ScrollFormulario` |
+| `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos`, `PerfilLegajoBanner`, `FilaDato` |
 | `src/assets/images/logos.ts` | Logos (hoy `null` hasta copiar las imágenes; ver `docs/SETUP-NATIVO.md`) |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
 | `.env.template` | Nombres de variables de entorno, sin valores |
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2 parcial: cliente HTTP y token escritos; faltan el módulo de endpoints y la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación completa (servicio, roles, errores, stores), pantallas de ingreso, registro, recuperación y selección de puesto, navegación raíz y un Inicio provisorio. Siguen las fotos de perfil y portada (etapa 5) y Datos personales (etapa 6). Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 6 escrita: Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar. Siguen las fotos de perfil y portada (etapa 5, con la lectura de `LegajoPageHeader` / `UserProfileBanner`) y las funciones de Nombramientos y Promoción (etapa 7). Todo sin probar. No hay carpetas nativas todavía.

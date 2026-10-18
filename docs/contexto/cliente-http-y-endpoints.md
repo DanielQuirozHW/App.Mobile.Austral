@@ -25,7 +25,7 @@ La API tiene un controller **legacy** (`A:Controllers/HROneClickController.cs`, 
 - `POST api/consultafetch` y `POST api/consultafetchs` con `{ entidad, fetch }`. `fetch` es un FetchXML y `entidad` el nombre del entity set (por ejemplo `new_empleados`). Devuelven un array de registros de Dataverse, con nombres `new_*` y anotaciones `@OData.Community.Display.V1.FormattedValue` para los valores de listas.
 - `PUT api/hrfactors/empleado` (actualizar empleado).
 - `POST | PUT | DELETE api/hrfactors/familiarEmpleado`.
-- `POST api/hrfactors/adjuntosolicitud?...` y `POST api/hrfactors/adjuntosDocumentacion?doc_empleado_id=...` (multipart/form-data).
+- `POST api/hrfactors/adjuntosolicitud?documentacionporfamiliardeempleado={id}` (multipart/form-data, un campo `file` por archivo): carga de adjuntos de un documento de familiar. También existe `POST api/hrfactors/adjuntosDocumentacion?doc_empleado_id=...`.
 
 No se verificó en este relevamiento la diferencia entre `consultafetch` y `consultafetchs`: el portal usa ambos. No asumir; copiar el que use cada pantalla.
 
@@ -38,6 +38,10 @@ No se verificó en este relevamiento la diferencia entre `consultafetch` y `cons
 ### v1 que existe pero que la pantalla Datos personales no usa (verificado en lo leído)
 
 `P:src/configs/endpoints.ts` declara rutas v1 como `empleados/{id}/perfil-personal` (GET/PUT), `empleados/{id}/familiares` y `empleados/{id}/solicitudes/...`. En lo leído, la pantalla Datos personales (`P:src/app/(dashboard)/legajo/datos-personales/page.tsx`) lee y escribe por el **legacy** (`useLegajoStore`). **Hay que hacer lo que hace la pantalla.** Si cambia, se avisa.
+
+## En la app
+
+Las rutas están centralizadas en `src/config/api/endpoints.ts` (base `${env.apiUrl}api/`); las consultas FetchXML pasan por `src/config/api/fetchXml.ts` (con `reintentos: 3` y `reintentarVacio`); los errores de escritura se traducen con `src/config/api/apiError.ts`.
 
 ## Convenciones de uso (verificado)
 
