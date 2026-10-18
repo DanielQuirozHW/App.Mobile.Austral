@@ -1,7 +1,7 @@
 // Navegador raíz. Reemplaza al guard de rutas del portal: según el estado de sesión y de puesto se muestran
 // unas pantallas u otras (al cambiar el estado, react-navigation hace la transición solo).
 //   - Firebase todavía no resolvió la sesión              -> Cargando
-//   - sin usuario con `empleadoid` (criterio del portal)  -> Login / Registro / OlvidasteContrasena
+//   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
 //   - resto                                              -> Inicio
 import React, { useEffect } from 'react';
@@ -10,8 +10,6 @@ import { escucharSesion } from '../../application/auth/authService';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { InicioScreen } from '../screens/InicioScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
-import { OlvidasteContrasenaScreen } from '../screens/auth/OlvidasteContrasenaScreen';
-import { RegistroScreen } from '../screens/auth/RegistroScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { useAuthStore } from '../stores/authStore';
 import { useRolStore } from '../stores/rolStore';
@@ -46,11 +44,7 @@ export const RootNavigator: React.FC = () => {
       {cargandoSesion || (autenticado && cargandoRol) ? (
         <Stack.Screen name="Cargando" component={CargandoScreen} />
       ) : !autenticado ? (
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Registro" component={RegistroScreen} />
-          <Stack.Screen name="OlvidasteContrasena" component={OlvidasteContrasenaScreen} />
-        </>
+        <Stack.Screen name="Login" component={LoginScreen} />
       ) : seleccionPendiente ? (
         <Stack.Screen name="SeleccionarPuesto" component={SeleccionarPuestoScreen} />
       ) : (

@@ -1,35 +1,30 @@
 // Flujos de autenticación. Port de Portal-Austral-Dev -> src/context/AuthContext.tsx
 // La navegación NO se hace acá (el portal usa router.replace): el navegador reacciona al estado de authStore.
 //
+// NO están el registro ni la recuperación de contraseña: las cuentas con usuario y contraseña las crea Austral
+// directamente desde Firebase (decisión 36).
+//
 // DIFERENCIAS CONSCIENTES respecto del portal (documentadas en docs/DECISIONES.md y PENDIENTES.md):
 //  - Microsoft: signInWithRedirect del SDK nativo con OAuthProvider('microsoft.com') en vez de signInWithPopup + provider SAML.
 //  - `recordar`: el portal solo guarda userData cifrado en localStorage; la persistencia de sesión es del SDK de Firebase.
 //    En la app no hay nada equivalente que guardar: Firebase persiste la sesión por sí mismo.
-//  - Recuperar contraseña: sin actionCodeSettings (en el portal la URL de continuación es el origin web + /login).
 //  - Se evita enviar `undefined` a Firestore (photoURL/photoPORTADA ausentes se guardan como '').
-//  - Mientras corre un login/registro la escucha de sesión NO publica el usuario (ver `autenticando`).
+//  - Mientras corre un login la escucha de sesión NO publica el usuario (ver `autenticando`).
 //    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
 import {
   OAuthProvider,
-  createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
-  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithRedirect,
   signOut,
 } from '@react-native-firebase/auth';
 import { env } from '../../config/env';
 import { detenerRenovacionPeriodica, iniciarRenovacionPeriodica, useTokenStore } from '../../config/api/tokenStore';
-import {
-  MSG_CUENTA_INEXISTENTE,
-  MSG_CUENTA_INEXISTENTE_O_DESHABILITADA,
-  MSG_ERROR_TRANSITORIO,
-} from '../../domain/auth/authError';
-import type { LoginParams, RegisterParams, ResultadoLogin, UserData } from '../../domain/auth/tipos';
+import { MSG_CUENTA_INEXISTENTE_O_DESHABILITADA, MSG_ERROR_TRANSITORIO } from '../../domain/auth/authError';
+import type { LoginParams, ResultadoLogin, UserData } from '../../domain/auth/tipos';
 import {
   buscarEmpleadoHabilitado,
-  buscarEmpleadoParaRegistro,
   buscarEmpleadoParaRevalidar,
   funcionesDesdeTodasLasPosiciones,
   obtenerTokenDeServicio,
@@ -39,7 +34,6 @@ import {
 } from '../../infrastructure/auth/empleadoApi';
 import {
   actualizarUsuario,
-  agregarUsuario,
   buscarUsuarioPorUid,
   crearUsuarioConId,
   leerUsuarioPorId,
@@ -53,7 +47,7 @@ import { useRolStore } from '../../presentation/stores/rolStore';
 // Utilidades
 // ---------------------------------------------------------------------------
 
-// true mientras corre un login o un registro. La escucha de sesión no publica el usuario en ese lapso:
+// true mientras corre un login. La escucha de sesión no publica el usuario en ese lapso:
 // lo publica el propio flujo cuando terminó de validar (o no lo publica si la validación falla).
 let autenticando = false;
 
@@ -217,50 +211,6 @@ export const loginConMicrosoft = (): Promise<ResultadoLogin> =>
       throw new Error(MSG_ERROR_GENERICO_LOGIN);
     }
   });
-
-// ---------------------------------------------------------------------------
-// Registro (handleRegister)
-// ---------------------------------------------------------------------------
-
-export const registrar = ({ email, password }: RegisterParams): Promise<void> =>
-  conAutenticacion(async () => {
-    // El portal usa el token ya cargado al arrancar; acá se asegura (single-flight, no duplica el POST).
-    await useTokenStore.getState().loginToken();
-    const token = useTokenStore.getState().token?.token ?? '';
-
-    const datos = await buscarEmpleadoParaRegistro(email, token);
-    if (!datos) throw new Error(MSG_CUENTA_INEXISTENTE);
-
-    const credencial = await createUserWithEmailAndPassword(getAuth(), email, password);
-    const uid = credencial.user.uid;
-
-    await agregarUsuario({
-      correoElectronico: email,
-      empleadoid: datos.new_empleadoid,
-      fullname: datos.new_name,
-      ownerid: datos._ownerid_value,
-      uid,
-      usuarioPortalRh: email,
-      puesto: datos._new_puesto_value ?? '',
-      photoURL: '',
-      photoPORTADA: '',
-    });
-
-    // En el portal la escucha de sesión se dispara al crear la cuenta, antes de que exista el documento:
-    // se carga el usuario recién creado.
-    const usuario = await buscarUsuarioPorUid(uid);
-    if (usuario) useAuthStore.getState().setUser(usuarioDesdeDoc(usuario.data));
-  });
-
-// ---------------------------------------------------------------------------
-// Recuperar contraseña (handleForgotPassword)
-// ---------------------------------------------------------------------------
-
-export const recuperarContrasena = async (email: string): Promise<void> => {
-  // Se normaliza el correo: con la protección de enumeración activa, un correo mal escrito no lanza error y el mail nunca llega.
-  const correo = email.trim().toLowerCase();
-  await sendPasswordResetEmail(getAuth(), correo);
-};
 
 // ---------------------------------------------------------------------------
 // Cierre de sesión (handleLogout)

@@ -1,11 +1,9 @@
 // Rutas de la app. Equivalen a las páginas del portal:
-//   Login -> (blank)/login, Registro -> (blank)/registro, OlvidasteContrasena -> (blank)/olvidaste-contrasena,
-//   SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/"
+//   Login -> (blank)/login, SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/"
+// No hay registro ni recuperar contraseña: las cuentas con usuario y contraseña se crean desde Firebase (decisión 36).
 export type RootStackParams = {
   Cargando: undefined;
   Login: undefined;
-  Registro: undefined;
-  OlvidasteContrasena: undefined;
   SeleccionarPuesto: undefined;
   Inicio: undefined;
 };

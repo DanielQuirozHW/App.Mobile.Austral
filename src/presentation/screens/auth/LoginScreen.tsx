@@ -1,14 +1,13 @@
 // Pantalla de ingreso. Fuente: Portal-Austral-Dev -> src/app/(blank)/login/page.tsx (versión mobile: el panel
 // con la imagen institucional se oculta en mobile, igual que en el portal).
+// Sin enlace de "¿Olvidaste la contraseña?": las cuentas con usuario y contraseña las administra Austral desde Firebase.
 import React, { useMemo, useState } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { loginConEmail, loginConMicrosoft, LoginCanceladoError } from '../../../application/auth/authService';
 import { getFriendlyErrorMessage } from '../../../domain/auth/authError';
-import { ActivityIndicator } from 'react-native';
 import { AppButton } from '../../components/AppButton';
 import { AppCheckbox } from '../../components/AppCheckbox';
 import { AppIcon } from '../../components/AppIcon';
@@ -16,12 +15,9 @@ import { AppText } from '../../components/AppText';
 import { AppTextField } from '../../components/AppTextField';
 import { AuthLayout } from '../../components/AuthLayout';
 import { LogoAustral } from '../../components/LogoAustral';
-import type { RootStackParams } from '../../navigation/tipos';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, iconSizes, scale, scaleFont, spacing } from '../../utils/responsive';
-
-type Props = NativeStackScreenProps<RootStackParams, 'Login'>;
 
 // Esquema del portal, sin cambios.
 const schema = yup.object().shape({
@@ -42,7 +38,7 @@ interface LoginForm {
 
 const URL_SOPORTE = 'https://portal.austral.edu.ar/';
 
-const LoginContenido: React.FC<Props> = ({ navigation }) => {
+const LoginContenido: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
 
@@ -196,18 +192,8 @@ const LoginContenido: React.FC<Props> = ({ navigation }) => {
         />
       </View>
 
-      {/* Recuérdame + olvidé la contraseña */}
       <View style={styles.opciones}>
         <AppCheckbox label="Recuérdame" checked={recordar} onChange={setRecordar} />
-        <Pressable
-          onPress={() => navigation.navigate('OlvidasteContrasena')}
-          accessibilityRole="link"
-          hitSlop={spacing.sm}
-        >
-          <AppText variant="body1" tone="primary" style={styles.enlace}>
-            ¿Olvidaste la contraseña?
-          </AppText>
-        </Pressable>
       </View>
 
       <AppButton
@@ -241,9 +227,9 @@ const LoginContenido: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-export const LoginScreen: React.FC<Props> = (props) => (
+export const LoginScreen: React.FC = () => (
   <AuthLayout>
-    <LoginContenido {...props} />
+    <LoginContenido />
   </AuthLayout>
 );
 
@@ -253,7 +239,7 @@ const createStyles = (c: ColorTokens) =>
     // Portal: fontSize 2rem, lineHeight 1.15, mb 1 (4 px)
     titulo: { fontSize: scaleFont(32), lineHeight: scaleFont(32) * 1.15, marginBottom: spacing.xs },
     subtitulo: { marginBottom: spacing.xxxl },
-    // Portal: primary.main, radio 10, padding 14/20, sombra azul al hover
+    // Portal: primary.main, radio 10, padding 14/20
     sso: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -281,13 +267,7 @@ const createStyles = (c: ColorTokens) =>
     linea: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: c.hairline },
     divisorTexto: { letterSpacing: 0.08 * 11 },
     campos: { gap: spacing.lg, marginBottom: spacing.lg },
-    opciones: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: spacing.xxl,
-    },
-    enlace: { fontFamily: 'Montserrat-SemiBold', textDecorationLine: 'underline' },
+    opciones: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xxl },
     botonIngresar: { marginBottom: spacing.xxl },
     pie: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     soporte: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
