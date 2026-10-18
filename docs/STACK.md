@@ -17,11 +17,12 @@ Columna "Prototipo": **Sigue** = igual que `gmhwapp/Protoype-RN`; **Cambia** = d
 | Formularios | react-hook-form + `@hookform/resolvers` + yup | 7.90.0 / 5.9.2 / 1.7.1 | Sigue |
 | HTTP | axios | 1.20.0 | Sigue |
 | Fechas | date-fns | 4.4.0 | **Cambia** (prototipo: moment, que su propio sitio declara "legacy project in maintenance mode") |
-| UI | StyleSheet de React Native + componentes propios + tema del prototipo | — | **Cambia** (prototipo: UI Kitten/Eva + React Native Paper) |
+| UI | StyleSheet de React Native + componentes propios, con el aspecto del portal de Austral (paleta, Montserrat, radios) | — | **Cambia** (prototipo: UI Kitten/Eva + React Native Paper, y marca Humanware) |
 | Íconos | `@react-native-vector-icons/ionicons` (paquete por familia) | 13.1.3 | **Cambia** (el paquete único `react-native-vector-icons` figura como deprecado en npm) |
 | Teclado | `react-native-keyboard-controller` | 1.22.6 | **Cambia** (decisión de bajo riesgo; reemplaza al scroll con teclado de la skill de UI) |
 | Animaciones | `react-native-reanimated` + `react-native-worklets` | 4.7.1 / 0.13.0 (peer: RN 0.86–0.88) | Sigue Reanimated; versión nueva (prototipo: 3.x) |
 | Fecha nativa (selector) | `@react-native-community/datetimepicker` | 9.2.1 | Nuevo (el prototipo no tiene selector de fecha nativo) |
+| Tipografía | Montserrat (400/500/600/700), como el portal (`src/styles/fonts.ts`) | — | **Cambia** (prototipo: Poppins y Open Sans) |
 
 ## Datos locales y archivos
 
@@ -47,7 +48,7 @@ Motivo: el login principal es con cuenta Microsoft. La documentación de React N
 
 ## Lo que NO se usa
 
-Expo, UI Kitten, React Native Paper, moment, dayjs, react-native-fs, react-native-file-viewer, `react-native-vector-icons` (paquete único), SDK web de Firebase, Redux.
+Expo, UI Kitten, React Native Paper, moment, dayjs, react-native-fs, react-native-file-viewer, `react-native-vector-icons` (paquete único), SDK web de Firebase, Redux, Poppins y Open Sans.
 
 ## devDependencies
 

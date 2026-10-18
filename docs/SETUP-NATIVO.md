@@ -31,7 +31,7 @@ El nombre `AustralMobile` tiene que coincidir con el `name` de `app.json`.
 | Plugin de Google Services en Android y configuración de Firebase en iOS | Requisito de React Native Firebase. |
 | Habilitar el proveedor Microsoft en Firebase Auth y crear el registro de la app en Microsoft Entra (Client ID y Secret) | Login con cuenta @austral. |
 | Huella SHA-1 / SHA-256 de la app en Firebase (Android) y esquema URL personalizado (iOS) | Lo piden las guías de Firebase para el proveedor Microsoft. |
-| Fuentes Poppins y Open Sans en `android/app/src/main/assets/fonts` e iOS (`Info.plist` + target). Los nombres de archivo tienen que resolver `Poppins` y `opensans-regular` con los pesos 400–700 | Tipografía del tema. |
+| **Fuentes Montserrat** 400, 500, 600 y 700 (Google Fonts) en `android/app/src/main/assets/fonts` e iOS (`Info.plist` + target). Nombres: `Montserrat-Regular`, `Montserrat-Medium`, `Montserrat-SemiBold`, `Montserrat-Bold` | Tipografía del portal (`src/styles/fonts.ts`). |
 | Plugin de Babel de `react-native-worklets` (último en la lista) | Reanimated 4. Ya está en `babel.config.js`. |
 | Bloquear la orientación en vertical (Android: `screenOrientation` en el manifest; iOS: orientaciones permitidas) | `responsive.ts` calcula la escala una sola vez al iniciar. |
 | Permisos de cámara y galería (`AndroidManifest.xml`, `Info.plist`) | Foto de perfil/portada y adjuntos. |
@@ -40,7 +40,11 @@ El nombre `AustralMobile` tiene que coincidir con el `name` de `app.json`.
 | Reiniciar Metro con `--reset-cache` después de crear o cambiar `.env` | react-native-dotenv inlinea las variables al compilar. |
 | Definir la URL de continuación del correo de recuperación de contraseña | En el portal es `{origin}/login`. |
 
-## 4. Qué decide Daniel después de probar
+## 4. Imágenes y logos del portal
+
+Los archivos binarios no se pueden subir por el conector. Cuando una pantalla los use, copiar desde `public/images` del portal (`HW-Austral/Portal-Austral-Dev`) a `src/assets/images`. Candidatos que existen en el portal: `Logonavbar.png`, `logo_color.png`, `logo_blanco.png`, `logo-horizontal-color.png`, `logo-horizontal-blanco.png`, `favicon.ico`, `profileNull.webp`, `user.webp`. En el portal el fondo de la pantalla de ingreso (`fondo_login.jpg`) se oculta en pantallas chicas; la app no lo usa.
+
+## 5. Qué decide Daniel después de probar
 
 - Si el `uid` que devuelve el login con Microsoft coincide con el de SAML (los documentos de `usuarios` y las fotos están indexados por `uid`).
 - Si hace falta restringir el login al dominio de Austral con la variable `MICROSOFT_TENANT`.
