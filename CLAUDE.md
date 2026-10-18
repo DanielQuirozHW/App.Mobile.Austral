@@ -1,6 +1,6 @@
 # CLAUDE.md — App Mobile Austral
 
-App mobile (React Native) para el cliente Austral. Hace lo mismo que el Portal Austral y consume exactamente la misma API. Es un proyecto de prueba/test.
+App mobile (React Native) para el cliente Austral. Es la versión mobile del Portal Austral (Portal Universidad Austral): hace lo mismo, se ve como el portal y consume exactamente la misma API. Es un proyecto de prueba/test.
 
 Este archivo se escribe con lo verificado en el código de los repos de referencia, no copiado de sus README ni de sus documentos. El detalle verificado está en `docs/contexto/`.
 
@@ -39,7 +39,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 6. No modificar la API ni proponer modificarla. Si algo parece requerir un cambio en la API, se avisa y se busca cómo resolverlo del lado de la app.
 7. No elegir por criterio propio "la API v1" o "la legacy". Se hace lo que hace el portal.
 8. No tomar como fuente la documentación de los otros repos (README, ARCHITECTURE, CLAUDE.md, etc.): puede estar desactualizada o mal. Vale el código. Si no coinciden, se avisa la discrepancia.
-9. No clonar, hacer fork ni copiar contenido o historial del prototipo. Del prototipo se toma estructura y estilo, no contenido ni lógica.
+9. No clonar, hacer fork ni copiar contenido o historial del prototipo. Del prototipo se toma estructura y forma de programar, no contenido, lógica ni aspecto.
 10. No arrastrar errores heredados del prototipo (por ejemplo el typo "Protoype" o su README genérico de React Native).
 11. No construir módulos que no estén confirmados, ni agregar funcionalidades extra.
 12. No inventar endpoints, payloads ni reglas de negocio: si no están en el código, se pregunta.
@@ -51,6 +51,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 18. No elegir una librería "porque la usa el portal" o "porque la usa el prototipo". Se elige por mérito técnico, con fuente.
 19. No dejar de implementar la confirmación al salir con cambios sin guardar en los formularios (el portal la tiene).
 20. Responder solo lo que Daniel preguntó, sin repetir tablas ni recapitular. Ver `docs/ERRORES.md`.
+21. **La app es del portal de Austral, no de Humanware.** Colores, tipografía (Montserrat), radios, botones, campos, textos y logos salen del portal (`src/@core/theme`, páginas de `src/app`), nunca del prototipo. Ver decisión 26 y `docs/ERRORES.md` #11.
 
 ---
 
@@ -58,23 +59,23 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 
 | Repo | Rol | Permiso |
 |---|---|---|
-| HW-Austral/Portal-Austral-Dev | Fuente de verdad de la lógica (Next.js) | SOLO LECTURA |
+| HW-Austral/Portal-Austral-Dev | Fuente de verdad de la lógica y del aspecto (Next.js) | SOLO LECTURA |
 | HW-Austral/API.Web.Austral | API que se consume (.NET) | SOLO LECTURA |
-| gmhwapp/Protoype-RN | Referencia de estructura y forma de programar RN | SOLO LECTURA |
+| gmhwapp/Protoype-RN | Referencia de estructura y forma de programar | SOLO LECTURA |
 | DanielQuirozHW/App.Mobile.Austral | Este repo | LECTURA Y ESCRITURA |
 
 Todo se accede por el conector MCP de GitHub. La escritura va solo en este repo.
 
 ## Jerarquía de fuentes de verdad
 
-1. Código del portal: manda en lógica, flujos, autenticación, multi-tenant, endpoints, payloads, validaciones y reglas de negocio.
+1. Código del portal: manda en lógica, flujos, autenticación, multi-tenant, endpoints, payloads, validaciones, reglas de negocio y aspecto visual.
 2. Código de la API: confirma contratos (rutas, parámetros, respuestas) cuando el portal no alcanza.
-3. Código del prototipo: solo para estructura de carpetas, convenciones, navegación, tema y forma de programar una app RN. Donde el prototipo no tiene patrón, se usa uno propio y se documenta.
+3. Código del prototipo: solo para estructura de carpetas, convenciones, navegación y forma de programar una app RN. Donde el prototipo no tiene patrón, se usa uno propio y se documenta.
 4. README, ARCHITECTURE, CLAUDE.md y demás documentación de los repos: pistas, nunca fuente.
 
 ## Stack (resumen; el detalle y las versiones están en `docs/STACK.md`)
 
-React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios, Reanimated, React Native Firebase (login con Microsoft), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, react-native-dotenv.
+React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react-navigation (native-stack), zustand, TanStack Query, react-hook-form + yup, axios, date-fns, StyleSheet con componentes propios y el aspecto del portal, Reanimated, React Native Firebase (login con Microsoft), Keychain, AsyncStorage, image-picker, documents picker/viewer, blob-util, react-native-dotenv.
 
 ## Cómo se construye
 
@@ -82,11 +83,12 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 - Credenciales y secretos: nunca se commitean. Se usa `.env.template` con nombres de variables sin valores, y `.env` queda en `.gitignore`. No hay valores reales en ningún archivo.
 - Los README, este archivo y las skills se escriben con lo verificado en el código.
 - Las carpetas `android/` e `ios/` no existen en este repo: las genera Daniel con el comando oficial cuando tenga la PC (ver `docs/SETUP-NATIVO.md`).
+- `push_files` reemplaza el archivo completo: para cambiar un archivo se reenvía entero.
 - Cada commit termina con las líneas de atribución que indique la sesión.
 
 ## Orden de trabajo
 
-1. Base del proyecto (hecha): configuración, entorno, tema, responsive, componentes base, providers.
+1. Base del proyecto (hecha): configuración, entorno, tema del portal, responsive, componentes base, providers.
 2. Cliente HTTP, token y endpoints; adaptadores de almacenamiento.
 3. Autenticación (Microsoft, email/contraseña, registro, recuperación, validación del empleado, `usuarios` en Firestore, cierre de sesión).
 4. Navegación, selección de puesto y guardas por rol.
@@ -126,10 +128,17 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `docs/contexto/roles-puesto-y-fotos.md` | Puesto, selección de rol, funciones de Nombramientos/Promoción y fotos (verificado) |
 | `docs/contexto/cliente-http-y-endpoints.md` | Cliente HTTP con reintentos y endpoints que usa el portal (verificado) |
 | `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales, incluida Familia (verificado) |
-| `docs/contexto/prototipo-estructura.md` | Estructura, tema y convenciones del prototipo RN (verificado) |
+| `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado; el aspecto NO se toma de ahí) |
 | `.claude/skills/` | Skills de trabajo para este repo |
-| `src/config` | Entorno (`env.ts`) y cliente de Query (`api/queryClient.ts`) |
-| `src/presentation/theme` | Colores, tipografía y proveedor de tema |
+| `src/config/env.ts` | Variables de entorno (sin valores) |
+| `src/config/api/` | `apiClient.ts` (axios con reintentos, port del portal), `tokenStore.ts` (token del usuario de servicio), `queryClient.ts` |
+| `src/domain/roles/` | Roles y funciones de Nombramientos/Promoción (port de las reglas del portal) |
+| `src/domain/auth/` | Tipos de sesión y textos de error (`authError.ts`) |
+| `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`) y colección `usuarios` de Firestore |
+| `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
+| `src/application/auth/authService.ts` | Login Microsoft y email, registro, recuperación, logout, escucha de sesión y revalidación |
+| `src/presentation/stores/authStore.ts` | Estado de la sesión (user, loading, cerrandoSesion) |
+| `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal) |
 | `src/presentation/utils/responsive.ts` | Escala, espacios, radios, tamaños de fuente |
 | `src/presentation/components` | Componentes base: `AppText`, `AppButton`, `AppTextField`, `AppIcon`, `Screen`, `LoadingScreen` |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
@@ -137,4 +146,4 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 
 ## Estado actual
 
-Etapa 1 (base del proyecto) escrita, sin probar. Sigue la etapa 2. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2 parcial: cliente HTTP y token escritos; faltan el módulo de endpoints y los adaptadores restantes. Etapa 3 parte 1 escrita (servicio de autenticación, roles, errores, store de sesión); faltan las pantallas de ingreso, registro y recuperación y conectar `escucharSesion()` en `AppProviders`. Todo sin probar. No hay carpetas nativas todavía.

@@ -35,5 +35,13 @@ Decisiones tomadas por Daniel. Se actualiza. Todo lo decidido queda acá para qu
 
 ## 2026-10-18 (aspecto visual)
 
-26. **La app es la versión mobile del portal de Austral, no de Humanware.** El aspecto sale del portal: paleta (azul `#2E3092`, cian `#4FC3D7`, beige `#F5EDD8`, modo oscuro), tipografía (Montserrat), radios (6 px botones y campos, 10 px tarjetas), botones en mayúsculas y negrita, etiqueta del campo arriba, pantalla de ingreso sobre fondo `#FFF3E9`. Daniel: "TIENE QUE SER LA APLICACIÓN MOBILE DEL PORTAL. USA SUS COLORES Y TODO LO DE LA WEB". Del prototipo solo se toma estructura y forma de programar.
+26. **La app es la versión mobile del portal de Austral, no de Humanware.** El aspecto sale del portal: paleta (azul `#2E3092`, cian `#4FC3D7`, beige `#F5EDD8`, modo oscuro), tipografía (Montserrat), radios (6 px botones y campos, 10 px tarjetas), botones en mayúsculas y negrita, etiqueta del campo arriba, pantalla de ingreso sobre fondo beige. Daniel: "TIENE QUE SER LA APLICACIÓN MOBILE DEL PORTAL. USA SUS COLORES Y TODO LO DE LA WEB". Del prototipo solo se toma estructura y forma de programar.
 27. **Modo claro/oscuro**: el portal arranca en claro (`themeConfig.mode = 'light'`) y tiene ambos modos. La app sigue el modo del sistema (adaptación propia, no verificada contra el selector del portal). Se puede cambiar a "siempre claro" tocando `ThemeProvider`.
+
+## 2026-10-18 (autenticación y cliente HTTP; decididas por Claude, revisables)
+
+28. **Capas del código**: `config` (entorno, HTTP), `domain` (reglas puras: roles, errores, tipos), `infrastructure` (Firestore, BO, almacenamiento), `application` (flujos como `authService`), `presentation` (UI, stores, tema). Adaptación propia de la estructura del prototipo, que ya separa `domain`, `infrastructure` y `presentation`.
+29. **Token de servicio**: `apiClient` agrega `Authorization: Bearer` desde `tokenStore` salvo que la llamada traiga su propio header. El portal pasa el header explícito en cada llamada; el interceptor es una comodidad que no cambia lo que se envía. Las consultas de login usan el header explícito, como el portal.
+30. **"Recuérdame"**: el portal solo guarda `userData` cifrado en `localStorage` y la persistencia de sesión es de Firebase. En la app Firebase persiste la sesión por sí mismo y no hay nada equivalente que guardar: la casilla se muestra como en el portal y el valor se acepta pero no cambia el comportamiento.
+31. **Recuperar contraseña**: sin `actionCodeSettings` (en el portal la URL de continuación es el origin web + `/login`). Queda pendiente definir una URL (ver PENDIENTES).
+32. **Mejoras mínimas sobre el portal en auth** (no cambian el resultado): el correo se escapa dentro del XML de las consultas; no se envían `undefined` a Firestore; en el registro se asegura el token de servicio antes de consultar y se recarga el usuario después de crear el documento (en el portal la escucha de sesión se dispara antes de que exista).

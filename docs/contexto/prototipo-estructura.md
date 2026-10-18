@@ -1,8 +1,10 @@
 # Estructura y convenciones del prototipo
 
-Repo de referencia: `gmhwapp/Protoype-RN` (solo lectura). **De aquí se toma estructura y forma de programar, no contenido ni lógica.** La lógica de negocio la define el portal.
+Repo de referencia: `gmhwapp/Protoype-RN` (solo lectura). **De aquí se toma estructura y forma de programar, no contenido, lógica ni aspecto.** La lógica de negocio y el aspecto los define el portal de Austral.
 
 > **Este documento describe el prototipo, no la app nueva.** La app nueva difiere en las librerías: ver [`../STACK.md`](../STACK.md) (React Native 0.88, StyleSheet en lugar de UI Kitten/Paper, date-fns en lugar de moment, React Native Firebase en lugar del SDK web, `native-stack`). Donde esta página dice "UI Kitten", "Paper" o "moment", es el prototipo.
+>
+> **El aspecto del prototipo (colores, tipografía Poppins/Open Sans, "glass") NO se usa.** La app es la del portal de Austral: colores, Montserrat, radios y textos salen del portal (decisión 26, `ERRORES.md` #11). De este documento solo valen las convenciones de código.
 
 ## Estructura real (verificado listando el repo)
 
@@ -51,12 +53,12 @@ Orden de providers, de afuera hacia adentro: `GestureHandlerRootView` → `Theme
 - Se verifica la integridad de sesión al arrancar si ya estaba autenticado.
 - El `ProtectedRoute` del prototipo solo distingue autenticado / no autenticado; el de la app nueva debe sumar roles y funciones como el portal.
 
-## Tema y UI (verificado, `skill-rn-ui.md`, `theme.tsx`, `colors.js`, `typography.ts`, `responsive.ts`)
+## Convenciones de código de UI (verificado, `skill-rn-ui.md`, `theme.tsx`, `responsive.ts`)
 
-Lo que sigue vale para la app nueva (ver la skill `ui-componentes-propios`):
+Estas convenciones de PROGRAMACIÓN valen para la app nueva (ver la skill `ui-componentes-propios`). Los VALORES (colores, fuentes, tamaños) son los del portal:
 
 - `useThemeColors()` devuelve `globalColors`, `isDark` y la tipografía. Nunca colores hardcodeados.
-- Tipografía: `Poppins` para títulos y valores destacados; `opensans-regular` para textos secundarios. Escala con tokens (`displayLg` … `button`), tamaños con `platformFontSizes`, espacios con `spacing`, radios con `borderRadius`, `scale()` para dimensiones fijas, sombras con `platformSpecific.shadow(n)`.
+- Escala de tipografía con tokens, espacios con `spacing`, radios con `borderRadius`, `scale()` para dimensiones fijas, sombras con `platformSpecific.shadow(n)`.
 - Estilos con `StyleSheet.create` dentro de `createStyles` memoizado con `useMemo`.
 - Botones y tarjetas con `Pressable` y `android_ripple` (nunca `TouchableOpacity`). Mínimo táctil 44 pt iOS / 48 dp Android.
 - Android: no combinar `overflow: hidden` y `elevation` en el mismo View.
@@ -64,9 +66,7 @@ Lo que sigue vale para la app nueva (ver la skill `ui-componentes-propios`):
 - Header con `useSafeAreaInsets`; no combinar `SafeAreaView` con `paddingTop: top+X`.
 - Animaciones de entrada con Reanimated.
 
-Solo del prototipo (no se usa en la app nueva): íconos de Eva, gradientes con `react-native-linear-gradient`, tokens de "glass" y desenfoque, `ThemeModeProvider` con selector manual de tema.
-
-Tokens de color del prototipo: `primary`, `secondary`, `success`, `warning`, `danger`, `info`, `text`, `textSecondary`, `textTertiary`, `card`, `border`, `accentPrimary`, `accentCta`, entre otros. Los valores del prototipo son de la marca de ese prototipo; en la app nueva son provisorios.
+Solo del prototipo (no se usa en la app nueva): íconos de Eva, gradientes con `react-native-linear-gradient`, tokens de "glass" y desenfoque, `ThemeModeProvider` con selector manual de tema, la paleta y la tipografía (Poppins, Open Sans).
 
 ## Patrones de código (verificado)
 
