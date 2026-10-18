@@ -1,6 +1,6 @@
 // Inicio PROVISORIO. El portal tiene un tablero en "/" que todavía no se leyó ni se migra (los módulos del MVP
-// están por definir). Esta pantalla muestra quién está en sesión, da acceso a Datos personales y a
-// Licencias y vacaciones, y permite cerrar la sesión.
+// están por definir). Esta pantalla muestra quién está en sesión, da acceso a los módulos construidos y permite
+// cerrar la sesión.
 import React, { useMemo } from 'react';
 import { Alert, Image, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -70,6 +70,7 @@ export const InicioScreen: React.FC = () => {
           icon="calendar-outline"
           onPress={() => navigation.navigate('Licencias')}
         />
+        <AppButton title="Formación" icon="school-outline" onPress={() => navigation.navigate('Formacion')} />
         <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
       </View>
     </Screen>
