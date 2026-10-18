@@ -80,21 +80,16 @@ export const opcionONull = (opcion?: Partial<Opcion> | null): OpcionONull => {
 
 const texto = (valor: unknown): string => (valor === null || valor === undefined ? '' : String(valor));
 
-/**
- * Arma los valores del formulario a partir del legajo. `localidades` permite completar la etiqueta de la
- * localidad si el CRM solo devolvió el id.
- */
+/** Si el CRM solo devolvió el id de la localidad, la etiqueta se completa con el catálogo. */
+const completarEtiquetaLocalidad = (opcion: OpcionONull, localidades: Localidad[]): OpcionONull => {
+  if (!opcion || opcion.label) return opcion;
+  const encontrada = localidades.find((l) => l.value === opcion.value);
+  return encontrada ? { value: opcion.value, label: encontrada.label } : opcion;
+};
+
+/** Arma los valores del formulario a partir del legajo. */
 export const legajoAFormulario = (leg: MiLegajo, localidades: Localidad[] = []): FormularioDatosPersonales => {
   const telefono = partirTelefono(leg.telefonoMovil);
-  const localidad = opcionONull(leg.localidad);
-  const localidadConEtiqueta =
-    localidad && !localidad.label
-      ? (localidades.find((l) => l.value === localidad.value) ?? null) && {
-          value: localidad.value,
-          label: localidades.find((l) => l.value === localidad.value)?.label ?? '',
-        }
-      : localidad;
-
   return {
     new_apellidos: texto(leg.new_apellidos),
     new_nombredepila: texto(leg.new_nombredepila),
@@ -117,7 +112,7 @@ export const legajoAFormulario = (leg: MiLegajo, localidades: Localidad[] = []):
     codigoPostal: texto(leg.codigoPostal),
     pais: opcionONull(leg.pais),
     provincia: opcionONull(leg.provincia),
-    localidad: localidadConEtiqueta ?? null,
+    localidad: completarEtiquetaLocalidad(opcionONull(leg.localidad), localidades),
     nombreEmergencia: texto(leg.nombreEmergencia),
     celularEmergencia: texto(leg.celularEmergencia),
     emailEmergencia: texto(leg.emailEmergencia),
