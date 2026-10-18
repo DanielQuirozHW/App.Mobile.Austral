@@ -18,13 +18,15 @@ export interface ConsultaDeEmpleado {
   /** Columna de orden. Por defecto createdon. */
   orden?: string;
   descendente?: boolean;
+  /** Estado del registro: 0 activo (por defecto) o 1 inactivo (los "históricos" de nombramientos del portal). */
+  statecode?: 0 | 1;
   /** Condiciones extra dentro del <filter>. */
   filtrosExtra?: string;
   /** Fragmentos extra dentro de <entity> (link-entity, por ejemplo). */
   extra?: string;
 }
 
-/** Filas activas (statecode = 0) de una entidad que cuelga del empleado. Devuelve el cuerpo crudo. */
+/** Filas de una entidad que cuelga del empleado (activas, statecode = 0, salvo que se pida otro). Devuelve el cuerpo crudo. */
 export const leerRegistrosDeEmpleado = async (consulta: ConsultaDeEmpleado): Promise<unknown> => {
   const token = await tokenDeServicio();
   const atributos = consulta.atributos.map((a) => `<attribute name="${a}"/>`).join('');
@@ -32,7 +34,7 @@ export const leerRegistrosDeEmpleado = async (consulta: ConsultaDeEmpleado): Pro
     `<entity name="${consulta.entidad}">${atributos}` +
     `<order attribute="${consulta.orden ?? 'createdon'}" descending="${consulta.descendente ? 'true' : 'false'}"/>` +
     '<filter type="and">' +
-    '<condition attribute="statecode" operator="eq" value="0"/>' +
+    `<condition attribute="statecode" operator="eq" value="${consulta.statecode ?? 0}"/>` +
     `<condition attribute="${consulta.campoEmpleado}" operator="eq" uitype="new_empleado" value="${escaparXml(consulta.empleadoId)}"/>` +
     `${consulta.filtrosExtra ?? ''}</filter>${consulta.extra ?? ''}</entity>`;
   return consultarFetchXml(consulta.coleccion, fetch, token);

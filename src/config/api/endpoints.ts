@@ -1,6 +1,6 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
 // escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
-// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*).
+// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*, hooks/docencia/*).
 // Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil.
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
@@ -108,4 +108,15 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: cargos y encargos en gestión académica externos. */
   cargosYEncargosExternos: (): string => api('hrfactors/cargosYEncargosExternos'),
+
+  // --- Perfil > Docencia ---
+
+  /** POST / PUT / DELETE: docencia Universidad Austral. */
+  docencia: (): string => api('hrfactors/docencia'),
+
+  /** POST / PUT / DELETE: docencia externa. */
+  docenciaExterna: (): string => api('hrfactors/docenciaexterna'),
+
+  /** POST / PUT / DELETE: asesoramiento académico. */
+  asesoramientoAcademico: (): string => api('hrfactors/asesoramientoAcademico'),
 } as const;
