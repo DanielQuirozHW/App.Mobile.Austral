@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ColorTokens } from '../theme/colors';
 import { useThemeColors } from '../theme/theme';
 import { useToastStore } from '../stores/toastStore';
-import { borderRadius, iconSizes, platformSpecific, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, spacing } from '../utils/responsive';
 import { AppIcon } from './AppIcon';
 import { AppText } from './AppText';
 import { ToastHost } from './ToastHost';
@@ -137,6 +137,7 @@ export const AppModal: React.FC<AppModalProps> = ({
   );
 };
 
+// El fondo oscuro ya separa el panel del resto: no lleva sombra (junto a overflow 'hidden' se recortaría en Android).
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     fondo: { flex: 1, backgroundColor: c.overlay },
@@ -152,7 +153,6 @@ const createStyles = (c: ColorTokens) =>
     panelCentrado: {
       maxHeight: '85%',
       borderRadius: borderRadius.lg,
-      ...platformSpecific.shadow(8),
     },
     encabezado: {
       flexDirection: 'row',

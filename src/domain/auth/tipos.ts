@@ -25,11 +25,6 @@ export interface LoginParams {
   recordar?: boolean;
 }
 
-export interface RegisterParams {
-  email: string;
-  password: string;
-}
-
 /** Resultado de un login: si hay dos puestos, la navegación manda a seleccionar puesto. */
 export interface ResultadoLogin {
   requiereSeleccionDePuesto: boolean;

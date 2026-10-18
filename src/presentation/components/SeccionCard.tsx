@@ -50,6 +50,7 @@ export const SeccionCard: React.FC<SeccionCardProps> = ({
   );
 };
 
+// Sin overflow: 'hidden' junto a la sombra (en Android la elevación se recorta).
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     card: {
@@ -57,7 +58,6 @@ const createStyles = (c: ColorTokens) =>
       borderRadius: borderRadius.card,
       borderWidth: 1,
       borderColor: c.border,
-      overflow: 'hidden',
       ...platformSpecific.shadow(2),
     },
     encabezado: {

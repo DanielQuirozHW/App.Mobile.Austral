@@ -11,6 +11,7 @@
 //  - Se evita enviar `undefined` a Firestore (photoURL/photoPORTADA ausentes se guardan como '').
 //  - Mientras corre un login la escucha de sesión NO publica el usuario (ver `autenticando`).
 //    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
+//  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia y los catálogos que quedan en memoria.
 import {
   OAuthProvider,
   getAuth,
@@ -41,6 +42,9 @@ import {
 } from '../../infrastructure/auth/usuariosFirestore';
 import { CLAVE_ROL_SELECCIONADO, borrarTexto } from '../../infrastructure/storage/almacenamiento';
 import { useAuthStore } from '../../presentation/stores/authStore';
+import { useCatalogosStore } from '../../presentation/stores/catalogosStore';
+import { useFamiliaStore } from '../../presentation/stores/familiaStore';
+import { useLegajoStore } from '../../presentation/stores/legajoStore';
 import { useRolStore } from '../../presentation/stores/rolStore';
 
 // ---------------------------------------------------------------------------
@@ -58,6 +62,13 @@ const conAutenticacion = async <T>(accion: () => Promise<T>): Promise<T> => {
   } finally {
     autenticando = false;
   }
+};
+
+/** Datos del empleado en memoria: no deben verse en la sesión de otra persona. */
+const reiniciarDatosDelEmpleado = (): void => {
+  useLegajoStore.getState().reiniciar();
+  useFamiliaStore.getState().reiniciar();
+  useCatalogosStore.getState().reiniciar();
 };
 
 /** Publica el usuario. Si tiene dos puestos, marca la selección pendiente ANTES, para que no se vea la pantalla de inicio. */
@@ -222,6 +233,7 @@ export const cerrarSesion = async (): Promise<void> => {
   try {
     await signOut(getAuth());
     store.setUser(null);
+    reiniciarDatosDelEmpleado();
     useRolStore.getState().reiniciar();
     await borrarTexto(CLAVE_ROL_SELECCIONADO);
     setTimeout(() => useAuthStore.getState().setCerrandoSesion(false), 1500);
@@ -314,6 +326,7 @@ export const escucharSesion = (): (() => void) => {
       iniciarRenovacionPeriodica();
     } else {
       store.setUser(null);
+      reiniciarDatosDelEmpleado();
       useTokenStore.getState().limpiar();
       detenerRenovacionPeriodica();
     }
