@@ -11,7 +11,8 @@
 //  - Se evita enviar `undefined` a Firestore (photoURL/photoPORTADA ausentes se guardan como '').
 //  - Mientras corre un login la escucha de sesión NO publica el usuario (ver `autenticando`).
 //    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
-//  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia y los catálogos que quedan en memoria.
+//  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia, los catálogos y los de licencias y
+//    vacaciones (propios y del equipo) que quedan en memoria.
 import {
   OAuthProvider,
   getAuth,
@@ -43,8 +44,10 @@ import {
 import { CLAVE_ROL_SELECCIONADO, borrarTexto } from '../../infrastructure/storage/almacenamiento';
 import { useAuthStore } from '../../presentation/stores/authStore';
 import { useCatalogosStore } from '../../presentation/stores/catalogosStore';
+import { useEquipoStore } from '../../presentation/stores/equipoStore';
 import { useFamiliaStore } from '../../presentation/stores/familiaStore';
 import { useLegajoStore } from '../../presentation/stores/legajoStore';
+import { useLicenciasStore } from '../../presentation/stores/licenciasStore';
 import { useRolStore } from '../../presentation/stores/rolStore';
 
 // ---------------------------------------------------------------------------
@@ -69,6 +72,8 @@ const reiniciarDatosDelEmpleado = (): void => {
   useLegajoStore.getState().reiniciar();
   useFamiliaStore.getState().reiniciar();
   useCatalogosStore.getState().reiniciar();
+  useLicenciasStore.getState().reiniciar();
+  useEquipoStore.getState().reiniciar();
 };
 
 /** Publica el usuario. Si tiene dos puestos, marca la selección pendiente ANTES, para que no se vea la pantalla de inicio. */
