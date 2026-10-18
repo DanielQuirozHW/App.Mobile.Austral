@@ -1,7 +1,7 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
 // escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
-// hooks/formacion/*, hooks/trayectoria/*).
-// Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil (Formación y Trayectoria).
+// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension).
+// Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil.
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
 
@@ -89,4 +89,9 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: reconocimientos profesionales (payload en camelCase). */
   reconocimientosProfesionales: (): string => api('hrfactors/reconocimientos-profesionales'),
+
+  // --- Perfil > Extensión ---
+
+  /** POST / PUT / DELETE: actividades de extensión. */
+  actividadesExtension: (): string => api('hrfactors/actividadesextension'),
 } as const;

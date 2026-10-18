@@ -1,6 +1,6 @@
 // Lecturas y escrituras de Perfil > Extensión. Port de useLegajoStore.getActividadesDeExtension,
 // useAutocompletadosStore.obtenerUnidadOrganizativa y hooks/useCargarActividadExtension.
-import { endpointsPerfil } from '../../config/api/endpointsPerfil';
+import { endpoints } from '../../config/api/endpoints';
 import { escribirRegistro, leerCatalogoFetchXml, leerRegistrosDeEmpleado } from './perfilApi';
 
 type Metodo = 'post' | 'put' | 'delete';
@@ -19,6 +19,7 @@ export const leerActividadesExtension = (empleadoId: string): Promise<unknown> =
       'new_fechadeinicio',
       'new_fechadefinalizacion',
     ],
+    // En esta entidad el empleado cuelga de new_colaborador (no de new_empleado).
     campoEmpleado: 'new_colaborador',
     empleadoId,
   });
@@ -34,4 +35,4 @@ export const leerUnidadesAcademicas = (): Promise<unknown> =>
   );
 
 export const escribirActividadExtension = (metodo: Metodo, data: unknown): Promise<unknown> =>
-  escribirRegistro(endpointsPerfil.actividadesExtension(), metodo, data);
+  escribirRegistro(endpoints.actividadesExtension(), metodo, data);

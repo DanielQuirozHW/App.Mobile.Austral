@@ -59,10 +59,13 @@ export const actividadAFormulario = (
 ): FormularioActividadExtension => {
   let unidad: OpcionONull = null;
   if (a && (a.unidadAcademica.value || a.unidadAcademica.label)) {
+    const etiqueta = texto(a.unidadAcademica.label);
     const encontrada = unidades.find(
-      (u) => u.value === a.unidadAcademica.value || u.label === a.unidadAcademica.label,
+      (u) => u.value === texto(a.unidadAcademica.value) || (etiqueta !== '' && u.label === etiqueta),
     );
-    unidad = encontrada ?? { value: a.unidadAcademica.value ?? a.unidadAcademica.label, label: a.unidadAcademica.label };
+    unidad = encontrada
+      ? { value: encontrada.value, label: encontrada.label }
+      : { value: texto(a.unidadAcademica.value || etiqueta), label: etiqueta };
   }
   return {
     actividad: a?.actividad ?? '',
@@ -91,7 +94,7 @@ export const armarPayloadActividad = (
   new_fechadefinalizacion: d.fechaFin ? aFechaApi(d.fechaFin) : null,
   new_unidadacademica: d.unidadAcademica?.value || '',
   new_unidadacademicaotro: d.otraUnidadAcademica || '',
-  ...(id ? { clear_new_fechadefinalizacion: d.fechaFin === null } : {}),
+  ...(id ? { clear_new_fechadefinalizacion: !d.fechaFin } : {}),
 });
 
 export const esquemaActividadExtension = yup.object({
