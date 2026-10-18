@@ -1,0 +1,40 @@
+# Variables de entorno: nunca se commitean valores reales
+.env
+.env.*
+!.env.template
+
+# Dependencias
+node_modules/
+
+# Builds y artefactos
+build/
+dist/
+*.log
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+*.keystore
+!debug.keystore
+*.jks
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcuserstate
+xcuserdata/
+
+# Metro
+.metro-health-check*
+
+# Archivos de configuración de servicios con claves
+google-services.json
+GoogleService-Info.plist
+
+# Sistema y editores
+.DS_Store
+.idea/
+.vscode/
+*.swp
