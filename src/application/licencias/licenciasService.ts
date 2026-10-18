@@ -17,7 +17,7 @@ import { hoyCrm } from '../../domain/licencias/fechasCrm';
 import type { DatosSolicitudLicencia } from '../../domain/licencias/payload';
 import type { Licencia, PeriodoVacaciones, SolicitudDeEquipo, TipoDeLicencia } from '../../domain/licencias/tipos';
 import { MSG_ARCHIVO_MUY_PESADO, hayArchivoQueSupera } from '../../domain/licencias/validaciones';
-import type { ArchivoParaCarga } from '../../infrastructure/legajo/familiaresApi';
+import type { ArchivoElegido } from '../../infrastructure/archivos/seleccionArchivos';
 import { aprobarRechazarVacacion as apiAprobarRechazarVacacion } from '../../infrastructure/licencias/equipoApi';
 import {
   aprobarRechazarLicencia as apiAprobarRechazarLicencia,
@@ -88,10 +88,15 @@ const refrescarCalendario = async (): Promise<void> => {
 // ---------------------------------------------------------------------------
 
 /** Sube los archivos con los avisos del portal. Devuelve true si se cargaron. */
-const subirAdjuntos = async (licenciaId: string, archivos: ArchivoParaCarga[]): Promise<boolean> => {
+const subirAdjuntos = async (licenciaId: string, archivos: ArchivoElegido[]): Promise<boolean> => {
   const idAviso = toast.loading('Cargando adjunto...');
   try {
-    await cargarAdjuntosDeSolicitud('licencia_id', licenciaId, archivos);
+    // Solo uri, name y type viajan en el multipart; el peso es dato local.
+    await cargarAdjuntosDeSolicitud(
+      'licencia_id',
+      licenciaId,
+      archivos.map((a) => ({ uri: a.uri, name: a.name, type: a.type })),
+    );
     toast.dismiss(idAviso);
     toast.success('Archivo adjunto cargado con éxito', DURACION_AVISO_MS);
     return true;
@@ -118,7 +123,7 @@ const mensajeDeCreacion = (error: unknown): string => {
 export const solicitarLicencia = async (
   datos: DatosSolicitudLicencia,
   tipo: TipoDeLicencia,
-  archivos: ArchivoParaCarga[],
+  archivos: ArchivoElegido[],
 ): Promise<boolean> => {
   const empleadoId = empleadoActual();
   if (!empleadoId) {
@@ -148,13 +153,13 @@ export const solicitarLicencia = async (
  * Estado 100000008: solo sube el archivo; marcar el adjunto la volvería a Solicitada y le borraría la aprobación.
  * Estados 1 y 100000006: solo sube el archivo.
  */
-export const enviarCertificado = async (licencia: Licencia, archivos: ArchivoParaCarga[]): Promise<boolean> => {
+export const enviarCertificado = async (licencia: Licencia, archivos: ArchivoElegido[]): Promise<boolean> => {
   if (!puedeAdjuntarCertificado(licencia.estado)) return false;
   if (archivos.length === 0) {
     toast.error('El archivo adjunto es requerido!');
     return false;
   }
-  if (hayArchivoQueSupera(archivos.map((a) => ({ tamanio: a.size })))) {
+  if (hayArchivoQueSupera(archivos)) {
     toast.error(MSG_ARCHIVO_MUY_PESADO, DURACION_AVISO_MS);
     return false;
   }
