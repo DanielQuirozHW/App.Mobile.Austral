@@ -55,12 +55,11 @@ Estos puntos están ya en el código y no se pudieron confirmar con una fuente. 
 | `useRoute<RouteProp<RootStackParams, 'Licencias'>>()` y el parámetro opcional `seccion` | `LicenciasScreen.tsx`, `navigation/tipos.ts` | Escrito con la API conocida de react-navigation 7 |
 | El texto "Cerrando sesión…" y el tiempo de 1500 ms del overlay son los del portal (`AuthContext`), pero su aspecto exacto no se leyó | `OverlayCerrandoSesion.tsx` | Aspecto propio, sin fuente |
 | Aspecto de la pantalla de selección de puesto: se leyó la estructura y los textos, no cada valor de estilo (el círculo del ícono lleva color liso en vez de degradado) | `SeleccionarPuestoScreen.tsx` | Aproximación |
-| Aspecto de los componentes de campo, diálogos y chips del portal (`src/@core/theme/overrides/*`) | `components/form/*`, `AppModal.tsx`, `Etiqueta.tsx`, `EstadoChip.tsx` | Aproximación con los tokens del portal |
+| Aspecto de los componentes de campo, diálogos y chips del portal (`src/@core/theme/overrides/*`) | `components/form/*`, `AppModal.tsx`, `Etiqueta.tsx` | Aproximación con los tokens del portal |
 | Iniciales del avatar: el portal usa `getInitials` (`@core/utils/get-initials`), que no se leyó; la app toma la primera letra de las dos primeras palabras | `PerfilLegajoBanner.tsx` | Aproximación |
 | Campos del CRM de Licencias y vacaciones: `new_tienelimiteanual` como booleano, `_new_vacaciones_value` para distinguir vacaciones, estructura de `reportaA`, vacaciones sin filtro de `statecode`, orden de las notas, notas sin filtro `isdocument`, `diasCorrespondientes` en "Período Actual" | `domain/licencias/mapeo.ts`, `infrastructure/licencias/*` | Inferidos de cómo los usa el portal; ver decisión 54 |
-| Que `desdeGoceIso` / `hastaGoceIso` equivalgan a `fechaDesdePeriodo` / `fechaHastaPeriodo` para mostrar el botón Solicitar | `VacacionesSeccion.tsx` | Inferido; decisión 53 |
-| Regla del botón "Responder" de una licencia del líder (`debeAprobar` del portal) | `GestionSeccion.tsx` | Se usa `ESTADOS_LICENCIA_A_RESPONDER`; decisión 52 |
-| Aspecto de la grilla del calendario, la barra de progreso de vacaciones y las tarjetas de solicitud | `CalendarioSeccion.tsx`, `VacacionesPanel.tsx`, `TarjetaSolicitud.tsx` | Adaptación propia a celular; el portal usa `react-big-calendar` y grillas de MUI |
+| Aspecto de la grilla del calendario, de las tarjetas de solicitud y de la disposición de los cuatro números del panel de vacaciones | `CalendarioSeccion.tsx`, `VacacionesPanel.tsx`, `TarjetaSolicitud.tsx` | Adaptación propia a celular; el portal usa `react-big-calendar` y grillas de MUI |
+| Tamaño y tipografía de las insignias de estado (colores y textos sí son los del `StatusBadge`) | `EstadoChip.tsx` | Aproximación; el portal usa un `Chip` de MUI de 24 px |
 
 ## Falta verificar antes de construir lo que depende de ello
 
@@ -71,7 +70,7 @@ Estos puntos están ya en el código y no se pudieron confirmar con una fuente. 
 | Uso de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) en el portal; si hace falta una variable de entorno más | Etapa 2 (endpoints) |
 | Controllers de la API (`HROneClickController`, `ConsultafetchController`, `V1/*`) y diferencia entre `consultafetch` y `consultafetchs`, si hace falta | Cuando un contrato lo requiera |
 
-Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, PDF, DOC, DOCX; 15 MB), campos de `ModalConyuge` y `ModalHijos`, rutas de adjuntos de familiares, `CustomTextField` / `CustomSearchSelect` / `CustomDateField` (comportamiento). Leído y migrado en la etapa 5: `UserProfileBanner`, `LegajoPageHeader` y `actualizarFotoPerfil`. Leído y migrado en la etapa 8: modales de licencias y vacaciones, `columnsGestionSolicitudes`, `DomicilioDeclarado`.
+Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, PDF, DOC, DOCX; 15 MB), campos de `ModalConyuge` y `ModalHijos`, rutas de adjuntos de familiares, `CustomTextField` / `CustomSearchSelect` / `CustomDateField` (comportamiento). Leído y migrado en la etapa 5: `UserProfileBanner`, `LegajoPageHeader` y `actualizarFotoPerfil`. Leído y migrado en la etapa 8: modales de licencias y vacaciones, `columnsLicencias`, `columnsVacaciones`, `columnsGestionSolicitudes`, `StatusBadge`, `useSolicitudesEquipo`, `useCancelarVacacion`, `useVacaciones`, `periodoSolicitable`, `DomicilioDeclarado`.
 
 ## Plan de etapas
 
@@ -82,4 +81,4 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 5. Foto de perfil y cabecera del legajo (**escritas**, sin probar; decisiones 45 a 47). La portada no se construye.
 6. Datos personales (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia), con confirmación al salir con cambios sin guardar (**escrito**, sin probar; ver decisiones 37 a 44).
 7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **Sigue.**
-8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito**, sin probar; decisiones 48 a 55; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`.
+8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito** y alineado con el portal, sin probar; decisiones 48 a 56; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`.
