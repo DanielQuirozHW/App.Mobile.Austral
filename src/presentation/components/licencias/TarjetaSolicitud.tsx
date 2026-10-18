@@ -36,7 +36,7 @@ export const TarjetaSolicitud: React.FC<TarjetaSolicitudProps> = ({ titulo, subt
             {subtitulo}
           </AppText>
         ) : null}
-        {estado}
+        {estado ? <View style={styles.estado}>{estado}</View> : null}
       </View>
       <View style={styles.lineas}>
         {lineas.map((linea) => (
@@ -44,7 +44,9 @@ export const TarjetaSolicitud: React.FC<TarjetaSolicitudProps> = ({ titulo, subt
             <AppText variant="caption" tone="secondary">
               {linea.label}
             </AppText>
-            <AppText variant="body2">{linea.valor || '—'}</AppText>
+            <AppText variant="body2" style={styles.valor}>
+              {linea.valor || '—'}
+            </AppText>
           </View>
         ))}
       </View>
@@ -66,13 +68,26 @@ const createStyles = (c: ColorTokens) =>
     },
     encabezado: { gap: spacing.xs },
     titulo: { fontWeight: '600' },
-    lineas: { flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.sm, columnGap: spacing.lg },
-    linea: { minWidth: '40%', gap: spacing.xxs },
+    estado: { marginTop: spacing.xs },
+    lineas: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      rowGap: spacing.md,
+      columnGap: spacing.lg,
+      backgroundColor: c.surfaceSecondary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+    },
+    linea: { minWidth: '40%', flexGrow: 1, gap: spacing.xxs },
+    valor: { fontWeight: '500' },
     acciones: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
       flexWrap: 'wrap',
       gap: spacing.sm,
+      paddingTop: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: c.border,
     },
   });
