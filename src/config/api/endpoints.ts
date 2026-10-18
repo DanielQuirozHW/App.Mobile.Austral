@@ -1,6 +1,6 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
 // escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
-// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension).
+// hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*).
 // Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil.
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
@@ -94,4 +94,18 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: actividades de extensión. */
   actividadesExtension: (): string => api('hrfactors/actividadesextension'),
+
+  // --- Perfil > Gestión académica ---
+
+  /** POST: nuevo encargo en gestión académica. */
+  nuevoEncargo: (): string => api('hrfactors/NuevoEncargo'),
+
+  /** PUT: edita un encargo. */
+  editarEncargo: (): string => api('hrfactors/EditarEncargo'),
+
+  /** DELETE { new_encargosid }: elimina un encargo. */
+  eliminarEncargo: (): string => api('hrfactors/EliminarEncargo'),
+
+  /** POST / PUT / DELETE: cargos y encargos en gestión académica externos. */
+  cargosYEncargosExternos: (): string => api('hrfactors/cargosYEncargosExternos'),
 } as const;
