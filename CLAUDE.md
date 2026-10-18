@@ -96,6 +96,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
 7. Funciones de Nombramientos y Promoción.
 8. Licencias y vacaciones (licencias propias, vacaciones, calendario y gestión del equipo).
+9. Perfil: Formación y Trayectoria profesional (decisiones 57 a 63).
 
 Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
 
@@ -106,6 +107,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 - Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Es de lo último que se construye.
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
 - Segundo módulo: Licencias y vacaciones, confirmado por Daniel y migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55.
+- Perfil, pedido por Daniel: Formación (nivel, siete secciones) y Trayectoria profesional (LinkedIn y cinco secciones), migrados. Faltan Extensión, Gestión académica, Docencia e Investigación. Ver `docs/contexto/perfil.md`.
 - Los demás módulos del MVP están por definir. No se asume ni se construye ninguno hasta que se confirme.
 
 ## Cómo comunicar
@@ -131,6 +133,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `docs/contexto/cliente-http-y-endpoints.md` | Cliente HTTP con reintentos y endpoints que usa el portal (verificado) |
 | `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales, incluida Familia (verificado) |
 | `docs/contexto/licencias-y-vacaciones.md` | Contrato y reglas del módulo Licencias y vacaciones (verificado; lo inferido está marcado) |
+| `docs/contexto/perfil.md` | Contrato y reglas de Perfil: Formación y Trayectoria (verificado; diferencias e inferidos al final) |
 | `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado; el aspecto NO se toma de ahí) |
 | `.claude/skills/` | Skills de trabajo para este repo |
 | `App.tsx` | Providers + `AppNavigation` |
@@ -140,31 +143,36 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/domain/auth/` | Tipos de sesión y textos de error (`authError.ts`) |
 | `src/domain/legajo/` | Datos personales sin UI: tipos, opciones fijas, mapeo del CRM, validación (yup), formulario, payloads, teléfono, fechas, archivos, tipo de contratación |
 | `src/domain/licencias/` | Licencias y vacaciones sin UI: estados, tipos, mapeo del CRM, tipos de licencia y límites, validaciones, payloads, vacaciones, calendario, fechas del CRM |
+| `src/domain/perfil/` | Perfil sin UI: `comun` (fechas del CRM, años, Sí / No, helpers yup), `formacion*` (opciones, tipos, mapeo, payloads, validación) y `trayectoria*` |
 | `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`), colección `usuarios` de Firestore (`usuariosFirestore.ts`) y fotos en Storage (`fotosStorage.ts`) |
 | `src/infrastructure/legajo/` | Llamadas a la API de Datos personales: legajo, familiares y adjuntos, catálogos, credencial de servicio |
 | `src/infrastructure/licencias/` | Llamadas a la API de Licencias y vacaciones: `licenciasApi`, `vacacionesApi`, `equipoApi` |
+| `src/infrastructure/perfil/` | Llamadas a la API de Perfil: `perfilApi` (lectura por empleado, escritura, subida), `formacionApi`, `trayectoriaApi` |
 | `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara), selección de la foto de perfil y visor de adjuntos |
 | `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
 | `src/application/auth/authService.ts` | Login Microsoft y email, logout, escucha de sesión y revalidación |
 | `src/application/auth/fotoPerfilService.ts` | Cambio de foto de perfil (Storage + `usuarios`) |
 | `src/application/legajo/legajoService.ts` | Flujos de Datos personales (guardar legajo, cónyuge, hijos/as, bajas, adjuntos) |
 | `src/application/licencias/` | `licenciasService.ts` (solicitar, cancelar, certificado, aprobar / rechazar, carga de datos) y `adjuntosService.ts` |
-| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `toastStore` |
+| `src/application/perfil/` | `formacionService.ts` y `trayectoriaService.ts` (cargas, altas, ediciones y bajas de cada sección) |
+| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `formacionStore`, `trayectoriaStore`, `toastStore` |
 | `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
 | `src/presentation/screens/auth/` | `LoginScreen`, `SeleccionarPuestoScreen` |
-| `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, acceso a Datos personales y a Licencias y vacaciones, cerrar sesión) |
+| `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, acceso a Datos personales, Licencias y vacaciones, Formación y Trayectoria, cerrar sesión) |
 | `src/presentation/screens/legajo/DatosPersonalesScreen.tsx` | Pantalla de Datos personales |
 | `src/presentation/screens/licencias/LicenciasScreen.tsx` | Pantalla de Licencias y vacaciones (pestañas: Licencias, Vacaciones, Calendario, Equipo) |
+| `src/presentation/screens/perfil/` | `FormacionScreen.tsx` y `TrayectoriaScreen.tsx` |
 | `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` permite forzar claro) |
 | `src/presentation/utils/` | `responsive.ts` (escala, espacios, radios) y `toast.ts` (avisos) |
 | `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
 | `src/presentation/components/form/` | Campos de formulario: `SelectField`, `DateField`, `FormTextField`, `FormSelectField`, `FormDateField`, `FormTileSelector`, `ScrollFormulario` |
 | `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos`, `PerfilLegajoBanner` (cabecera con foto de perfil), `FilaDato` |
 | `src/presentation/components/licencias/` | Secciones (`MisLicenciasSeccion`, `VacacionesSeccion`, `CalendarioSeccion`, `GestionSeccion`), modales de solicitud, detalle, aprobación y calendario, y piezas comunes (`EstadoChip`, `Pestanias`, `ListaPaginada`, `TarjetaSolicitud`, `SelectorArchivos`, `RespuestaLider`, `VacacionesPanel`, `FormularioDomicilio`, `DomicilioDeclarado`) |
+| `src/presentation/components/perfil/` | `SeccionRegistros` (sección genérica con Ver / Editar / Eliminar), `ModalPerfil` (marco de los modales), `CamposComunes`, un modal por sección (`ModalTitulo`, `ModalEspecialidad`, `ModalCertificacion`, `ModalIdioma`, `ModalAreaExpertise`, `ModalExperiencia`, `ModalConsultoria`, `ModalComite`, `ModalLicenciaProfesional`, `ModalReconocimiento`) y `SeccionesFormacion` / `SeccionesTrayectoria` |
 | `src/assets/images/logos.ts` | Logos (hoy `null` hasta copiar las imágenes; ver `docs/SETUP-NATIVO.md`) |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
 | `.env.template` | Nombres de variables de entorno, sin valores |
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo), accesible desde Inicio. Sigue la etapa 7: uso de las funciones de Nombramientos y Promoción en navegación y guardas. Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo), accesible desde Inicio. Etapa 9 escrita: Perfil > Formación y Trayectoria profesional, accesibles desde Inicio. Siguen: Plan de Trabajo (solo docente), el resto de Perfil (Extensión, Gestión académica, Docencia, Investigación) y la etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas). Todo sin probar. No hay carpetas nativas todavía.
