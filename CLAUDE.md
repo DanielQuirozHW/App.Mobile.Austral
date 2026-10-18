@@ -32,6 +32,8 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 11. No construir módulos que no estén confirmados, ni agregar funcionalidades extra.
 12. No inventar endpoints, payloads ni reglas de negocio: si no están en el código, se pregunta.
 13. No presentar como verificado algo que se supuso.
+14. No preguntar por la publicación de las apps ni por el registro en Firebase: se deja todo preparado y Daniel lo hace cuando decida.
+15. No plantear el tema de seguridad de las credenciales del usuario de servicio: es del portal.
 
 ---
 
@@ -50,7 +52,7 @@ Todo se accede por el conector MCP de GitHub. La escritura va solo en este repo.
 
 1. Código del portal: manda en lógica, flujos, autenticación, multi-tenant, endpoints, payloads, validaciones y reglas de negocio.
 2. Código de la API: confirma contratos (rutas, parámetros, respuestas) cuando el portal no alcanza.
-3. Código del prototipo: solo para estructura de carpetas, convenciones, navegación, tema y forma de programar una app RN.
+3. Código del prototipo: solo para estructura de carpetas, convenciones, navegación, tema y forma de programar una app RN. Donde el prototipo no tiene patrón, se usa uno propio y se documenta.
 4. README, ARCHITECTURE, CLAUDE.md y demás documentación de los repos: pistas, nunca fuente.
 
 ## Cómo se construye
@@ -62,7 +64,7 @@ Todo se accede por el conector MCP de GitHub. La escritura va solo en este repo.
 ## Orden de trabajo
 
 1. Entender: leer el código de los 3 repos.
-2. Base de proyecto: este archivo, skills y documentos de contexto (hecho en la primera tanda, se sigue completando).
+2. Base de proyecto: este archivo, skills y documentos de contexto (hecho; se sigue completando).
 3. Plan: estructura de la app y orden de construcción, para aprobación antes de escribir código.
 4. Construcción por etapas: infraestructura (login, token, tenant, capa de llamadas a la API) y luego módulos, uno por vez. Sin probar nada.
 5. Verificación: cada etapa se contrasta contra el código del portal, leyéndolo. No se verifica ejecutando.
@@ -72,6 +74,8 @@ Antes de escribir código de una etapa se resume en pocas líneas qué se va a h
 ## Alcance
 
 - Autenticación: se migra TODO lo que hace el portal (email/password con Firebase, SAML, registro, recuperación de contraseña, validación del empleado contra la API, selección de puesto, renovación del token, cierre de sesión). Sin probar y con credenciales vacías.
+- Foto de perfil y de portada: se migran en la medida en que el portal las tiene.
+- Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Es de lo último que se construye.
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
 - Los demás módulos del MVP están por definir. No se asume ni se construye ninguno hasta que se confirme.
 
@@ -89,9 +93,10 @@ Antes de escribir código de una etapa se resume en pocas líneas qué se va a h
 | Ruta | Qué hay |
 |---|---|
 | `docs/contexto/portal-auth-y-tenant.md` | Cómo autentica el portal y cómo se resuelve el tenant (verificado) |
+| `docs/contexto/roles-puesto-y-fotos.md` | Puesto, selección de rol, funciones de Nombramientos/Promoción y fotos (verificado) |
 | `docs/contexto/cliente-http-y-endpoints.md` | Cliente HTTP con reintentos y endpoints que usa el portal (verificado) |
-| `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales (verificado, con lo que falta leer) |
-| `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado) |
+| `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales, incluida Familia (verificado) |
+| `docs/contexto/prototipo-estructura.md` | Estructura, tema y convenciones del prototipo RN (verificado) |
 | `docs/DECISIONES.md` | Decisiones tomadas |
 | `docs/PENDIENTES.md` | Pendientes, tareas externas y lo que falta leer |
 | `.claude/skills/` | Skills de trabajo para este repo |
@@ -99,4 +104,4 @@ Antes de escribir código de una etapa se resume en pocas líneas qué se va a h
 
 ## Estado actual
 
-Base del proyecto creada. Todavía no hay código de la app. El plan de construcción está pendiente de aprobación.
+Base del proyecto y lectura del portal completas para el alcance actual. Todavía no hay código de la app. El plan de construcción está pendiente de aprobación.
