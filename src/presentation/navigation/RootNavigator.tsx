@@ -3,7 +3,7 @@
 //   - Firebase todavía no resolvió la sesión              -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio
+//   - resto                                              -> Inicio (+ Datos personales para docente / codocente)
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
@@ -11,8 +11,9 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { InicioScreen } from '../screens/InicioScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
+import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
 import { useAuthStore } from '../stores/authStore';
-import { useRolStore } from '../stores/rolStore';
+import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
 import type { RootStackParams } from './tipos';
 
 const Stack = createNativeStackNavigator<RootStackParams>();
@@ -24,6 +25,7 @@ export const RootNavigator: React.FC = () => {
   const cargandoSesion = useAuthStore((s) => s.loading);
   const cargandoRol = useRolStore((s) => s.loading);
   const seleccionPendiente = useRolStore((s) => s.seleccionPendiente);
+  const role = useRolStore((s) => s.role);
   const sincronizarRol = useRolStore((s) => s.sincronizarConUsuario);
 
   // Se escucha la sesión de Firebase una sola vez, al montar.
@@ -48,7 +50,16 @@ export const RootNavigator: React.FC = () => {
       ) : seleccionPendiente ? (
         <Stack.Screen name="SeleccionarPuesto" component={SeleccionarPuestoScreen} />
       ) : (
-        <Stack.Screen name="Inicio" component={InicioScreen} />
+        <>
+          <Stack.Screen name="Inicio" component={InicioScreen} />
+          {puedeVerLegajo(role) ? (
+            <Stack.Screen
+              name="DatosPersonales"
+              component={DatosPersonalesScreen}
+              options={{ headerShown: true, title: 'Datos personales', animation: 'slide_from_right' }}
+            />
+          ) : null}
+        </>
       )}
     </Stack.Navigator>
   );

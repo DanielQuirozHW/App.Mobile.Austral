@@ -1,16 +1,19 @@
 // Inicio PROVISORIO. El portal tiene un tablero en "/" que todavía no se leyó ni se migra (los módulos del MVP
-// están por definir). Esta pantalla solo muestra quién está en sesión y permite cerrarla; el acceso a
-// Datos personales se suma en la etapa 6.
+// están por definir). Esta pantalla muestra quién está en sesión, da acceso a Datos personales (primer módulo)
+// y permite cerrar la sesión.
 import React, { useMemo } from 'react';
 import { Alert, Image, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { cerrarSesion } from '../../application/auth/authService';
 import { AppButton } from '../components/AppButton';
 import { AppText } from '../components/AppText';
 import { Screen } from '../components/Screen';
+import type { RootStackParams } from '../navigation/tipos';
 import { ColorTokens } from '../theme/colors';
 import { useThemeColors } from '../theme/theme';
 import { useAuthStore } from '../stores/authStore';
-import { metaDeRol, useRolStore } from '../stores/rolStore';
+import { metaDeRol, puedeVerLegajo, useRolStore } from '../stores/rolStore';
 import { borderRadius, scale, spacing } from '../utils/responsive';
 
 const iniciales = (nombre?: string): string =>
@@ -24,6 +27,7 @@ const iniciales = (nombre?: string): string =>
 export const InicioScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
 
@@ -57,7 +61,12 @@ export const InicioScreen: React.FC = () => {
         ) : null}
       </View>
 
-      <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
+      <View style={styles.acciones}>
+        {puedeVerLegajo(role) ? (
+          <AppButton title="Datos personales" icon="person-outline" onPress={() => navigation.navigate('DatosPersonales')} />
+        ) : null}
+        <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
+      </View>
     </Screen>
   );
 };
@@ -66,6 +75,7 @@ const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     contenido: { flexGrow: 1, justifyContent: 'center', gap: spacing.xxxl },
     perfil: { alignItems: 'center', gap: spacing.sm },
+    acciones: { gap: spacing.md },
     centrado: { textAlign: 'center' },
     avatar: { width: scale(96), height: scale(96), borderRadius: borderRadius.round, marginBottom: spacing.sm },
     avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },

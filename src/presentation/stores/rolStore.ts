@@ -60,3 +60,6 @@ export const metaDeRol = (puesto: string): { label: string; descripcion: string 
   }
   return { label: puesto.charAt(0).toUpperCase() + puesto.slice(1), descripcion: 'Acceso al portal' };
 };
+
+/** Datos personales solo está disponible para estos puestos (ProtectedRoute allowedRoles=["docente", "codocente"] del portal). */
+export const puedeVerLegajo = (puesto: string | null): boolean => puesto === 'docente' || puesto === 'codocente';
