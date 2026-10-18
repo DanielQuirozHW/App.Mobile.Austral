@@ -1,13 +1,14 @@
 // Consultas al BO (CRM) para validar al empleado. Port de Portal-Austral-Dev -> src/context/AuthContext.tsx
-// Todas van por api/consultafetchs (o api/consultafetch en el registro) con el token del usuario de servicio.
+// Todas van por api/consultafetchs con el token del usuario de servicio.
 import { apiPost } from '../../config/api/apiClient';
-import { env } from '../../config/env';
+import { endpoints } from '../../config/api/endpoints';
 import { MSG_ERROR_TRANSITORIO } from '../../domain/auth/authError';
 import {
   resolverFuncionNombramientos,
   resolverFuncionPromocion,
 } from '../../domain/roles/funciones';
 import type { RolNombramientos, RolPromocion } from '../../domain/roles/enums';
+import { env } from '../../config/env';
 
 /** Fila de new_empleado tal como la devuelve el BO (solo los campos que usa el login). */
 export interface EmpleadoBO {
@@ -32,9 +33,9 @@ const escaparXml = (valor: string): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 
-const consultar = (ruta: 'consultafetchs' | 'consultafetch', entidad: string, fetch: string, token: string) =>
+const consultar = (entidad: string, fetch: string, token: string) =>
   apiPost<unknown>(
-    `${env.apiUrl}api/${ruta}`,
+    endpoints.consultaFetchs(),
     { entidad, fetch },
     { headers: { Authorization: `Bearer ${token}` }, reintentarVacio: true, reintentos: 3 },
   );
@@ -42,7 +43,7 @@ const consultar = (ruta: 'consultafetchs' | 'consultafetch', entidad: string, fe
 /** Login con el usuario de servicio (mismo POST que tokenStore, sin pasar por el store, como el portal). */
 export const obtenerTokenDeServicio = async (): Promise<string> => {
   const resp = await apiPost<{ token?: string }>(
-    `${env.apiUrl}api/Usuarios/login`,
+    endpoints.login(),
     { email: env.apiServiceEmail, password: env.apiServicePassword },
     { reintentarVacio: true, reintentos: 3 },
   );
@@ -97,7 +98,7 @@ export const buscarEmpleadoHabilitado = async (
       <condition attribute="new_correoelectronicoportal" operator="eq" value="${correo}" />
     </filter>
   </entity>`;
-  const resp = await consultar('consultafetchs', 'new_empleados', fetch, token);
+  const resp = await consultar('new_empleados', fetch, token);
   return clasificar(resp.data);
 };
 
@@ -114,32 +115,8 @@ export const buscarEmpleadoParaRevalidar = async (email: string, token: string):
       <condition attribute="new_correoelectronicoportal" operator="eq" value="${escaparXml(email)}" />
     </filter>
   </entity>`;
-  const resp = await consultar('consultafetchs', 'new_empleados', fetch, token);
+  const resp = await consultar('new_empleados', fetch, token);
   return Array.isArray(resp.data) && resp.data.length > 0 ? (resp.data[0] as EmpleadoBO) : null;
-};
-
-/** Registro: busca al empleado por correo del portal (api/consultafetch, singular). Datos para el doc de `usuarios`. */
-export const buscarEmpleadoParaRegistro = async (email: string, token: string): Promise<Record<string, any> | null> => {
-  const fetch = `<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
-    <entity name='new_empleado'>
-      <attribute name='new_name' />
-      <attribute name='new_correoelectronicoportal' />
-      <attribute name='new_empleadoid' />
-      <attribute name="new_puesto" />
-      <attribute name='ownerid' />
-      <order attribute='new_numerolegajo' descending='false' />
-      <filter type='and'>
-        <condition attribute='new_correoelectronicoportal' operator='eq' value='${escaparXml(email)}' />
-      </filter>
-    </entity>
-  </fetch>`;
-  try {
-    const resp = await consultar('consultafetch', 'new_empleados', fetch, token);
-    return Array.isArray(resp.data) && resp.data.length > 0 ? (resp.data[0] as Record<string, any>) : null;
-  } catch {
-    // El portal ignora el error de esta consulta y cae en "no existe una cuenta".
-    return null;
-  }
 };
 
 export interface FuncionesResueltas {
@@ -165,7 +142,7 @@ export const funcionesDesdeTodasLasPosiciones = async (
         <condition attribute="new_empleadoactual" operator="eq" value="{${escaparXml(empleadoId)}}" />
       </filter>
     </entity>`;
-    const resp = await consultar('consultafetchs', 'new_posicions', fetch, token);
+    const resp = await consultar('new_posicions', fetch, token);
     if (!Array.isArray(resp.data)) return vacio;
     const nombres = resp.data.map((fila: any) => fila?.new_name as string | undefined);
     const nombramientos = nombres
