@@ -3,7 +3,7 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Licencias y vacaciones + Perfil (Formación)
+//   - resto                                              -> Inicio + Licencias y vacaciones + Perfil (Formación y Trayectoria)
 //                                                           (+ Datos personales para docente / codocente)
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -15,6 +15,7 @@ import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
 import { LicenciasScreen } from '../screens/licencias/LicenciasScreen';
 import { FormacionScreen } from '../screens/perfil/FormacionScreen';
+import { TrayectoriaScreen } from '../screens/perfil/TrayectoriaScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
 import type { RootStackParams } from './tipos';
@@ -72,6 +73,11 @@ export const RootNavigator: React.FC = () => {
             name="Formacion"
             component={FormacionScreen}
             options={{ headerShown: true, title: 'Formación', animation: 'slide_from_right' }}
+          />
+          <Stack.Screen
+            name="Trayectoria"
+            component={TrayectoriaScreen}
+            options={{ headerShown: true, title: 'Trayectoria profesional', animation: 'slide_from_right' }}
           />
         </>
       )}

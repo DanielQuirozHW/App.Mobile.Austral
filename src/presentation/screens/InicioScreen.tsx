@@ -71,6 +71,11 @@ export const InicioScreen: React.FC = () => {
           onPress={() => navigation.navigate('Licencias')}
         />
         <AppButton title="Formación" icon="school-outline" onPress={() => navigation.navigate('Formacion')} />
+        <AppButton
+          title="Trayectoria profesional"
+          icon="briefcase-outline"
+          onPress={() => navigation.navigate('Trayectoria')}
+        />
         <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
       </View>
     </Screen>
