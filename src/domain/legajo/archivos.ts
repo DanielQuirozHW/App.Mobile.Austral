@@ -21,6 +21,29 @@ export const TAMANIO_MAXIMO_BYTES = 15 * 1024 * 1024;
 export const obtenerExtension = (filename?: string): string =>
   (filename?.split('.').pop() ?? '').toLowerCase();
 
+/** Mimetype según la extensión, para cuando el selector del sistema no lo informa. */
+export const mimetypePorExtension = (filename?: string): string => {
+  switch (obtenerExtension(filename)) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'pdf':
+      return 'application/pdf';
+    case 'doc':
+      return 'application/msword';
+    case 'docx':
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    default:
+      return 'application/octet-stream';
+  }
+};
+
 export const esPdf = (mimetype?: string, filename?: string): boolean =>
   (mimetype ?? '').toLowerCase().includes('pdf') || obtenerExtension(filename) === 'pdf';
 
