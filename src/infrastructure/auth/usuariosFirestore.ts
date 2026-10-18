@@ -1,9 +1,9 @@
 // Acceso a la colección `usuarios` de Firestore (React Native Firebase, API modular).
 // El portal usa DOS formas de documento (verificado en AuthContext.tsx):
-//  - Login por email/registro: id automático (addDoc) y campo `uid`; se busca con where('uid','==',uid).
+//  - Login por email: id automático (lo crea el registro del portal) y campo `uid`; se busca con where('uid','==',uid).
+//    La app no registra usuarios (decisión 36): esas cuentas y sus documentos ya existen.
 //  - Login Microsoft/SAML: el id del documento ES el uid (setDoc/getDoc/updateDoc).
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
@@ -46,8 +46,4 @@ export const actualizarUsuario = async (ref: UsuarioDoc['ref'], datos: Record<st
 
 export const crearUsuarioConId = async (uid: string, datos: Record<string, any>): Promise<void> => {
   await setDoc(doc(getFirestore(), COLECCION, uid), datos);
-};
-
-export const agregarUsuario = async (datos: Record<string, any>): Promise<void> => {
-  await addDoc(collection(getFirestore(), COLECCION), datos);
 };
