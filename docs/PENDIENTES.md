@@ -4,7 +4,7 @@ Se actualiza. Tres tipos: decisiones de Daniel, tareas externas al código y cos
 
 ## Decisiones de Daniel
 
-- Qué otros módulos entran en el MVP después de Datos personales y Licencias y vacaciones.
+- Qué otros módulos entran en el MVP después de Datos personales, Licencias y vacaciones y Perfil. Sigue Plan de Trabajo (solo docente); después, los que Daniel elija entre los que quedan del portal (Documentación, GDD, Indicadores, funciones SA / VRAA, Referente MATHU, notificaciones, Promoción > Postulación).
 - Si revierte alguno de los reemplazos de la decisión 20 (fs, file-viewer, íconos, native-stack, teclado).
 - Nombre visible de la app (`displayName` en `app.json` está como "Austral", provisorio; el portal se llama "Portal Universidad Austral" en `themeConfig.ts`) y nombre del proyecto nativo (`AustralMobile`).
 - Modo claro/oscuro: la app sigue el sistema; el portal arranca en claro y tiene un selector (su `settingsContext` no se leyó). Ver decisión 27.
@@ -60,6 +60,11 @@ Estos puntos están ya en el código y no se pudieron confirmar con una fuente. 
 | Campos del CRM de Licencias y vacaciones: `new_tienelimiteanual` como booleano, `_new_vacaciones_value` para distinguir vacaciones, estructura de `reportaA`, vacaciones sin filtro de `statecode`, orden de las notas, notas sin filtro `isdocument`, `diasCorrespondientes` en "Período Actual" | `domain/licencias/mapeo.ts`, `infrastructure/licencias/*` | Inferidos de cómo los usa el portal; ver decisión 54 |
 | Aspecto de la grilla del calendario, de las tarjetas de solicitud y de la disposición de los cuatro números del panel de vacaciones | `CalendarioSeccion.tsx`, `VacacionesPanel.tsx`, `TarjetaSolicitud.tsx` | Adaptación propia a celular; el portal usa `react-big-calendar` y grillas de MUI |
 | Tamaño y tipografía de las insignias de estado (colores y textos sí son los del `StatusBadge`) | `EstadoChip.tsx` | Aproximación; el portal usa un `Chip` de MUI de 24 px |
+| Formato de las fechas de estancias, participación en jornadas y producciones (`diaADocenciaApi`) | `domain/perfil/resultados.ts`, `domain/perfil/produccionCientifica.ts` | Inferido; el portal las manda tal como las guarda su formulario (decisión 72) |
+| Lectura de producciones propias sin el link-entity externo del portal (deduplicadas por id), y `new_tipodecaso` sin enviar | `infrastructure/perfil/resultadosApi.ts`, `armarPayloadProduccion` | Inferido (decisión 72) |
+| Reglas de autores: "otro" no se envía si el lugar es la UA, el colaborador no se envía si es Otro, "Otras instituciones" no obligatorio, respuesta con `colaboradorNombre` y respaldo en `nombreYApellido` | `domain/perfil/produccionCientifica.ts` | Inferido (decisión 72) |
+| Textos propios de Resultados / Impacto I+D (respuesta de autor, rótulos, vacíos, diálogos de eliminar jornadas y estancias, subtítulos de pestaña) | `InvestigacionResultados.tsx`, `SeccionProducciones.tsx`, `ModalProduccion.tsx` | El portal no los tiene verificados (decisión 73) |
+| Campos que el modal de producción acepta con dos nombres de alias | `domain/perfil/produccionCientifica.ts` | Inferido (decisión 72) |
 
 ## Falta verificar antes de construir lo que depende de ello
 
@@ -69,8 +74,9 @@ Estos puntos están ya en el código y no se pudieron confirmar con una fuente. 
 | Foto de portada: `PerfilHeader.tsx` (`legajo/_components/component/`) no se leyó y no se encontró qué pantalla lo usa; la cabecera de Datos personales no muestra portada. Si alguna pantalla del MVP la usa, se agrega `actualizarFotoPortada` (`{uid}/foto portada`, `photoPORTADA`) | Cuando se definan los módulos del MVP |
 | Uso de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) en el portal; si hace falta una variable de entorno más | Etapa 2 (endpoints) |
 | Controllers de la API (`HROneClickController`, `ConsultafetchController`, `V1/*`) y diferencia entre `consultafetch` y `consultafetchs`, si hace falta | Cuando un contrato lo requiera |
+| Documentar en `contexto/perfil.md` el contrato detallado de Extensión, Gestión académica, Docencia, Afiliaciones y Actividad I+D | Antes de cerrar Perfil |
 
-Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, PDF, DOC, DOCX; 15 MB), campos de `ModalConyuge` y `ModalHijos`, rutas de adjuntos de familiares, `CustomTextField` / `CustomSearchSelect` / `CustomDateField` (comportamiento). Leído y migrado en la etapa 5: `UserProfileBanner`, `LegajoPageHeader` y `actualizarFotoPerfil`. Leído y migrado en la etapa 8: modales de licencias y vacaciones, `columnsLicencias`, `columnsVacaciones`, `columnsGestionSolicitudes`, `StatusBadge`, `useSolicitudesEquipo`, `useCancelarVacacion`, `useVacaciones`, `periodoSolicitable`, `DomicilioDeclarado`.
+Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, PDF, DOC, DOCX; 15 MB), campos de `ModalConyuge` y `ModalHijos`, rutas de adjuntos de familiares, `CustomTextField` / `CustomSearchSelect` / `CustomDateField` (comportamiento). Leído y migrado en la etapa 5: `UserProfileBanner`, `LegajoPageHeader` y `actualizarFotoPerfil`. Leído y migrado en la etapa 8: modales de licencias y vacaciones, `columnsLicencias`, `columnsVacaciones`, `columnsGestionSolicitudes`, `StatusBadge`, `useSolicitudesEquipo`, `useCancelarVacacion`, `useVacaciones`, `periodoSolicitable`, `DomicilioDeclarado`. Leído y migrado en las etapas 9 a 12: las páginas de Perfil del portal (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación) con sus modales, hooks y store.
 
 ## Plan de etapas
 
@@ -82,3 +88,8 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 6. Datos personales (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia), con confirmación al salir con cambios sin guardar (**escrito**, sin probar; ver decisiones 37 a 44).
 7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **Sigue.**
 8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito** y alineado con el portal, sin probar; decisiones 48 a 56; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`.
+9. Perfil: Formación y Trayectoria profesional (**escritos**, sin probar; decisiones 57 a 63).
+10. Perfil: Extensión y Gestión académica (**escritas**, sin probar; decisión 64).
+11. Perfil: Docencia (**escrita**, sin probar; decisiones 64 y 66).
+12. Perfil: Investigación, con Afiliaciones, Actividad I+D (proyectos, financiamientos, formación de RRHH y "Más info" de los siete tipos de resultado) y Resultados / Impacto I+D (**escritas**, sin probar; decisiones 65 a 74).
+13. Plan de Trabajo (`/planes-de-trabajo`, solo docente). **Sigue.**
