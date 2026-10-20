@@ -25,3 +25,16 @@ export const consultarFetchXml = async (entidad: string, fetch: string, token: s
   );
   return resp.data;
 };
+
+/**
+ * Igual que consultarFetchXml, pero contra el endpoint singular (api/consultafetch). El portal lo usa en las dos
+ * lecturas de proyectos de investigación (propios y como participante), que mandan el FetchXML completo con <fetch>.
+ */
+export const consultarFetchXmlSingular = async (entidad: string, fetch: string, token: string): Promise<unknown> => {
+  const resp = await apiPost<unknown>(
+    endpoints.consultaFetch(),
+    { entidad, fetch },
+    { headers: { Authorization: `Bearer ${token}` }, reintentarVacio: true, reintentos: 3 },
+  );
+  return resp.data;
+};

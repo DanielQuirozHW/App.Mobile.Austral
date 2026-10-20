@@ -5,30 +5,34 @@ import { escribirRegistro, leerCatalogoFetchXml, leerRegistrosDeEmpleado } from 
 
 type Metodo = 'post' | 'put' | 'delete';
 
+// Las listas de atributos se exportan: el "Más info" de los resultados de un proyecto lee el mismo registro por id.
+
 // --- Financiamiento propio de la UA ---
+
+export const ATRIBUTOS_PROPIO: string[] = [
+  'new_financiamientopropiodelauaid',
+  'new_rol',
+  'new_estado',
+  'new_fechainicio',
+  'new_fechafin',
+  'new_tipofinanciamiento',
+  'new_modalidad',
+  'new_name',
+  'new_moneda_opcion',
+  'new_monto',
+  'statuscode',
+  'new_otrofinanciamiento',
+  'new_nombredelsubsidio',
+  'new_fechaotorgamiento',
+  'createdon',
+  'statecode',
+];
 
 export const leerFinanciamientosPropios = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_financiamientopropiodelauas',
     entidad: 'new_financiamientopropiodelaua',
-    atributos: [
-      'new_financiamientopropiodelauaid',
-      'new_rol',
-      'new_estado',
-      'new_fechainicio',
-      'new_fechafin',
-      'new_tipofinanciamiento',
-      'new_modalidad',
-      'new_name',
-      'new_moneda_opcion',
-      'new_monto',
-      'statuscode',
-      'new_otrofinanciamiento',
-      'new_nombredelsubsidio',
-      'new_fechaotorgamiento',
-      'createdon',
-      'statecode',
-    ],
+    atributos: ATRIBUTOS_PROPIO,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'createdon',
@@ -40,28 +44,30 @@ export const escribirFinanciamientoPropio = (metodo: Metodo, data: unknown): Pro
 
 // --- Financiamiento externo a la UA ---
 
+export const ATRIBUTOS_EXTERNO: string[] = [
+  'new_financiamientoexternoalauaid',
+  'new_name',
+  'new_rol',
+  'new_estado',
+  'new_fechainicio',
+  'new_fechafin',
+  'new_destinodelfinanciamiento',
+  'new_institucionotorgante',
+  'new_moneda',
+  'new_monto',
+  'new_fechadeotorgamiento',
+  'new_actividadesquefinancia',
+  'new_otraactividad',
+  'statuscode',
+  'createdon',
+  'statecode',
+];
+
 export const leerFinanciamientosExternos = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_financiamientoexternoalauas',
     entidad: 'new_financiamientoexternoalaua',
-    atributos: [
-      'new_financiamientoexternoalauaid',
-      'new_name',
-      'new_rol',
-      'new_estado',
-      'new_fechainicio',
-      'new_fechafin',
-      'new_destinodelfinanciamiento',
-      'new_institucionotorgante',
-      'new_moneda',
-      'new_monto',
-      'new_fechadeotorgamiento',
-      'new_actividadesquefinancia',
-      'new_otraactividad',
-      'statuscode',
-      'createdon',
-      'statecode',
-    ],
+    atributos: ATRIBUTOS_EXTERNO,
     campoEmpleado: 'new_colaborador',
     empleadoId,
   });
@@ -71,36 +77,38 @@ export const escribirFinanciamientoExterno = (metodo: Metodo, data: unknown): Pr
 
 // --- Formación de tesistas ---
 
+export const ATRIBUTOS_TESISTA: string[] = [
+  'new_formaciontesistasid',
+  'new_formacion',
+  'new_pertenenciadirector',
+  'new_director_principal',
+  'new_director_otro',
+  'new_pertenenciacodirector',
+  'new_codirector_otro',
+  'new_codirector_principal',
+  'new_pertenenciadeltesista',
+  'new_tesista_principal',
+  'new_instituciondelprograma',
+  'new_programa',
+  'new_sededepresentacion',
+  'new_fechainicio',
+  'new_estado',
+  'new_anoprevistodelapresentacion',
+  'new_fechadeladefensa',
+  'new_name',
+  'new_director_busqueda',
+  'new_codirector_busqueda',
+  'new_tesista_otro',
+  'new_tesista_busqueda',
+  'new_otro_director',
+  'new_otro_codirector',
+];
+
 export const leerTesistas = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_formaciontesistases',
     entidad: 'new_formaciontesistas',
-    atributos: [
-      'new_formaciontesistasid',
-      'new_formacion',
-      'new_pertenenciadirector',
-      'new_director_principal',
-      'new_director_otro',
-      'new_pertenenciacodirector',
-      'new_codirector_otro',
-      'new_codirector_principal',
-      'new_pertenenciadeltesista',
-      'new_tesista_principal',
-      'new_instituciondelprograma',
-      'new_programa',
-      'new_sededepresentacion',
-      'new_fechainicio',
-      'new_estado',
-      'new_anoprevistodelapresentacion',
-      'new_fechadeladefensa',
-      'new_name',
-      'new_director_busqueda',
-      'new_codirector_busqueda',
-      'new_tesista_otro',
-      'new_tesista_busqueda',
-      'new_otro_director',
-      'new_otro_codirector',
-    ],
+    atributos: ATRIBUTOS_TESISTA,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'new_fechainicio',
@@ -112,30 +120,32 @@ export const escribirTesista = (metodo: Metodo, data: unknown): Promise<unknown>
 
 // --- Dirección de investigadores y/o becarios ---
 
+export const ATRIBUTOS_DIRECCION: string[] = [
+  'new_direcciondeinvestigadoresbecariosid',
+  'new_directorbusqueda',
+  'new_pertenenciadirector',
+  'new_pertenenciacodirector',
+  'new_directorotro',
+  'new_directorprincipal',
+  'new_codirectorotro',
+  'new_codirectorbusqueda',
+  'new_codirectorprincipal',
+  'new_carrera',
+  'new_pertenenciadelinvestigadorbecario',
+  'new_investigadorbecarioprincipal',
+  'new_investigadorbecariootro',
+  'new_institucion',
+  'new_fechadeinicio',
+  'new_fechadefin',
+  'new_encurso',
+  'new_investigadorbecariobusqueda',
+];
+
 export const leerDirecciones = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_direcciondeinvestigadoresbecarioses',
     entidad: 'new_direcciondeinvestigadoresbecarios',
-    atributos: [
-      'new_direcciondeinvestigadoresbecariosid',
-      'new_directorbusqueda',
-      'new_pertenenciadirector',
-      'new_pertenenciacodirector',
-      'new_directorotro',
-      'new_directorprincipal',
-      'new_codirectorotro',
-      'new_codirectorbusqueda',
-      'new_codirectorprincipal',
-      'new_carrera',
-      'new_pertenenciadelinvestigadorbecario',
-      'new_investigadorbecarioprincipal',
-      'new_investigadorbecariootro',
-      'new_institucion',
-      'new_fechadeinicio',
-      'new_fechadefin',
-      'new_encurso',
-      'new_investigadorbecariobusqueda',
-    ],
+    atributos: ATRIBUTOS_DIRECCION,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'new_fechadeinicio',

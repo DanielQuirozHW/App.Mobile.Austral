@@ -15,6 +15,9 @@ export const endpoints = {
   /** POST { entidad, fetch } -> filas del CRM (FetchXML). Lecturas. */
   consultaFetchs: (): string => api('consultafetchs'),
 
+  /** POST { entidad, fetch } -> filas del CRM (FetchXML completo, con <fetch>). Lo usan las lecturas de proyectos. */
+  consultaFetch: (): string => api('consultafetch'),
+
   /** PUT: actualiza el legajo del empleado. */
   legajoEmpleado: (): string => api('hrfactors/empleado'),
 
@@ -151,4 +154,25 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: dirección de investigadores y/o becarios. */
   investigadoresBecarios: (): string => api('hrfactors/investigacion/investigadoresBecarios'),
+
+  // --- Perfil > Investigación > Actividad I+D > Proyectos de investigación ---
+
+  /** POST: alta de un proyecto (API v1). */
+  proyectosInvestigacion: (empleadoId: string): string =>
+    api(`v1/empleados/${encodeURIComponent(empleadoId)}/proyectos-investigacion`),
+
+  /** PUT: edita un proyecto. DELETE (con permanente = true): lo elimina (API v1). */
+  proyectoInvestigacion: (empleadoId: string, proyectoId: string, permanente = false): string =>
+    api(
+      `v1/empleados/${encodeURIComponent(empleadoId)}/proyectos-investigacion/${encodeURIComponent(proyectoId)}`,
+    ) + (permanente ? '?permanente=true' : ''),
+
+  /** POST / PUT: participante de un proyecto. */
+  participanteProyecto: (): string => api('hrfactors/investigacion/participanteDelProyecto'),
+
+  /** DELETE { new_participantesproyectoid }: elimina un participante. */
+  participanteProyectoEliminar: (): string => api('hrfactors/investigacion/participanteDelProyecto/eliminar'),
+
+  /** POST / PUT / DELETE: resultado vinculado a un proyecto. El sufijo depende del tipo de resultado. */
+  resultadoProyecto: (sufijo: string): string => api(`hrfactors/investigacion/proyectos/${sufijo}`),
 } as const;
