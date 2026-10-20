@@ -12,8 +12,8 @@
 //  - Mientras corre un login la escucha de sesión NO publica el usuario (ver `autenticando`).
 //    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
 //  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia, los catálogos, los de licencias y
-//    vacaciones (propios y del equipo) y los de Perfil (formación, trayectoria, extensión, gestión académica, docencia,
-//    afiliaciones, actividad I+D y proyectos) que quedan en memoria.
+//    vacaciones (propios y del equipo), los de Perfil (formación, trayectoria, extensión, gestión académica, docencia,
+//    afiliaciones, actividad I+D, proyectos y resultados) y los del Plan de Trabajo que quedan en memoria.
 import {
   OAuthProvider,
   getAuth,
@@ -56,6 +56,8 @@ import { useGestionAcademicaStore } from '../../presentation/stores/gestionAcade
 import { useLegajoStore } from '../../presentation/stores/legajoStore';
 import { useLicenciasStore } from '../../presentation/stores/licenciasStore';
 import { useProyectosStore } from '../../presentation/stores/proyectosStore';
+import { usePtaStore } from '../../presentation/stores/ptaStore';
+import { useResultadosStore } from '../../presentation/stores/resultadosStore';
 import { useRolStore } from '../../presentation/stores/rolStore';
 import { useTrayectoriaStore } from '../../presentation/stores/trayectoriaStore';
 
@@ -92,6 +94,9 @@ const reiniciarDatosDelEmpleado = (): void => {
   useAfiliacionesStore.getState().reiniciar();
   useActividadStore.getState().reiniciar();
   useProyectosStore.getState().reiniciar();
+  useResultadosStore.getState().reiniciar();
+  // Plan de Trabajo
+  usePtaStore.getState().reiniciar();
 };
 
 /** Publica el usuario. Si tiene dos puestos, marca la selección pendiente ANTES, para que no se vea la pantalla de inicio. */
