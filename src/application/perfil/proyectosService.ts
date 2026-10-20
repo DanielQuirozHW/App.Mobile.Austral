@@ -13,6 +13,7 @@ import {
   type DireccionBecario,
   type Tesista,
 } from '../../domain/perfil/formacionRrhh';
+import { combinarProducciones, type Produccion } from '../../domain/perfil/produccionCientifica';
 import {
   armarPayloadParticipante,
   armarPayloadProyecto,
@@ -30,6 +31,7 @@ import {
   type Participante,
   type Proyecto,
 } from '../../domain/perfil/proyectos';
+import { mapearEstancias, mapearJornadas, type Estancia, type Jornada } from '../../domain/perfil/resultados';
 import {
   armarPayloadResultado,
   configDeResultado,
@@ -40,6 +42,7 @@ import {
   type ResultadoVinculado,
   type TipoResultado,
 } from '../../domain/perfil/resultadosProyecto';
+import { obtenerPaises } from '../../infrastructure/legajo/catalogosApi';
 import {
   ATRIBUTOS_DIRECCION,
   ATRIBUTOS_EXTERNO,
@@ -62,9 +65,15 @@ import {
   leerResultadosVinculados,
   leerUnidadesOrganizativas,
 } from '../../infrastructure/perfil/proyectosApi';
+import {
+  ATRIBUTOS_ESTANCIA,
+  ATRIBUTOS_JORNADA,
+  ATRIBUTOS_PRODUCCION_PROPIA,
+} from '../../infrastructure/perfil/resultadosApi';
 import { useAuthStore } from '../../presentation/stores/authStore';
 import { useLegajoStore } from '../../presentation/stores/legajoStore';
 import { useProyectosStore } from '../../presentation/stores/proyectosStore';
+import { useResultadosStore } from '../../presentation/stores/resultadosStore';
 
 export const MSG_ERROR_CARGA_PROYECTOS = 'No pudimos cargar tus proyectos de investigación. Por favor, volvé a intentar.';
 
@@ -226,18 +235,43 @@ export const eliminarResultado = async (tipo: TipoResultado, id: string): Promis
 // --- Más info de un resultado vinculado ---
 
 export type MasInfoResultado =
+  | { visor: 'produccion'; item: Produccion }
   | { visor: 'propio'; item: FinanciamientoPropio }
   | { visor: 'externo'; item: FinanciamientoExterno }
   | { visor: 'tesistas'; item: Tesista }
-  | { visor: 'direccion'; item: DireccionBecario };
+  | { visor: 'direccion'; item: DireccionBecario }
+  | { visor: 'jornada'; item: Jornada }
+  | { visor: 'estancia'; item: Estancia };
+
+/** El modal de estancia necesita el catálogo de países; si Resultados / Impacto I+D todavía no lo leyó, se lee acá. */
+const asegurarPaises = async (): Promise<void> => {
+  const resultados = useResultadosStore.getState();
+  if (resultados.paises.length > 0) return;
+  const paises = await obtenerPaises();
+  if (!Array.isArray(paises) || paises.length === 0) throw new Error(MSG_ERROR_CARGA_PROYECTOS);
+  resultados.fijar({ paises });
+};
 
 /**
- * Lee el registro vinculado (por su id) para abrirlo en su modal de solo lectura. Devuelve null si ese tipo todavía no
- * tiene visor en la app o si el registro ya no existe.
+ * Lee el registro vinculado (por su id) para abrirlo en su modal de solo lectura. Devuelve null si ese tipo no tiene
+ * visor o si el registro ya no existe.
  */
 export const cargarMasInfo = async (tipo: TipoResultado, guid: string): Promise<MasInfoResultado | null> => {
   const config = configDeResultado(tipo);
   switch (config.visor) {
+    case 'produccion': {
+      const filas = filasOFallar(
+        await leerRegistroPorId(
+          'new_produccioncientificas',
+          'new_produccioncientifica',
+          'new_produccioncientificaid',
+          ATRIBUTOS_PRODUCCION_PROPIA,
+          guid,
+        ),
+      );
+      const item = combinarProducciones(filas, [])[0];
+      return item ? { visor: 'produccion', item } : null;
+    }
     case 'propio': {
       const filas = filasOFallar(
         await leerRegistroPorId(
@@ -289,6 +323,28 @@ export const cargarMasInfo = async (tipo: TipoResultado, guid: string): Promise<
       );
       const item = mapearDirecciones(filas)[0];
       return item ? { visor: 'direccion', item } : null;
+    }
+    case 'jornada': {
+      const filas = filasOFallar(
+        await leerRegistroPorId(
+          'new_participacioneneventosycongresoses',
+          'new_participacioneneventosycongresos',
+          'new_participacioneneventosycongresosid',
+          ATRIBUTOS_JORNADA,
+          guid,
+        ),
+      );
+      const item = mapearJornadas(filas)[0];
+      return item ? { visor: 'jornada', item } : null;
+    }
+    case 'estancia': {
+      const filas = filasOFallar(
+        await leerRegistroPorId('new_estanciases', 'new_estancias', 'new_estanciasid', ATRIBUTOS_ESTANCIA, guid),
+      );
+      const item = mapearEstancias(filas)[0];
+      if (!item) return null;
+      await asegurarPaises();
+      return { visor: 'estancia', item };
     }
     default:
       return null;
