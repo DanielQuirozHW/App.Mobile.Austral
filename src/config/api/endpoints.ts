@@ -175,4 +175,24 @@ export const endpoints = {
 
   /** POST / PUT / DELETE: resultado vinculado a un proyecto. El sufijo depende del tipo de resultado. */
   resultadoProyecto: (sufijo: string): string => api(`hrfactors/investigacion/proyectos/${sufijo}`),
+
+  // --- Perfil > Investigación > Resultados / Impacto I+D ---
+
+  /** POST / PUT / DELETE: estancias. */
+  estancias: (): string => api('hrfactors/investigacion/estancias'),
+
+  /** POST / PUT / DELETE: participación en jornadas, congresos y eventos. */
+  participacionJornadas: (): string => api('hrfactors/investigacion/participacionJornadas'),
+
+  /** POST / PUT: producción científica. */
+  produccionCientifica: (): string => api('hrfactors/investigacion/produccionCientifica'),
+
+  /** DELETE { new_produccioncientificaid }: elimina una producción científica. */
+  produccionCientificaEliminar: (): string => api('hrfactors/investigacion/produccionCientifica/eliminar'),
+
+  /** POST / PUT: autor de una producción científica. */
+  autoresProduccion: (): string => api('hrfactors/investigacion/AutoresProduccionCientifica'),
+
+  /** DELETE { new_participantesdeproduccioncientificaid }: elimina un autor. */
+  autoresProduccionEliminar: (): string => api('hrfactors/investigacion/AutoresProduccionCientifica/eliminar'),
 } as const;
