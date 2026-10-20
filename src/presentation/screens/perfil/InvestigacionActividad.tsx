@@ -1,5 +1,5 @@
-// Perfil > Investigación > Actividad I+D (Financiamientos y Formación de RRHH).
-// Port de Portal-Austral-Dev -> src/app/(dashboard)/perfil/investigacion/actividad-i+d/{financiamientos,formacion-rrhh}/page.tsx.
+// Perfil > Investigación > Actividad I+D (Proyectos de investigación, Financiamientos y Formación de RRHH).
+// Port de Portal-Austral-Dev -> src/app/(dashboard)/perfil/investigacion/actividad-i+d/{proyectos-investigacion,financiamientos,formacion-rrhh}/page.tsx.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import {
@@ -10,6 +10,7 @@ import {
   eliminarTesista,
   MSG_ERROR_CARGA_ACTIVIDAD,
 } from '../../../application/perfil/actividadService';
+import { cargarProyectos, MSG_ERROR_CARGA_PROYECTOS } from '../../../application/perfil/proyectosService';
 import { aFechaVisible } from '../../../domain/legajo/fechas';
 import { montoVisible } from '../../../domain/perfil/financiamientos';
 import { AppButton } from '../../components/AppButton';
@@ -20,20 +21,27 @@ import { ModalDireccion } from '../../components/perfil/ModalDireccion';
 import { ModalFinanciamientoExterno } from '../../components/perfil/ModalFinanciamientoExterno';
 import { ModalFinanciamientoPropio } from '../../components/perfil/ModalFinanciamientoPropio';
 import { ModalTesista } from '../../components/perfil/ModalTesista';
+import { SeccionProyectos } from '../../components/perfil/SeccionProyectos';
 import { SeccionRegistros } from '../../components/perfil/SeccionRegistros';
 import { useActividadStore } from '../../stores/actividadStore';
+import { useProyectosStore } from '../../stores/proyectosStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { spacing } from '../../utils/responsive';
 
-type Subpagina = 'financiamientos' | 'formacion';
+type Subpagina = 'proyectos' | 'financiamientos' | 'formacion';
 
 const PESTANIAS: ItemPestania<Subpagina>[] = [
+  { clave: 'proyectos', etiqueta: 'Proyectos de investigación' },
   { clave: 'financiamientos', etiqueta: 'Financiamientos' },
   { clave: 'formacion', etiqueta: 'Formación de RRHH' },
 ];
 
 const INFO: Record<Subpagina, { titulo: string; texto: string }> = {
+  proyectos: {
+    titulo: 'Proyectos de investigación',
+    texto: 'Aquí podrá visualizar la información relacionada a los proyectos de investigación.',
+  },
   financiamientos: {
     titulo: 'Financiamientos',
     texto: 'Aquí podrá visualizar la información relacionada a los financiamientos y subsidios.',
@@ -71,7 +79,7 @@ const MSG_ELIMINAR_DIRECCION = {
 export const InvestigacionActividad: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
-  const [subpagina, setSubpagina] = useState<Subpagina>('financiamientos');
+  const [subpagina, setSubpagina] = useState<Subpagina>('proyectos');
 
   const propios = useActividadStore((s) => s.propios);
   const externos = useActividadStore((s) => s.externos);
@@ -81,15 +89,27 @@ export const InvestigacionActividad: React.FC = () => {
   const cargado = useActividadStore((s) => s.cargado);
   const error = useActividadStore((s) => s.error);
 
-  const recargar = useCallback(() => {
+  const proyectosCargando = useProyectosStore((s) => s.cargando);
+  const proyectosCargado = useProyectosStore((s) => s.cargado);
+  const proyectosError = useProyectosStore((s) => s.error);
+
+  const recargarActividad = useCallback(() => {
     void cargarActividad();
   }, []);
 
-  useEffect(() => {
-    recargar();
-  }, [recargar]);
+  const recargarProyectos = useCallback(() => {
+    void cargarProyectos();
+  }, []);
 
-  if (!cargado && cargando) {
+  useEffect(() => {
+    recargarActividad();
+    recargarProyectos();
+  }, [recargarActividad, recargarProyectos]);
+
+  const esProyectos = subpagina === 'proyectos';
+  const primeraCarga = esProyectos ? !proyectosCargado && proyectosCargando : !cargado && cargando;
+
+  if (primeraCarga) {
     return (
       <View style={styles.centro}>
         <ActivityIndicator size="large" color={globalColors.accentPrimary} />
@@ -98,6 +118,7 @@ export const InvestigacionActividad: React.FC = () => {
   }
 
   const info = INFO[subpagina];
+  const hayError = esProyectos ? proyectosError : error;
 
   return (
     <View style={styles.contenido}>
@@ -110,12 +131,19 @@ export const InvestigacionActividad: React.FC = () => {
         </AppText>
       </View>
 
-      {error ? (
+      {hayError ? (
         <View style={styles.aviso}>
-          <InfoAlert tipo="error">{MSG_ERROR_CARGA_ACTIVIDAD}</InfoAlert>
-          <AppButton title="Reintentar" variant="secondary" onPress={recargar} loading={cargando} />
+          <InfoAlert tipo="error">{esProyectos ? MSG_ERROR_CARGA_PROYECTOS : MSG_ERROR_CARGA_ACTIVIDAD}</InfoAlert>
+          <AppButton
+            title="Reintentar"
+            variant="secondary"
+            onPress={esProyectos ? recargarProyectos : recargarActividad}
+            loading={esProyectos ? proyectosCargando : cargando}
+          />
         </View>
       ) : null}
+
+      {subpagina === 'proyectos' ? <SeccionProyectos /> : null}
 
       {subpagina === 'financiamientos' ? (
         <>
