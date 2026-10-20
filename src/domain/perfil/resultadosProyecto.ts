@@ -13,8 +13,16 @@ export type TipoResultado =
   | 'jornadasCongresos'
   | 'estancias';
 
-/** Qué modal de solo lectura ya existe en la app para el "Más info" de cada tipo (null: todavía no migrado). */
-export type VisorMasInfo = 'propio' | 'externo' | 'tesistas' | 'direccion' | null;
+/** Qué modal de solo lectura abre el "Más info" de cada tipo (null: muestra los datos de la vinculación). */
+export type VisorMasInfo =
+  | 'produccion'
+  | 'propio'
+  | 'externo'
+  | 'tesistas'
+  | 'direccion'
+  | 'jornada'
+  | 'estancia'
+  | null;
 
 export interface ConfigResultado {
   tipo: TipoResultado;
@@ -67,7 +75,7 @@ export const CONFIG_RESULTADOS: ConfigResultado[] = [
     ordenOpciones: 'new_titulo',
     etiquetaOpcion: (f) =>
       texto(f?.new_titulo).trim() || texto(f?.new_tema).trim() || texto(f?.new_nombredelaobra).trim(),
-    visor: null,
+    visor: 'produccion',
   },
   {
     tipo: 'financiamientoPropioUA',
@@ -168,7 +176,7 @@ export const CONFIG_RESULTADOS: ConfigResultado[] = [
     atributosOpciones: ['new_participacioneneventosycongresosid', 'new_name'],
     ordenOpciones: 'createdon',
     etiquetaOpcion: nombreDeFila,
-    visor: null,
+    visor: 'jornada',
   },
   {
     tipo: 'estancias',
@@ -188,7 +196,7 @@ export const CONFIG_RESULTADOS: ConfigResultado[] = [
     atributosOpciones: ['new_estanciasid', 'new_tipodeactividadrealizada'],
     ordenOpciones: 'createdon',
     etiquetaOpcion: (f) => texto(f?.[`new_tipodeactividadrealizada${FV}`]).trim(),
-    visor: null,
+    visor: 'estancia',
   },
 ];
 

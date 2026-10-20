@@ -13,20 +13,23 @@ const atributosXml = (atributos: string[]): string => atributos.map((x) => `<att
 
 // --- Estancias ---
 
+/** Atributos de una estancia (también los usa el "Más info" de Proyectos de investigación). */
+export const ATRIBUTOS_ESTANCIA: string[] = [
+  'new_estanciasid',
+  'new_tipodeactividadrealizada',
+  'new_otraactividad',
+  'new_institucion',
+  'new_pais',
+  'new_fechadeinicio',
+  'new_fechadefin',
+  'createdon',
+];
+
 export const leerEstancias = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_estanciases',
     entidad: 'new_estancias',
-    atributos: [
-      'new_estanciasid',
-      'new_tipodeactividadrealizada',
-      'new_otraactividad',
-      'new_institucion',
-      'new_pais',
-      'new_fechadeinicio',
-      'new_fechadefin',
-      'createdon',
-    ],
+    atributos: ATRIBUTOS_ESTANCIA,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'createdon',
@@ -38,22 +41,25 @@ export const escribirEstancia = (metodo: Metodo, data: unknown): Promise<unknown
 
 // --- Participación en jornadas, congresos y eventos ---
 
+/** Atributos de una participación en jornadas (también los usa el "Más info" de Proyectos de investigación). */
+export const ATRIBUTOS_JORNADA: string[] = [
+  'new_participacioneneventosycongresosid',
+  'new_tipodeactividad',
+  'new_otraactividad',
+  'new_tipodeparticipacion',
+  'new_otraparticipacion',
+  'new_lugar',
+  'new_fecha',
+  'new_name',
+  'createdon',
+  'statecode',
+];
+
 export const leerJornadas = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_participacioneneventosycongresoses',
     entidad: 'new_participacioneneventosycongresos',
-    atributos: [
-      'new_participacioneneventosycongresosid',
-      'new_tipodeactividad',
-      'new_otraactividad',
-      'new_tipodeparticipacion',
-      'new_otraparticipacion',
-      'new_lugar',
-      'new_fecha',
-      'new_name',
-      'createdon',
-      'statecode',
-    ],
+    atributos: ATRIBUTOS_JORNADA,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'createdon',
@@ -65,19 +71,17 @@ export const escribirJornada = (metodo: Metodo, data: unknown): Promise<unknown>
 
 // --- Producción científica ---
 
-const ATRIBUTOS_PRODUCCION_PROPIA = [
-  'new_produccioncientificaid',
-  'createdon',
-  'new_colaborador',
-  ...ATRIBUTOS_DE_PRODUCCION,
-];
+/** Atributos de una producción propia (también los usa el "Más info" de Proyectos de investigación). */
+export const ATRIBUTOS_PRODUCCION_PROPIA: string[] = Array.from(
+  new Set(['new_produccioncientificaid', 'createdon', 'new_colaborador', ...ATRIBUTOS_DE_PRODUCCION]),
+);
 
 /** Producciones que cargó el empleado. */
 export const leerProduccionesPropias = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_produccioncientificas',
     entidad: 'new_produccioncientifica',
-    atributos: Array.from(new Set(ATRIBUTOS_PRODUCCION_PROPIA)),
+    atributos: ATRIBUTOS_PRODUCCION_PROPIA,
     campoEmpleado: 'new_colaborador',
     empleadoId,
     orden: 'createdon',

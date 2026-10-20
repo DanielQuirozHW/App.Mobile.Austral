@@ -1,7 +1,6 @@
 // "Más info" de un resultado vinculado a un proyecto: abre el registro vinculado en su modal de solo lectura.
 // Port de Portal-Austral-Dev -> hooks/investigacion-perfil/useGetMasInfoEntidad.ts y del manejo de masInfoTipo en
-// ModalProyectosInvestigacion. Los tipos cuyo módulo todavía no está migrado (producción científica, jornadas y
-// estancias) muestran los datos de la vinculación.
+// ModalProyectosInvestigacion. Si el registro ya no se puede leer, se muestran los datos de la vinculación.
 import React from 'react';
 import { View } from 'react-native';
 import type { MasInfoResultado } from '../../../application/perfil/proyectosService';
@@ -9,15 +8,18 @@ import type { ConfigResultado, ResultadoVinculado } from '../../../domain/perfil
 import { FilaDato } from '../legajo/FilaDato';
 import { InfoAlert } from '../InfoAlert';
 import { ModalDireccion } from './ModalDireccion';
+import { ModalEstancia } from './ModalEstancia';
 import { ModalFinanciamientoExterno } from './ModalFinanciamientoExterno';
 import { ModalFinanciamientoPropio } from './ModalFinanciamientoPropio';
+import { ModalJornada } from './ModalJornada';
 import { ModalPerfil } from './ModalPerfil';
+import { ModalProduccion } from './ModalProduccion';
 import { ModalTesista } from './ModalTesista';
 
 interface Props {
   config: ConfigResultado;
   resultado: ResultadoVinculado;
-  /** Registro vinculado ya leído; null si ese tipo no tiene visor. */
+  /** Registro vinculado ya leído; null si no se pudo leer. */
   datos: MasInfoResultado | null;
   onClose: () => void;
 }
@@ -25,6 +27,8 @@ interface Props {
 export const ModalMasInfoResultado: React.FC<Props> = ({ config, resultado, datos, onClose }) => {
   if (datos) {
     switch (datos.visor) {
+      case 'produccion':
+        return <ModalProduccion modo="ver" item={datos.item} onClose={onClose} />;
       case 'propio':
         return <ModalFinanciamientoPropio modo="ver" item={datos.item} onClose={onClose} />;
       case 'externo':
@@ -33,6 +37,10 @@ export const ModalMasInfoResultado: React.FC<Props> = ({ config, resultado, dato
         return <ModalTesista modo="ver" item={datos.item} onClose={onClose} />;
       case 'direccion':
         return <ModalDireccion modo="ver" item={datos.item} onClose={onClose} />;
+      case 'jornada':
+        return <ModalJornada modo="ver" item={datos.item} onClose={onClose} />;
+      case 'estancia':
+        return <ModalEstancia modo="ver" item={datos.item} onClose={onClose} />;
       default:
         break;
     }
