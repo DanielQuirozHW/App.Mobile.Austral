@@ -1,8 +1,8 @@
 // Rutas de la API que usa la app. Port de Portal-Austral-Dev -> src/configs/endpoints.ts y de las rutas que
 // escriben los stores y hooks del portal (useLegajoStore, useLicenciasStore, useVacacionesStore, useSolicitudesStore,
 // hooks/formacion/*, hooks/trayectoria/*, hooks/useCargarActividadExtension, hooks/gestion-academica/*, hooks/docencia/*,
-// hooks/investigacion-perfil/*).
-// Alcance actual: login, Datos personales, Licencias y vacaciones y Perfil.
+// hooks/investigacion-perfil/*, usePlanDeTrabajoStore y hooks/plan-de-trabajo/*).
+// Alcance actual: login, Datos personales, Licencias y vacaciones, Perfil y Plan de Trabajo.
 // La base viene de env.apiUrl (termina en barra, igual que en el portal: `${UrlApi}api/...`).
 import { env } from '../env';
 
@@ -195,4 +195,57 @@ export const endpoints = {
 
   /** DELETE { new_participantesdeproduccioncientificaid }: elimina un autor. */
   autoresProduccionEliminar: (): string => api('hrfactors/investigacion/AutoresProduccionCientifica/eliminar'),
+
+  // --- Plan de Trabajo Anual ---
+
+  /** PUT: datos del PTA (alumnos, entrevistas, horas, comentarios, formación, días / horas de investigación). */
+  planDeTrabajoDocente: (): string => api('hrfactors/plandetrabajodocente'),
+
+  /** PUT { new_plandetrabajodocenteid, statuscode }: envía el PTA al Secretario Académico (el backend resuelve el estado). */
+  cambiarRazonParaElEstadoPTA: (): string => api('hrfactors/cambiarRazonParaElEstadoPTA'),
+
+  /** POST / PUT / DELETE: clases del PTA. */
+  clasePlanDeTrabajo: (): string => api('hrfactors/clasePlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: áreas de interés del PTA. */
+  areaInteresPlanDeTrabajo: (): string => api('hrfactors/areaInteresPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: proyectos de investigación del PTA. */
+  proyectosInvestigacionPlanDeTrabajo: (): string => api('hrfactors/proyectosInvestigacionPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: publicaciones previstas del PTA. */
+  publicacionesRevistaPlanDeTrabajo: (): string => api('hrfactors/publicacionesRevistaPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: congresos del PTA. */
+  congresosPlanDeTrabajo: (): string => api('hrfactors/congresosPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: divulgaciones del PTA. */
+  divulgacionesPlanDeTrabajo: (): string => api('hrfactors/divulgacionesPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: dirección de tesis del PTA. */
+  direccionDeTesisPlanDeTrabajo: (): string => api('hrfactors/direccionDeTesisPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: jurados de trabajos finales del PTA. */
+  juradoTFPlanDeTrabajo: (): string => api('hrfactors/juradoTFPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: cargos y encargos del PTA. */
+  cargosYEncargosPlanDeTrabajo: (): string => api('hrfactors/cargosYEncargosPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: extensión del PTA. */
+  extensionPlanDeTrabajo: (): string => api('hrfactors/extensionPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: transferencia del PTA. */
+  transferenciaPlanDeTrabajo: (): string => api('hrfactors/transferenciaPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: formaciones del PTA (doctoral, específica, humanística, pedagógica, seminarios). */
+  formacionesPlanDeTrabajo: (): string => api('hrfactors/formacionesPlanDeTrabajo'),
+
+  /** POST / PUT / DELETE: horas / bloques variables del PTA. */
+  bloquesPlanDeTrabajo: (): string => api('hrfactors/bloquesPlanDeTrabajo'),
+
+  /** DELETE { annotationid }: elimina un adjunto (nota). */
+  nota: (): string => api('hrfactors/nota'),
+
+  /** POST multipart: adjunta el informe del PTA del año anterior (parámetro pta_id). */
+  adjuntoPta: (ptaId: string): string => api(`hrfactors/adjuntosolicitud?pta_id=${encodeURIComponent(ptaId)}`),
 } as const;
