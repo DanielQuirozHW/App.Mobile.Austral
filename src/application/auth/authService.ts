@@ -11,8 +11,9 @@
 //  - Se evita enviar `undefined` a Firestore (photoURL/photoPORTADA ausentes se guardan como '').
 //  - Mientras corre un login la escucha de sesión NO publica el usuario (ver `autenticando`).
 //    En el portal esa carrera lo mandaba a la pantalla principal antes de validar al empleado en el BO.
-//  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia, los catálogos y los de licencias y
-//    vacaciones (propios y del equipo) que quedan en memoria.
+//  - Al cerrar (o perder) la sesión se vacían los datos del legajo, la familia, los catálogos, los de licencias y
+//    vacaciones (propios y del equipo) y los de Perfil (formación, trayectoria, extensión, gestión académica, docencia,
+//    afiliaciones, actividad I+D y proyectos) que quedan en memoria.
 import {
   OAuthProvider,
   getAuth,
@@ -42,13 +43,21 @@ import {
   type UsuarioDoc,
 } from '../../infrastructure/auth/usuariosFirestore';
 import { CLAVE_ROL_SELECCIONADO, borrarTexto } from '../../infrastructure/storage/almacenamiento';
+import { useActividadStore } from '../../presentation/stores/actividadStore';
+import { useAfiliacionesStore } from '../../presentation/stores/afiliacionesStore';
 import { useAuthStore } from '../../presentation/stores/authStore';
 import { useCatalogosStore } from '../../presentation/stores/catalogosStore';
+import { useDocenciaStore } from '../../presentation/stores/docenciaStore';
 import { useEquipoStore } from '../../presentation/stores/equipoStore';
+import { useExtensionStore } from '../../presentation/stores/extensionStore';
 import { useFamiliaStore } from '../../presentation/stores/familiaStore';
+import { useFormacionStore } from '../../presentation/stores/formacionStore';
+import { useGestionAcademicaStore } from '../../presentation/stores/gestionAcademicaStore';
 import { useLegajoStore } from '../../presentation/stores/legajoStore';
 import { useLicenciasStore } from '../../presentation/stores/licenciasStore';
+import { useProyectosStore } from '../../presentation/stores/proyectosStore';
 import { useRolStore } from '../../presentation/stores/rolStore';
+import { useTrayectoriaStore } from '../../presentation/stores/trayectoriaStore';
 
 // ---------------------------------------------------------------------------
 // Utilidades
@@ -74,6 +83,15 @@ const reiniciarDatosDelEmpleado = (): void => {
   useCatalogosStore.getState().reiniciar();
   useLicenciasStore.getState().reiniciar();
   useEquipoStore.getState().reiniciar();
+  // Perfil
+  useFormacionStore.getState().reiniciar();
+  useTrayectoriaStore.getState().reiniciar();
+  useExtensionStore.getState().reiniciar();
+  useGestionAcademicaStore.getState().reiniciar();
+  useDocenciaStore.getState().reiniciar();
+  useAfiliacionesStore.getState().reiniciar();
+  useActividadStore.getState().reiniciar();
+  useProyectosStore.getState().reiniciar();
 };
 
 /** Publica el usuario. Si tiene dos puestos, marca la selección pendiente ANTES, para que no se vea la pantalla de inicio. */
