@@ -5,7 +5,9 @@
 //   Formacion -> (dashboard)/perfil/formacion, Trayectoria -> (dashboard)/perfil/trayectoria,
 //   Extension -> (dashboard)/perfil/extension, GestionAcademica -> (dashboard)/perfil/gestion-academica,
 //   Docencia -> (dashboard)/perfil/docencia/* (categorización, nombramientos, promoción, docencia y asesoramiento),
-//   Investigacion -> (dashboard)/perfil/investigacion/* (afiliaciones, actividad I+D y resultados / impacto I+D)
+//   Investigacion -> (dashboard)/perfil/investigacion/* (afiliaciones, actividad I+D y resultados / impacto I+D),
+//   PlanesDeTrabajo -> (dashboard)/planes-de-trabajo (lista, solo docente),
+//   PlanTrabajoDetalle -> el modal del plan (ModalPlanDeTrabajoDocente) abierto desde la lista.
 // No hay registro ni recuperar contraseña: las cuentas con usuario y contraseña se crean desde Firebase (decisión 36).
 export type RootStackParams = {
   Cargando: undefined;
@@ -20,4 +22,7 @@ export type RootStackParams = {
   GestionAcademica: undefined;
   Docencia: undefined;
   Investigacion: undefined;
+  PlanesDeTrabajo: undefined;
+  /** `historico`: el plan se abrió desde VIGENTE o HISTÓRICO (estadoHistorico del portal): solo lectura. */
+  PlanTrabajoDetalle: { planId: string; historico: boolean };
 };

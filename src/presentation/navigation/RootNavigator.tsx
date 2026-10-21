@@ -7,6 +7,8 @@
 //                                                           Trayectoria, Extensión, Gestión académica, Docencia e
 //                                                           Investigación)
 //                                                           (+ Datos personales para docente / codocente)
+//                                                           (+ Plan de trabajo solo para docente: allowedRoles
+//                                                           ["docente"] de planes-de-trabajo/page.tsx)
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
@@ -22,6 +24,8 @@ import { FormacionScreen } from '../screens/perfil/FormacionScreen';
 import { GestionAcademicaScreen } from '../screens/perfil/GestionAcademicaScreen';
 import { InvestigacionScreen } from '../screens/perfil/InvestigacionScreen';
 import { TrayectoriaScreen } from '../screens/perfil/TrayectoriaScreen';
+import { PlanTrabajoDetalleScreen } from '../screens/pta/PlanTrabajoDetalleScreen';
+import { PlanTrabajoScreen } from '../screens/pta/PlanTrabajoScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
 import type { RootStackParams } from './tipos';
@@ -105,6 +109,20 @@ export const RootNavigator: React.FC = () => {
             component={InvestigacionScreen}
             options={{ headerShown: true, title: 'Investigación', animation: 'slide_from_right' }}
           />
+          {role === 'docente' ? (
+            <>
+              <Stack.Screen
+                name="PlanesDeTrabajo"
+                component={PlanTrabajoScreen}
+                options={{ headerShown: true, title: 'Plan de trabajo', animation: 'slide_from_right' }}
+              />
+              <Stack.Screen
+                name="PlanTrabajoDetalle"
+                component={PlanTrabajoDetalleScreen}
+                options={{ headerShown: true, title: 'Plan de Trabajo Anual', animation: 'slide_from_right' }}
+              />
+            </>
+          ) : null}
         </>
       )}
     </Stack.Navigator>
