@@ -5,7 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { cargarListaDePlanes, MSG_ERROR_CARGA_PTA } from '../../../application/pta/ptaService';
-import { PESTANIAS_LISTA, type PestaniaLista } from '../../../domain/pta/constantes';
+import { PESTANIAS_LISTA, TEXTO_AYUDA_LISTA, type PestaniaLista } from '../../../domain/pta/constantes';
 import { fechaUtcVisible } from '../../../domain/pta/fechas';
 import { filtrarPlanes } from '../../../domain/pta/resumen';
 import { AccionIcono } from '../../components/AccionIcono';
@@ -21,8 +21,6 @@ import { usePtaStore } from '../../stores/ptaStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { spacing } from '../../utils/responsive';
-
-const TEXTO_AYUDA_LISTA = 'Click en el icono (ojo) para acceder a la carga/visualización de contenido.';
 
 export const PlanTrabajoScreen: React.FC = () => {
   const { globalColors } = useThemeColors();

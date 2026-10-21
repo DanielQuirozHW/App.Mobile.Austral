@@ -41,7 +41,7 @@ export const PESTANIAS_LISTA: Array<{ clave: PestaniaLista; etiqueta: string; in
   },
 ];
 
-export const TEXTO_AYUDA_LISTA = 'Click en el icono del ojo para acceder a la carga/visualización de contenido.';
+export const TEXTO_AYUDA_LISTA = 'Click en el icono (ojo) para acceder a la carga/visualización de contenido.';
 
 // --- Pestañas del detalle ---
 
