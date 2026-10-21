@@ -7,13 +7,17 @@ Este archivo se escribe con lo verificado en el código de los repos de referenc
 ## Cómo retomar el trabajo (leer en este orden)
 
 1. Este archivo.
-2. `docs/DECISIONES.md` — todo lo que decidió Daniel.
-3. `docs/STACK.md` — librerías y versiones aprobadas.
-4. `docs/ERRORES.md` — errores ya cometidos y las reglas que salen de ellos.
-5. `docs/PENDIENTES.md` — lo que falta, lo que hace Daniel y lo que hay que verificar.
-6. `docs/contexto/` — lo entendido del código del portal, la API y el prototipo.
+2. **`docs/ESTADO.md` — qué está hecho, qué no, qué hacer al arrancar una sesión nueva y cómo trabaja Daniel.**
+3. `docs/DECISIONES.md` — todo lo que decidió Daniel.
+4. `docs/STACK.md` — librerías y versiones aprobadas.
+5. `docs/ERRORES.md` — errores ya cometidos y las reglas que salen de ellos.
+6. `docs/PENDIENTES.md` — lo que falta, lo que hace Daniel y lo que hay que verificar.
+7. `docs/SETUP-NATIVO.md` — checklist de lo que hace Daniel con la PC (proyecto nativo, Firebase, fuentes, logos, pruebas).
+8. `docs/contexto/` — lo entendido del código del portal, la API y el prototipo.
 
 Todo lo decidido vive en el repo, no en ningún chat.
+
+**Estado resumido:** todo lo pedido está construido (login, Datos personales, Licencias y vacaciones, Perfil completo, Plan de Trabajo). Los demás módulos del portal quedan **pendientes y no se construyen hasta que Daniel lo pida**. Si no hay instrucciones concretas, resumir el estado y preguntar con cuál sigue.
 
 ---
 
@@ -86,6 +90,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 - Las carpetas `android/` e `ios/` no existen en este repo: las genera Daniel con el comando oficial cuando tenga la PC (ver `docs/SETUP-NATIVO.md`).
 - `push_files` reemplaza el archivo completo: para cambiar un archivo se reenvía entero.
 - Cada commit termina con las líneas de atribución que indique la sesión.
+- Al terminar una etapa se actualizan `docs/ESTADO.md`, `docs/DECISIONES.md`, `docs/PENDIENTES.md`, este archivo y el contexto del módulo en `docs/contexto/`.
 
 ## Orden de trabajo
 
@@ -95,7 +100,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 4. Navegación, selección de puesto y guardas por rol.
 5. Foto de perfil y cabecera del legajo (la portada no se construye; decisión 46).
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
-7. Funciones de Nombramientos y Promoción.
+7. Funciones de Nombramientos y Promoción (**pendiente**, sin confirmar con Daniel).
 8. Licencias y vacaciones (licencias propias, vacaciones, calendario y gestión del equipo).
 9. Perfil: Formación y Trayectoria profesional (decisiones 57 a 63).
 10. Perfil: Extensión y Gestión académica (decisión 64).
@@ -103,18 +108,18 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 12. Perfil: Investigación, con Afiliaciones, Actividad I+D y Resultados / Impacto I+D (decisiones 65 a 74).
 13. Plan de Trabajo, solo docente (decisiones 75 a 86): hecho.
 
-Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
+Daniel autorizó avanzar sin pedir aprobación por etapa **dentro de lo que pide**. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
 
 ## Alcance
 
 - Autenticación: se migra lo que hace el portal, **salvo registro y recuperar contraseña** (decisión 36: las cuentas con usuario y contraseña las crea Austral en Firebase). El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Se mantiene la selección de puesto. Sin probar y con credenciales vacías.
 - Foto de perfil: migrada. Foto de portada: no (decisión 46).
-- Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Es de lo último que se construye.
+- Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Su uso en navegación y guardas (etapa 7) queda pendiente.
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
 - Segundo módulo: Licencias y vacaciones, confirmado por Daniel y migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55.
 - Perfil, pedido por Daniel: migrado completo, salvo Promoción > Postulación. Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación (Afiliaciones, Actividad I+D con proyectos, financiamientos y formación de RRHH, y Resultados / Impacto I+D con producción científica, jornadas y estancias). Ver `docs/contexto/perfil.md`.
 - Plan de Trabajo (`/planes-de-trabajo`), solo docente, pedido por Daniel: migrado completo (lista por pestañas, detalle, dieciocho secciones de registros, resumen con adjuntos y envío a Secretaría Académica). Ver decisiones 75 a 86 y `docs/contexto/plan-de-trabajo.md`.
-- Los demás módulos del MVP están por definir (Documentación, GDD, Indicadores, funciones SA / VRAA, Referente MATHU, notificaciones, Promoción > Postulación). No se asume ni se construye ninguno hasta que se confirme.
+- **Módulos pendientes (Daniel confirmó que quedan así; no se construyen hasta que los pida):** Documentación, GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, notificaciones y Promoción > Postulación.
 
 ## Cómo comunicar
 
@@ -129,11 +134,12 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 
 | Ruta | Qué hay |
 |---|---|
-| `docs/DECISIONES.md` | Decisiones tomadas |
+| `docs/ESTADO.md` | Estado actual, qué falta y qué hacer al retomar en una sesión nueva |
+| `docs/DECISIONES.md` | Decisiones tomadas (1 a 86) |
 | `docs/STACK.md` | Stack definitivo con versiones verificadas |
 | `docs/ERRORES.md` | Errores cometidos y reglas para no repetirlos |
 | `docs/PENDIENTES.md` | Pendientes, tareas externas y lo que falta verificar |
-| `docs/SETUP-NATIVO.md` | Lo que hace Daniel con la PC: proyecto nativo y configuración |
+| `docs/SETUP-NATIVO.md` | Lo que hace Daniel con la PC: proyecto nativo, configuración y checklist en orden |
 | `docs/contexto/portal-auth-y-tenant.md` | Cómo autentica el portal y cómo se resuelve el tenant (verificado) |
 | `docs/contexto/roles-puesto-y-fotos.md` | Puesto, selección de rol, funciones de Nombramientos/Promoción y fotos (verificado) |
 | `docs/contexto/cliente-http-y-endpoints.md` | Cliente HTTP con reintentos y endpoints que usa el portal (verificado) |
@@ -142,7 +148,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `docs/contexto/perfil.md` | Contrato y reglas de Perfil: Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación (verificado; diferencias e inferidos separados) |
 | `docs/contexto/plan-de-trabajo.md` | Contrato y reglas del Plan de Trabajo Anual (verificado; lo inferido está marcado) |
 | `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado; el aspecto NO se toma de ahí) |
-| `.claude/skills/` | Skills de trabajo para este repo |
+| `.claude/skills/` | Skills de trabajo para este repo (`auth-portal`, `cliente-http-api`, `convenciones-rn-prototipo`, `modulo-datos-personales`, `regla-fundamental`, `repos-solo-lectura`, `stack-y-librerias`, `ui-componentes-propios`) |
 | `App.tsx` | Providers + `AppNavigation` |
 | `src/config/env.ts` | Variables de entorno (sin valores) |
 | `src/config/api/` | `apiClient.ts` (axios con reintentos, port del portal), `tokenStore.ts` (token del usuario de servicio), `endpoints.ts` (rutas), `fetchXml.ts` (consultas FetchXML), `apiError.ts`, `queryClient.ts` |
@@ -187,4 +193,4 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación con Afiliaciones, Actividad I+D y Resultados / Impacto I+D), salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Sigue la etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas) y los módulos que Daniel elija. Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación con Afiliaciones, Actividad I+D y Resultados / Impacto I+D), salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Pendientes sin construir: etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas) y los módulos Documentación, GDD, Indicadores, Funciones SA / VRAA, Referente MATHU y notificaciones. Todo sin probar. No hay carpetas nativas todavía: las genera Daniel (ver `docs/SETUP-NATIVO.md`). Detalle y próximos pasos en `docs/ESTADO.md`.

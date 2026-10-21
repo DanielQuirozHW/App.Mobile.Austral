@@ -34,7 +34,7 @@ El nombre `AustralMobile` tiene que coincidir con el `name` de `app.json`.
 | **Fuentes Montserrat** 400, 500, 600 y 700 (Google Fonts) en `android/app/src/main/assets/fonts` e iOS (`Info.plist` + target). Nombres: `Montserrat-Regular`, `Montserrat-Medium`, `Montserrat-SemiBold`, `Montserrat-Bold` | Tipografía del portal (`src/styles/fonts.ts`). |
 | Plugin de Babel de `react-native-worklets` (último en la lista) | Reanimated 4. Ya está en `babel.config.js`. |
 | Bloquear la orientación en vertical (Android: `screenOrientation` en el manifest; iOS: orientaciones permitidas) | `responsive.ts` calcula la escala una sola vez al iniciar. |
-| Permiso de **cámara** (`android.permission.CAMERA` en `AndroidManifest.xml`; `NSCameraUsageDescription` en `Info.plist`) y de **galería** (`NSPhotoLibraryUsageDescription` en iOS) | Foto de perfil/portada y adjuntos de familiares (`launchCamera`, `launchImageLibrary`). |
+| Permiso de **cámara** (`android.permission.CAMERA` en `AndroidManifest.xml`; `NSCameraUsageDescription` en `Info.plist`) y de **galería** (`NSPhotoLibraryUsageDescription` en iOS) | Foto de perfil/portada y adjuntos de familiares, licencias y Plan de Trabajo (`launchCamera`, `launchImageLibrary`). |
 | Configuración de `@react-native-documents/picker` y `@react-native-documents/viewer` según su README (en Android el visor puede necesitar el `FileProvider` y el identificador de la aplicación) | Elegir y abrir adjuntos (PDF, imágenes, DOC, DOCX). |
 | Configuración de `react-native-blob-util` según su README | Escribir en caché los adjuntos que llegan en base64 antes de abrirlos. |
 | Configuración de `@react-native-community/datetimepicker` según su README | Selector de fecha nativo. |
@@ -60,3 +60,22 @@ Mientras valgan `null`, `LogoAustral` muestra "Universidad Austral" en texto. No
 - Si el `uid` que devuelve el login con Microsoft coincide con el de SAML (los documentos de `usuarios` y las fotos están indexados por `uid`).
 - Si hace falta restringir el login al dominio de Austral con la variable `MICROSOFT_TENANT`.
 - Las cuentas con usuario y contraseña se crean en Firebase Auth y necesitan su documento en la colección `usuarios` (decisión 36).
+- Nombre visible de la app (`displayName` de `app.json`, hoy "Austral") y nombre del proyecto nativo.
+- Si revierte alguno de los reemplazos de librerías de la decisión 20.
+
+## 6. Checklist de Daniel, en orden
+
+Marcar a medida que se hace. Ninguna de estas tareas se hizo ni se probó desde la construcción.
+
+- [ ] **1. Generar el proyecto nativo** (las carpetas `android/` e `ios/` las crea el comando oficial de forma automática; no se escriben a mano). Sección 1.
+- [ ] **2. Combinar con este repo**: copiar los archivos, unir `package.json`, instalar dependencias y pods. Sección 2.
+- [ ] **3. Crear el `.env`** desde `.env.template` con los valores reales (Firebase, API, usuario de servicio, etc.). El `.env` está en `.gitignore`.
+- [ ] **4. Firebase**: registrar las apps iOS y Android, bajar `google-services.json` y `GoogleService-Info.plist`, plugin de Google Services y configuración iOS.
+- [ ] **5. Login con Microsoft**: habilitar el proveedor en Firebase Auth, registrar la app en Microsoft Entra, cargar huellas SHA y esquema URL.
+- [ ] **6. Fuentes Montserrat** (400, 500, 600, 700) en Android e iOS.
+- [ ] **7. Logos del portal**: copiar los archivos a `src/assets/images` y completar `logos.ts`. Sección 4.
+- [ ] **8. Permisos nativos** de cámara y galería, y bloqueo de orientación vertical.
+- [ ] **9. Configuración de los paquetes nativos** (documentos, visor, blob-util, datetimepicker, íconos). Sección 3.
+- [ ] **10. Cuentas de prueba**: cuentas con usuario y contraseña en Firebase Auth **con su documento en la colección `usuarios`**; para Microsoft, una cuenta @austral.
+- [ ] **11. Compilar y probar** por módulo: ingreso y selección de puesto, Datos personales, Licencias y vacaciones, Perfil, Plan de Trabajo (con un usuario docente).
+- [ ] **12. Anotar lo que falle** y pasarlo a la sesión de construcción para corregir contra el código del portal.
