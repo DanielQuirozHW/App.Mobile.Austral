@@ -101,7 +101,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 10. Perfil: Extensión y Gestión académica (decisión 64).
 11. Perfil: Docencia (decisiones 64 y 66).
 12. Perfil: Investigación, con Afiliaciones, Actividad I+D y Resultados / Impacto I+D (decisiones 65 a 74).
-13. Plan de Trabajo (solo docente).
+13. Plan de Trabajo, solo docente (decisiones 75 a 86): hecho.
 
 Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
 
@@ -113,8 +113,8 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 - Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
 - Segundo módulo: Licencias y vacaciones, confirmado por Daniel y migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55.
 - Perfil, pedido por Daniel: migrado completo, salvo Promoción > Postulación. Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación (Afiliaciones, Actividad I+D con proyectos, financiamientos y formación de RRHH, y Resultados / Impacto I+D con producción científica, jornadas y estancias). Ver `docs/contexto/perfil.md`.
-- Siguiente: Plan de Trabajo (solo docente).
-- Los demás módulos del MVP están por definir. No se asume ni se construye ninguno hasta que se confirme.
+- Plan de Trabajo (`/planes-de-trabajo`), solo docente, pedido por Daniel: migrado completo (lista por pestañas, detalle, dieciocho secciones de registros, resumen con adjuntos y envío a Secretaría Académica). Ver decisiones 75 a 86 y `docs/contexto/plan-de-trabajo.md`.
+- Los demás módulos del MVP están por definir (Documentación, GDD, Indicadores, funciones SA / VRAA, Referente MATHU, notificaciones, Promoción > Postulación). No se asume ni se construye ninguno hasta que se confirme.
 
 ## Cómo comunicar
 
@@ -140,6 +140,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `docs/contexto/datos-personales.md` | Contrato y reglas del módulo Datos personales, incluida Familia (verificado) |
 | `docs/contexto/licencias-y-vacaciones.md` | Contrato y reglas del módulo Licencias y vacaciones (verificado; lo inferido está marcado) |
 | `docs/contexto/perfil.md` | Contrato y reglas de Perfil: Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación (verificado; diferencias e inferidos separados) |
+| `docs/contexto/plan-de-trabajo.md` | Contrato y reglas del Plan de Trabajo Anual (verificado; lo inferido está marcado) |
 | `docs/contexto/prototipo-estructura.md` | Estructura y convenciones del prototipo RN (verificado; el aspecto NO se toma de ahí) |
 | `.claude/skills/` | Skills de trabajo para este repo |
 | `App.tsx` | Providers + `AppNavigation` |
@@ -150,24 +151,28 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/domain/legajo/` | Datos personales sin UI: tipos, opciones fijas, mapeo del CRM, validación (yup), formulario, payloads, teléfono, fechas, archivos, tipo de contratación |
 | `src/domain/licencias/` | Licencias y vacaciones sin UI: estados, tipos, mapeo del CRM, tipos de licencia y límites, validaciones, payloads, vacaciones, calendario, fechas del CRM |
 | `src/domain/perfil/` | Perfil sin UI: `comun` (fechas del CRM, años, Sí / No, helpers yup); `formacion*` y `trayectoria*` (opciones, tipos, mapeo, payloads, validación); `extension`, `gestionAcademica`, `docencia`; `afiliaciones`; `proyectos`, `resultadosProyecto`, `financiamientos`, `formacionRrhh`; `resultados` (estancias y jornadas) y `produccionCientifica` (13 tipos de material y autores) |
+| `src/domain/pta/` | Plan de Trabajo sin UI: `constantes` (estados, textos), `tipos`, `mapeo` (plan, indicadores, adjuntos), `opciones`, `fechas`, `formulario`, `resumen`, `mapeoSecciones` y `lecturas` (lectura de cada sección), `secciones` (las 18 `DefinicionSeccion` con campos, validación y mensajes), `payloads`, `catalogos` |
 | `src/infrastructure/auth/` | Consultas de empleado al BO (`empleadoApi.ts`), colección `usuarios` de Firestore (`usuariosFirestore.ts`) y fotos en Storage (`fotosStorage.ts`) |
 | `src/infrastructure/legajo/` | Llamadas a la API de Datos personales: legajo, familiares y adjuntos, catálogos, credencial de servicio |
 | `src/infrastructure/licencias/` | Llamadas a la API de Licencias y vacaciones: `licenciasApi`, `vacacionesApi`, `equipoApi` |
 | `src/infrastructure/perfil/` | Llamadas a la API de Perfil: `perfilApi` (lectura por empleado, escritura, subida), `formacionApi`, `trayectoriaApi`, `extensionApi`, `gestionAcademicaApi`, `docenciaApi`, `afiliacionesApi`, `actividadApi`, `proyectosApi`, `resultadosApi` |
+| `src/infrastructure/pta/ptaApi.ts` | Llamadas a la API del Plan de Trabajo: lectura de planes, secciones, indicadores y adjuntos; escritura de plan y registros; cambio de estado; subida y baja de adjuntos; catálogos |
 | `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara), selección de la foto de perfil y visor de adjuntos |
 | `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
-| `src/application/auth/authService.ts` | Login Microsoft y email, logout (vacía también los stores de Perfil), escucha de sesión y revalidación |
+| `src/application/auth/authService.ts` | Login Microsoft y email, logout (vacía también los stores de Perfil y del Plan de Trabajo), escucha de sesión y revalidación |
 | `src/application/auth/fotoPerfilService.ts` | Cambio de foto de perfil (Storage + `usuarios`) |
 | `src/application/legajo/legajoService.ts` | Flujos de Datos personales (guardar legajo, cónyuge, hijos/as, bajas, adjuntos) |
 | `src/application/licencias/` | `licenciasService.ts` (solicitar, cancelar, certificado, aprobar / rechazar, carga de datos) y `adjuntosService.ts` |
 | `src/application/perfil/` | Un servicio por página de Perfil: `formacionService`, `trayectoriaService`, `extensionService`, `gestionAcademicaService`, `docenciaService`, `afiliacionesService`, `actividadService`, `proyectosService` (con `cargarMasInfo` de los siete tipos de resultado) y `resultadosService` |
-| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `toastStore`, y de Perfil: `formacionStore`, `trayectoriaStore`, `extensionStore`, `gestionAcademicaStore`, `docenciaStore`, `afiliacionesStore`, `actividadStore`, `proyectosStore`, `resultadosStore` |
-| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
+| `src/application/pta/ptaService.ts` | Flujos del Plan de Trabajo: abrir el detalle, guardar registros y bajas, plan y observaciones, total de investigación, lectura de observaciones, adjuntos y envío |
+| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `toastStore`, de Perfil: `formacionStore`, `trayectoriaStore`, `extensionStore`, `gestionAcademicaStore`, `docenciaStore`, `afiliacionesStore`, `actividadStore`, `proyectosStore`, `resultadosStore`, y `ptaStore` (Plan de Trabajo) |
+| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto; `PlanesDeTrabajo` y `PlanTrabajoDetalle` solo para docente), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
 | `src/presentation/screens/auth/` | `LoginScreen`, `SeleccionarPuestoScreen` |
 | `src/presentation/screens/InicioScreen.tsx` | Inicio provisorio (nombre, puesto, accesos a los módulos, cerrar sesión) |
 | `src/presentation/screens/legajo/DatosPersonalesScreen.tsx` | Pantalla de Datos personales |
 | `src/presentation/screens/licencias/LicenciasScreen.tsx` | Pantalla de Licencias y vacaciones (pestañas: Licencias, Vacaciones, Calendario, Equipo) |
 | `src/presentation/screens/perfil/` | `FormacionScreen`, `TrayectoriaScreen`, `ExtensionScreen`, `GestionAcademicaScreen`, `DocenciaScreen` e `InvestigacionScreen` (con `InvestigacionAfiliaciones`, `InvestigacionActividad` e `InvestigacionResultados`) |
+| `src/presentation/screens/pta/` | `PlanTrabajoScreen` (lista por pestañas) y `PlanTrabajoDetalleScreen` (Datos personales, Observaciones del Sec. Académico y Actividad académica con nueve subpestañas) |
 | `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` permite forzar claro) |
 | `src/presentation/utils/` | `responsive.ts` (escala, espacios, radios) y `toast.ts` (avisos) |
 | `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
@@ -175,10 +180,11 @@ Daniel autorizó avanzar sin pedir aprobación por etapa. Se frena solo ante una
 | `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos`, `PerfilLegajoBanner` (cabecera con foto de perfil), `FilaDato` |
 | `src/presentation/components/licencias/` | Secciones (`MisLicenciasSeccion`, `VacacionesSeccion`, `CalendarioSeccion`, `GestionSeccion`), modales de solicitud, detalle, aprobación y calendario, y piezas comunes (`EstadoChip`, `Pestanias`, `ListaPaginada`, `TarjetaSolicitud`, `SelectorArchivos`, `RespuestaLider`, `VacacionesPanel`, `FormularioDomicilio`, `DomicilioDeclarado`) |
 | `src/presentation/components/perfil/` | Piezas comunes: `SeccionRegistros` (sección genérica con Ver / Editar / Eliminar), `ModalPerfil` (marco de los modales), `CamposComunes`, `ModalLectura`. Un modal por sección de Formación, Trayectoria, Extensión, Gestión académica, Docencia, Afiliaciones y Actividad I+D. Proyectos: `SeccionProyectos`, `ModalProyecto`, `ParticipantesDelProyecto`, `ModalParticipante`, `ResultadosDelProyecto`, `ModalVincularResultado`, `ModalMasInfoResultado`. Resultados / Impacto I+D: `SeccionProducciones`, `ModalProduccion`, `AutoresDeProduccion`, `ModalAutor`, `ModalJornada`, `ModalEstancia` |
+| `src/presentation/components/pta/` | Plan de Trabajo: `SeccionPta` (sección genérica con Ver / Editar / Eliminar) y `ModalSeccionPta` (modal genérico por `DefinicionSeccion`), `CajaPta`, `TotalesPta`, `ActividadPta` (contenido de cada subpestaña), `DatosDocenciaPta`, `DatosInvestigacionPta`, `ResumenPta` (indicadores, observaciones, adjuntos y envío) y `ejecutarPta` (avisos de proceso) |
 | `src/assets/images/logos.ts` | Logos (hoy `null` hasta copiar las imágenes; ver `docs/SETUP-NATIVO.md`) |
 | `src/presentation/providers/AppProviders.tsx` | Providers de la app |
 | `.env.template` | Nombres de variables de entorno, sin valores |
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación con Afiliaciones, Actividad I+D y Resultados / Impacto I+D), salvo Promoción > Postulación. Siguen: Plan de Trabajo (solo docente) y la etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas). Todo sin probar. No hay carpetas nativas todavía.
+Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto, navegación raíz e Inicio provisorio. Etapa 5 escrita: foto de perfil y cabecera del legajo (sin portada). Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación con Afiliaciones, Actividad I+D y Resultados / Impacto I+D), salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Sigue la etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas) y los módulos que Daniel elija. Todo sin probar. No hay carpetas nativas todavía.
