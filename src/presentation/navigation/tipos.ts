@@ -1,6 +1,8 @@
 // Rutas de la app. Equivalen a las páginas del portal:
 //   Login -> (blank)/login, SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/",
 //   Notificaciones -> (dashboard)/notificaciones,
+//   MiPerfil -> propia de la app: pantalla de entrada al módulo Mi perfil (legajo + perfil académico); el portal las
+//     agrupa en su menú lateral,
 //   DatosPersonales -> (dashboard)/legajo/datos-personales,
 //   Documentacion -> (dashboard)/legajo/documentacion,
 //   Licencias -> (dashboard)/licencias (licencias, vacaciones, calendario y gestión del equipo),
@@ -20,6 +22,7 @@ export type RootStackParams = {
   SeleccionarPuesto: undefined;
   Inicio: undefined;
   Notificaciones: undefined;
+  MiPerfil: undefined;
   DatosPersonales: undefined;
   Documentacion: undefined;
   Licencias: { seccion?: 'licencias' | 'vacaciones' | 'calendario' | 'equipo' } | undefined;

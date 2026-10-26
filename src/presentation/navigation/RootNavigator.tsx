@@ -3,7 +3,8 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Notificaciones + Ajustes + los módulos del menú
+//   - resto                                              -> Inicio + Notificaciones + Ajustes + Mi perfil y sus
+//                                                           secciones + Licencias y vacaciones + Plan de trabajo
 //                                                           (Datos personales para docente / codocente; Plan de trabajo
 //                                                           solo para docente: allowedRoles ["docente"] de
 //                                                           planes-de-trabajo/page.tsx)
@@ -32,6 +33,7 @@ import { ExtensionScreen } from '../screens/perfil/ExtensionScreen';
 import { FormacionScreen } from '../screens/perfil/FormacionScreen';
 import { GestionAcademicaScreen } from '../screens/perfil/GestionAcademicaScreen';
 import { InvestigacionScreen } from '../screens/perfil/InvestigacionScreen';
+import { MiPerfilScreen } from '../screens/perfil/MiPerfilScreen';
 import { TrayectoriaScreen } from '../screens/perfil/TrayectoriaScreen';
 import { PlanTrabajoDetalleScreen } from '../screens/pta/PlanTrabajoDetalleScreen';
 import { PlanTrabajoScreen } from '../screens/pta/PlanTrabajoScreen';
@@ -62,6 +64,7 @@ const moduloODemo = (ruta: RutaDeMenu, real: React.ComponentType): React.FC =>
   conEncabezado(moduloEnDemo(ruta) ? real : ModuloVacioScreen);
 
 const Notificaciones = moduloODemo('Notificaciones', NotificacionesScreen);
+const MiPerfil = moduloODemo('MiPerfil', MiPerfilScreen);
 const DatosPersonales = moduloODemo('DatosPersonales', DatosPersonalesScreen);
 const Documentacion = moduloODemo('Documentacion', DocumentacionScreen);
 const Licencias = moduloODemo('Licencias', LicenciasScreen);
@@ -118,6 +121,7 @@ export const RootNavigator: React.FC = () => {
         <>
           <Stack.Screen name="Inicio" component={InicioScreen} />
           <Stack.Screen name="Notificaciones" component={Notificaciones} options={opciones('Notificaciones')} />
+          <Stack.Screen name="MiPerfil" component={MiPerfil} options={opciones('Mi perfil')} />
           {puedeVerLegajo(role) ? (
             <Stack.Screen name="DatosPersonales" component={DatosPersonales} options={opciones('Datos personales')} />
           ) : null}
