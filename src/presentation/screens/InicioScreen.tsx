@@ -1,35 +1,37 @@
-// Inicio PROVISORIO. El portal tiene un tablero en "/" que todavía no se leyó ni se migra (los módulos del MVP
-// están por definir). Esta pantalla muestra quién está en sesión, da acceso a los módulos construidos y permite
-// cerrar la sesión.
+// Inicio. Port de Portal-Austral-Dev -> src/app/(dashboard)/page.tsx: bienvenida, mensaje del mes, cumpleaños del día y
+// próximos feriados (decisión 89). Debajo van los accesos a los módulos construidos (en el portal están en el menú
+// lateral, que en el celular no existe) y el cierre de sesión.
 import React, { useMemo } from 'react';
-import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { cerrarSesion } from '../../application/auth/authService';
+import {
+  fraseDelMesActual,
+  nombreParaBienvenida,
+  periodoDelMes,
+} from '../../domain/inicio/tablero';
 import { AppButton } from '../components/AppButton';
 import { AppText } from '../components/AppText';
+import { CumpleaniosCard } from '../components/inicio/CumpleaniosCard';
+import { FraseDelMes } from '../components/inicio/FraseDelMes';
+import { ProximosFeriadosCard } from '../components/inicio/ProximosFeriadosCard';
+import { SaludoInicio } from '../components/inicio/SaludoInicio';
 import { Screen } from '../components/Screen';
+import { useTablero } from '../hooks/useTablero';
 import type { RootStackParams } from '../navigation/tipos';
-import { ColorTokens } from '../theme/colors';
-import { useThemeColors } from '../theme/theme';
 import { useAuthStore } from '../stores/authStore';
-import { metaDeRol, puedeVerLegajo, useRolStore } from '../stores/rolStore';
-import { borderRadius, scale, spacing } from '../utils/responsive';
-
-const iniciales = (nombre?: string): string =>
-  (nombre ?? '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte.charAt(0).toUpperCase())
-    .join('');
+import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
+import { spacing } from '../utils/responsive';
 
 export const InicioScreen: React.FC = () => {
-  const { globalColors } = useThemeColors();
-  const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
+  const { proximosFeriados, cargandoFeriados, cumpleaniosHoy, fechaDeHoy } = useTablero();
+
+  const frase = useMemo(() => fraseDelMesActual(new Date()), []);
+  const periodo = useMemo(() => periodoDelMes(new Date()), []);
 
   const salir = async () => {
     try {
@@ -41,27 +43,17 @@ export const InicioScreen: React.FC = () => {
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
-      <View style={styles.perfil}>
-        {user?.photoURL ? (
-          <Image source={{ uri: user.photoURL }} style={styles.avatar} accessibilityLabel="Foto de perfil" />
-        ) : (
-          <View style={[styles.avatar, styles.avatarIniciales]}>
-            <AppText variant="h4" style={{ color: globalColors.accentPrimaryOn }}>
-              {iniciales(user?.fullname)}
-            </AppText>
-          </View>
-        )}
-        <AppText variant="h5" style={styles.centrado}>
-          {user?.fullname}
-        </AppText>
-        {role ? (
-          <AppText variant="body2" tone="secondary">
-            {metaDeRol(role).label}
-          </AppText>
-        ) : null}
-      </View>
+      <SaludoInicio nombre={nombreParaBienvenida(user)} subtitulo="Portal SIP – Universidad Austral" />
+
+      <FraseDelMes frase={frase.texto} autor={frase.autor} fuente={`${frase.libro}, ${frase.numero}`} periodo={periodo} />
+
+      <CumpleaniosCard fechaLabel={fechaDeHoy} cumpleanios={cumpleaniosHoy} />
+      <ProximosFeriadosCard feriados={proximosFeriados} cargando={cargandoFeriados} />
 
       <View style={styles.acciones}>
+        <AppText variant="overline" tone="secondary">
+          Accesos
+        </AppText>
         {puedeVerLegajo(role) ? (
           <AppButton title="Datos personales" icon="person-outline" onPress={() => navigation.navigate('DatosPersonales')} />
         ) : null}
@@ -97,12 +89,7 @@ export const InicioScreen: React.FC = () => {
   );
 };
 
-const createStyles = (c: ColorTokens) =>
-  StyleSheet.create({
-    contenido: { flexGrow: 1, justifyContent: 'center', gap: spacing.xxxl },
-    perfil: { alignItems: 'center', gap: spacing.sm },
-    acciones: { gap: spacing.md },
-    centrado: { textAlign: 'center' },
-    avatar: { width: scale(96), height: scale(96), borderRadius: borderRadius.round, marginBottom: spacing.sm },
-    avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
-  });
+const styles = StyleSheet.create({
+  contenido: { gap: spacing.xl, paddingBottom: spacing.xxxl },
+  acciones: { gap: spacing.md },
+});
