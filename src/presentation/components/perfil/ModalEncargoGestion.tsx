@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { guardarEncargo } from '../../../application/perfil/gestionAcademicaService';
 import { mensajeDeErrorApi } from '../../../config/api/apiError';
 import { aFechaVisible } from '../../../domain/legajo/fechas';
+import { esOtrasEntidadesAcademicas } from '../../../domain/perfil/extension';
 import {
   encargoAFormulario,
   esquemaEncargo,
@@ -37,6 +38,7 @@ const SUB_EDITAR = 'Modifica la información del encargo';
 
 export const ModalEncargoGestion: React.FC<Props> = ({ modo, item, onClose }) => {
   const unidades = useGestionAcademicaStore((s) => s.unidades);
+  const otrasEntidades = useGestionAcademicaStore((s) => s.otrasEntidades);
   const [guardando, setGuardando] = useState(false);
   const nuevo = modo === 'nuevo';
   const valoresIniciales = useMemo(() => encargoAFormulario(item), [item]);
@@ -74,8 +76,10 @@ export const ModalEncargoGestion: React.FC<Props> = ({ modo, item, onClose }) =>
           <FilaDato label="Encargo" valor={item.encargo} />
           <FilaDato label="Tipo" valor={item.tipo.map((t) => t.label).join(', ')} />
           {item.otroTipo ? <FilaDato label="Otro" valor={item.otroTipo} /> : null}
-          <FilaDato label="Unidad académica / Otras" valor={item.unidadAcademica.label} />
-          {item.otraUnidad ? <FilaDato label="Otro" valor={item.otraUnidad} /> : null}
+          <FilaDato label="Entidad académica / Otras" valor={item.unidadAcademica.label} />
+          {esOtrasEntidadesAcademicas(item.unidadAcademica) && item.otraEntidadAcademica ? (
+            <FilaDato label="Otra entidad académica" valor={item.otraEntidadAcademica.label} />
+          ) : null}
           <FilaDato label="Propuesta formativa" valor={item.propuestaFormativa} />
           <FilaDato label="Dedicación semanal en horas" valor={item.dedicacionSemanal} />
           <FilaDato label="Fecha de inicio" valor={aFechaVisible(item.fechaInicio)} />
@@ -105,12 +109,21 @@ export const ModalEncargoGestion: React.FC<Props> = ({ modo, item, onClose }) =>
         <FormSelectField
           control={control}
           name="unidadAcademica"
-          label="Unidad académica / Otras"
+          label="Entidad académica / Otras"
           required
           options={unidades as any}
           buscable
         />
-        {unidad?.label === 'Otra' ? <FormTextField control={control} name="otraUnidad" label="Otro" required /> : null}
+        {esOtrasEntidadesAcademicas(unidad) ? (
+          <FormSelectField
+            control={control}
+            name="otraEntidadAcademica"
+            label="Otra entidad académica"
+            required
+            options={otrasEntidades as any}
+            buscable
+          />
+        ) : null}
         <FormTextField control={control} name="propuestaFormativa" label="Propuesta formativa" />
         <FormTextField
           control={control}

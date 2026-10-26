@@ -8,6 +8,8 @@ interface DatosGestion {
   encargos: Encargo[];
   externos: CargoEncargoExterno[];
   unidades: OpcionSelect[];
+  /** Opciones de "Otra entidad académica". */
+  otrasEntidades: OpcionSelect[];
   paises: OpcionSelect[];
 }
 
@@ -26,6 +28,7 @@ export const useGestionAcademicaStore = create<GestionState>()((set) => ({
   encargos: [],
   externos: [],
   unidades: [],
+  otrasEntidades: [],
   paises: [],
   cargando: false,
   cargado: false,
@@ -38,6 +41,7 @@ export const useGestionAcademicaStore = create<GestionState>()((set) => ({
       encargos: [],
       externos: [],
       unidades: [],
+      otrasEntidades: [],
       paises: [],
       cargando: false,
       cargado: false,

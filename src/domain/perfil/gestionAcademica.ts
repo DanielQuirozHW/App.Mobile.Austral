@@ -13,7 +13,8 @@ import {
   type OpcionDeLista,
   type OpcionONull,
 } from './comun';
-import type { Opcion } from '../legajo/tipos';
+import { esOtrasEntidadesAcademicas } from './extension';
+import type { Opcion, OpcionSelect } from '../legajo/tipos';
 
 const MAXIMO_INT = 2147483647;
 
@@ -79,7 +80,10 @@ export interface Encargo {
   fechaFin: Date | null;
   reportaA: string;
   descripcion: string;
+  /** Texto libre heredado (new_otraunidad): el portal ya no lo edita. */
   otraUnidad: string;
+  /** Lookup "Otra entidad académica" (new_otraentidadacademica); null si no hay. */
+  otraEntidadAcademica: OpcionSelect | null;
   otroTipo: string;
 }
 
@@ -104,6 +108,7 @@ export const mapearTiposEncargo = (valor: unknown, etiqueta: unknown): OpcionDeL
 
 export const mapearEncargo = (f: Fila): Encargo => {
   const unidad = opcionDeFila(f, '_new_unidadacademica_value');
+  const otraId = f?._new_otraentidadacademica_value;
   return {
     id: texto(f?.new_encargosid),
     encargo: texto(f?.new_encargo),
@@ -116,6 +121,9 @@ export const mapearEncargo = (f: Fila): Encargo => {
     reportaA: texto(f?.new_reportaa),
     descripcion: texto(f?.new_descripciondelencargo),
     otraUnidad: texto(f?.new_otraunidad),
+    otraEntidadAcademica: otraId
+      ? { value: texto(otraId), label: texto(f?.[`_new_otraentidadacademica_value${FV}`]) }
+      : null,
     otroTipo: texto(f?.new_otrotipo),
   };
 };
@@ -126,6 +134,7 @@ export interface FormularioEncargo {
   otroTipo: string;
   unidadAcademica: OpcionONull;
   otraUnidad: string;
+  otraEntidadAcademica: OpcionONull;
   propuestaFormativa: string;
   dedicacionSemanal: string;
   fechaInicio: Date | null;
@@ -141,6 +150,9 @@ export const encargoAFormulario = (e?: Encargo): FormularioEncargo => ({
   unidadAcademica:
     e && e.unidadAcademica.value ? { value: String(e.unidadAcademica.value), label: texto(e.unidadAcademica.label) } : null,
   otraUnidad: e?.otraUnidad ?? '',
+  otraEntidadAcademica: e?.otraEntidadAcademica
+    ? { value: e.otraEntidadAcademica.value, label: e.otraEntidadAcademica.label }
+    : null,
   propuestaFormativa: e?.propuestaFormativa ?? '',
   dedicacionSemanal: e?.dedicacionSemanal ?? '',
   fechaInicio: e?.fechaInicio ?? null,
@@ -150,8 +162,11 @@ export const encargoAFormulario = (e?: Encargo): FormularioEncargo => ({
 });
 
 /**
- * Cuerpo de POST NuevoEncargo / PUT EditarEncargo. DIFERENCIA CONSCIENTE: el portal, al editar, lee `datos.otraunidad`
- * (minúscula, que no existe) y por eso nunca manda new_otraunidad; la app lo manda siempre.
+ * Cuerpo de POST NuevoEncargo / PUT EditarEncargo (useCargarEncargosGestion del portal).
+ * - `new_otraentidadacademica` va solo con "Otras Entidades Académicas" elegida; con cualquier otra entidad va vacío y la
+ *   API limpia la que hubiera quedado de antes.
+ * - `new_otraunidad`: igual que el portal, al crear va el texto del formulario (siempre vacío, ya no hay campo) y al
+ *   editar va vacío (el portal lee `datos.otraunidad`, que no existe).
  */
 export const armarPayloadEncargo = (
   empleadoId: string,
@@ -164,7 +179,8 @@ export const armarPayloadEncargo = (
   new_tipo_multisel: (d.tipo ?? []).map((t) => t.value).join(','),
   new_otrotipo: d.otroTipo || '',
   new_unidadacademica: d.unidadAcademica?.value || '',
-  new_otraunidad: d.otraUnidad || '',
+  new_otraunidad: id ? '' : d.otraUnidad || '',
+  new_otraentidadacademica: esOtrasEntidadesAcademicas(d.unidadAcademica) ? (d.otraEntidadAcademica?.value ?? '') : '',
   new_propuestaformativa: d.propuestaFormativa || '',
   new_dedicacionsemanalenhoras: Number(d.dedicacionSemanal) || 0,
   new_fechadeinicio: d.fechaInicio ? aFechaApi(d.fechaInicio) : null,
@@ -202,10 +218,13 @@ export const esquemaEncargo = yup.object({
     const hayOtro = tipos.some((t) => t.label === 'Otro');
     return !hayOtro || Boolean(valor && valor.trim());
   }),
-  unidadAcademica: opcionRequerida('La unidad académica es requerida'),
-  otraUnidad: yup.string().test('otra-unidad', 'Otro es requerido', function (valor) {
-    return this.parent.unidadAcademica?.label !== 'Otra' || Boolean(valor && valor.trim());
-  }),
+  unidadAcademica: opcionRequerida('La entidad académica es requerida'),
+  otraEntidadAcademica: yup
+    .object()
+    .nullable()
+    .test('otra-entidad', 'La otra entidad académica es requerida', function (valor) {
+      return !esOtrasEntidadesAcademicas(this.parent.unidadAcademica) || Boolean(valor && (valor as any).value);
+    }),
   dedicacionSemanal: dedicacionSemanal('La dedicación semanal es requerida', false),
   fechaInicio: esFechaValida.required('La fecha de inicio es requerida'),
   fechaFin: esFechaValida.test(

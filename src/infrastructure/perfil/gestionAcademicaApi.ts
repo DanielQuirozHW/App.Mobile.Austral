@@ -49,6 +49,7 @@ export const leerEncargosGestion = (empleadoId: string): Promise<unknown> =>
       'new_propuestaformativa',
       'new_otrotipo',
       'new_otraunidad',
+      'new_otraentidadacademica',
       'new_fechadeinicio',
       'new_fechadefinalizacion',
       'new_encargo',
