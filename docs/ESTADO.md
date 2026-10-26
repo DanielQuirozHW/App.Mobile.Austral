@@ -1,6 +1,6 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (Tablero de Inicio y Notificaciones construidos; decisiones 89 y 90).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (Documentación del legajo construida; decisión 91).
 
 ## 1. Qué hacer apenas se abre una sesión nueva
 
@@ -8,7 +8,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
 4. **Se sigue el orden de la sección 4**, que fijó Daniel el 2026-10-26. No se construyen módulos fuera de esa lista.
-5. Si Daniel pide un módulo nuevo: leer primero el código del portal de ese módulo, escribir sus notas en `docs/contexto/<modulo>.md`, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **91**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
+5. Si Daniel pide un módulo nuevo: leer primero el código del portal de ese módulo, escribir sus notas en `docs/contexto/<modulo>.md`, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **92**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
 
@@ -25,15 +25,15 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 | 13 | Plan de Trabajo (solo docente): lista, detalle, 18 secciones de registros, resumen con adjuntos y envío | 75 a 87 | `contexto/plan-de-trabajo.md` |
 | 14 | Tablero de Inicio real: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día, próximos feriados y accesos | 89 | `contexto/inicio.md` |
 | 15 | Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas | 90 | `contexto/notificaciones.md` |
+| 16 | Documentación del legajo: documentos requeridos del empleado, "Ver adjuntos" y "Cargar archivo" | 91 | `contexto/documentacion.md` |
 
-Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos personales (docente / codocente), Licencias y vacaciones, Perfil (todos los roles) y Plan de trabajo (solo docente).
+Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos personales (docente / codocente), Documentación (todos los roles, inferido), Licencias y vacaciones, Perfil (todos los roles) y Plan de trabajo (solo docente).
 
 ## 3. Qué NO está hecho
 
 **Módulos del portal sin construir:**
 
-- Documentación — pedido por Daniel (siguiente en el orden). El hook `useGetDocumentosEmpleado.ts` existe en el portal; la página no se encontró bajo `src/app/(dashboard)` (puede estar dentro de legajo): buscarla antes de construir.
-- Mejoras de Plan de Trabajo, Licencias y Vacaciones — pedido por Daniel
+- Mejoras de Plan de Trabajo, Licencias y Vacaciones — pedido por Daniel (**siguen**)
 - Funciones de Nombramientos y Promoción en navegación y guardas (etapa 7) — pedido por Daniel, **al final**
 - GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación — sin pedido; no se construyen. Las notificaciones de esos módulos se muestran, pero "Ir" avisa que la sección no está disponible.
 
@@ -41,6 +41,7 @@ Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos person
 
 - **Daniel debe pegar los 18 textos del mensaje del mes** en `src/domain/inicio/frasesMensuales.ts` (ver decisión 89). Hasta entonces la tarjeta no se dibuja.
 - Lectura de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) del portal, por si hace falta otra variable de entorno.
+- Leer el guard del layout del dashboard del portal (`src/app/(dashboard)/layout.tsx` o equivalente) para confirmar qué rutas ve cada rol (afecta a Documentación y Notificaciones, hoy abiertas a todos los roles por inferencia).
 - Lo que figura como inferido o sin verificar está en `docs/PENDIENTES.md` (tabla "Falta verificar"). Cada punto dice en qué archivo del código está.
 - Revisión estática archivo por archivo del resto de `src/` (solo se revisaron la configuración y el Plan de Trabajo; ver `docs/VERIFICACIONES.md`).
 
@@ -51,7 +52,7 @@ Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo
 1. **Configuración y estructura** — hecho el 2026-10-26: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
 2. **Cerrar los puntos inferidos leyendo el portal** — hecho el 2026-10-26 (decisión 87): hooks del Plan de Trabajo y de Resultados / Impacto I+D leídos, sin cambios de código. Lo que sigue inferido (textos de avisos del store, modal de autores, `CustomDateField`) está en `PENDIENTES.md`.
 3. **UI**: iniciales del avatar y foto de portada — hechas el 2026-10-26 (decisión 88). **Falta**: ajustar el aspecto contra el tema del portal (`src/@core/theme/overrides`), el borde del avatar de la cabecera (el portal usa 3 px `azulLight`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`).
-4. **Módulos nuevos**, de a uno, leyendo primero el portal: Tablero de Inicio real (**hecho**, decisión 89), notificaciones (**hecho**, decisión 90), **Documentación (sigue)**. Después, mejoras de Plan de Trabajo, Licencias y Vacaciones.
+4. **Módulos nuevos**, de a uno, leyendo primero el portal: Tablero de Inicio real (**hecho**, decisión 89), notificaciones (**hecho**, decisión 90), Documentación (**hecho**, decisión 91). **Siguen** las mejoras de Plan de Trabajo, Licencias y Vacaciones (Licencias puede necesitar aceptar el parámetro `tipo` que traen las rutas de las notificaciones).
 5. **Al final**: funciones de Nombramientos y Promoción en navegación y guardas.
 
 Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
@@ -86,12 +87,13 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 
 - `search_code` del conector no es confiable: navegar con `get_file_contents` sobre directorios y archivos.
 - No usar `download_url` con token ni ninguna descarga por otra vía.
-- En `push_files`, pasar `owner`, `repo`, `branch`, `message` y `files` como parámetros separados; el contenido va inline.
+- En `push_files`, pasar `owner`, `repo`, `branch`, `message` y `files` como parámetros separados, bien formados; el contenido va inline. Un `push_files` armado a mano como un único texto JSON crudo falla con "could not be parsed as JSON": usar siempre los parámetros normales de la herramienta.
 - Los mensajes de commit no llevan secuencias literales como `\uXXXX`, y terminan con las dos líneas de atribución que indique la sesión (`Co-Authored-By` y `Claude-Session`).
 - Los archivos pueden estar en subcarpetas inesperadas (por ejemplo `components/licencias/Pestanias.tsx`): listar el directorio antes de asumir la ruta.
 - Los binarios (logos, fuentes) no se pueden subir por el conector: los copia Daniel.
 - `WebFetch` solo abre URLs que ya salieron en una búsqueda o que dio Daniel: para leer documentación hay que buscar primero y abrir el resultado.
-- Los resultados grandes de `get_file_contents` se guardan en disco como JSON con el texto escapado dos veces: extraerlos con `jq` (`.[1].text`, luego `.content[].resource.text`).
+- Los resultados grandes de `get_file_contents` se guardan en disco como JSON; el texto está en `.[0].text` (con `jq -r`). Extraerlos con `jq` antes de leerlos.
+- Las copias de trabajo en la carpeta temporal de la sesión pueden estar viejas: antes de editar un archivo, traer su versión del repo.
 - `DECISIONES.md` pesa casi 70 000 caracteres: las decisiones nuevas van en `DECISIONES_89_en_adelante.md` para no reenviarlo entero.
 
 ## 8. Mapa de documentos

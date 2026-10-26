@@ -1,6 +1,6 @@
 # Decisiones 89 en adelante
 
-Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **91**.
+Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **92**.
 
 ## 2026-10-26 (Tablero de Inicio y Notificaciones)
 
@@ -21,4 +21,17 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **Endpoint** `api/hrfactors/inactivartarea` en `config/api/endpointsNotificaciones.ts` (archivo aparte para no reenviar `endpoints.ts` entero; se puede unificar cuando haya otro cambio en ese archivo).
     - `htmlAtexto` usa expresiones regulares (el portal usa `DOMParser`, que no existe en React Native). Decodifica las entidades nombradas básicas y las numéricas.
     - **Acceso desde Inicio**: botón "Notificaciones (N)" con la cantidad de pendientes (en el portal es la campana del encabezado). La ruta está disponible para todos los roles (inferido).
+    - Nada probado ni llamado a la API.
+
+## 2026-10-26 (Documentación del legajo)
+
+91. **Documentación** (`DocumentacionScreen`, ruta `Documentacion`). Fuente: `Portal-Austral-Dev` -> `src/app/(dashboard)/legajo/documentacion/page.tsx`, `src/hooks/useGetDocumentosEmpleado.ts`, `src/hooks/useGetaAdjuntosXEmpleado.ts`, `src/columns/columnsDocumentosLegajo.tsx`, `legajo/_components/component/ModalVerDocumentos.tsx`, `ModalCargarDocumentos.tsx` y `useEnviarArchivos.ts`, `legajo/_components/UserProfileBanner.tsx` y `src/stores/useLegajoStore.ts`. Contrato en `docs/contexto/documentacion.md`.
+    - **Lista, filtros, "Documento importado", fecha de última carga, "Ver adjuntos" y "Cargar archivo": los del portal.** Se omiten psicotécnico / examen preocupacional y el CUD para quien no es relación de dependencia; el título es el texto del lookup `new_documento`; la carga va a `api/hrfactors/adjuntosDocumentacion?doc_empleado_id=`.
+    - **Reutilización.** El portal usa el mismo modal de carga y casi el mismo de adjuntos para familiares y para Documentación; la app también: `ModalCargarDocumento` recibe `subir` y `ModalVerAdjuntos` recibe `obtener` (por defecto siguen subiendo y leyendo los de familiares). `PerfilLegajoBanner` suma la variante `compacto` (la `compact` del portal: sin portada, avatar de 56).
+    - **Sin `uiname` fijo.** La consulta de adjuntos del portal trae el nombre de una persona escrito a mano; no se copia (decisión 67).
+    - **El check y la fecha temporales se marcan solo si la subida salió bien.** El portal los marca antes y los deja aunque falle. Viven en memoria (el portal usa `sessionStorage`).
+    - **Tarjetas en lugar de tabla** y "Sin registros" en la lista vacía (texto propio). El archivo se abre con el visor del sistema.
+    - **Endpoint** `adjuntoDocumentacionEmpleado` en `config/api/endpointsDocumentacion.ts` (archivo aparte para no reenviar `endpoints.ts` entero; se puede unificar cuando haya otro cambio en ese archivo).
+    - **Acceso desde Inicio**: botón "Documentación". Ruta para todos los roles: el menú del portal la muestra a todos; no se leyó el guard del layout del dashboard (inferido).
+    - Sin verificar: el ícono `checkmark-circle` (ver `PENDIENTES.md`).
     - Nada probado ni llamado a la API.
