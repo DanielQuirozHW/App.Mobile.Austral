@@ -57,11 +57,19 @@ export const armarEventos = (solicitudes: SolicitudDeEquipo[], feriados: Feriado
 export const eventosDelDia = (eventos: EventoCalendario[], dia: string): EventoCalendario[] =>
   eventos.filter((e) => e.desde <= dia && dia <= e.hasta);
 
-/** Color por persona: hash del nombre -> hsl(h,65%,50%) (45% de luminosidad en modo oscuro), como el portal. */
+/**
+ * Color por persona, igual que colorFromName de Portal-Austral-Dev (calendar/Calendar.tsx):
+ * hash = char + ((hash << 5) - hash), hue = |hash| % 360, hsl(hue, 65%, 50%) (45% en modo oscuro).
+ * El desplazamiento trabaja en 32 bits con signo, por eso no se simplifica a hash * 31.
+ */
 export const colorDePersona = (nombre: string, oscuro: boolean): string => {
   let hash = 0;
-  for (let i = 0; i < nombre.length; i += 1) hash = (hash * 31 + nombre.charCodeAt(i)) % 360;
-  return `hsl(${hash}, 65%, ${oscuro ? 45 : 50}%)`;
+  for (let i = 0; i < nombre.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
+    hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 65%, ${oscuro ? 45 : 50}%)`;
 };
 
 /** Colores del chip de estado en el detalle (ModalCalendario). */

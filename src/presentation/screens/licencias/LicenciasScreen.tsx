@@ -1,5 +1,6 @@
 // Pantalla del módulo Licencias y vacaciones. Equivale a las páginas licencias/licencias, licencias/vacaciones,
 // el calendario y la gestión de solicitudes del equipo (solo para líderes) de Portal-Austral-Dev.
+// El portal abre con tarjetas de inicio y después muestra las pestañas; en el celular se va directo a las pestañas.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
@@ -48,7 +49,8 @@ export const LicenciasScreen: React.FC = () => {
       { clave: 'vacaciones', etiqueta: 'Vacaciones' },
       { clave: 'calendario', etiqueta: 'Calendario' },
     ];
-    return esLider ? [...base, { clave: 'equipo', etiqueta: 'Equipo' }] : base;
+    // En el portal la pestaña de los líderes se llama "Gestión" (licencias/page.tsx).
+    return esLider ? [...base, { clave: 'equipo', etiqueta: 'Gestión' }] : base;
   }, [esLider]);
 
   const refrescar = async () => {
