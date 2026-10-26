@@ -1,11 +1,11 @@
 # Decisiones 89 en adelante
 
-Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **92**.
+Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **93**.
 
 ## 2026-10-26 (Tablero de Inicio y Notificaciones)
 
 89. **Tablero de Inicio real** (reemplaza el `Inicio` provisorio). Fuente: `Portal-Austral-Dev` -> `src/app/(dashboard)/page.tsx` y `src/@core/components/austral/*` (`WelcomeBlock`, `FraseDelMes`, `CumpleaniosCard`, `ProximosFeriadosCard`), más `src/hooks/useGetFeriados.ts` y `useGetCumpleanios.ts`. Contrato en `docs/contexto/inicio.md`.
-    - Se construyen las cuatro tarjetas del portal: bienvenida ("Bienvenido, {nombre}", subtítulo "Portal SIP – Universidad Austral"), mensaje del mes, cumpleaños del día y próximos tres feriados. Debajo van los accesos a los módulos de la app (en el portal están en el menú lateral) y "Cerrar sesión".
+    - Se construyen las cuatro tarjetas del portal: bienvenida ("Bienvenido, {nombre}", subtítulo "Portal SIP – Universidad Austral"), mensaje del mes, cumpleaños del día y próximos tres feriados. Debajo van los accesos a los módulos de la app (en el portal están en el menú lateral) y "Cerrar sesión". *(Ver decisión 92: el cierre de sesión pasó al menú y a Ajustes, y los accesos son los de la demostración.)*
     - **Mensaje del mes: los 18 textos quedan vacíos** en `domain/inicio/frasesMensuales.ts` (número, libro y autor sí están). Son pasajes de libros publicados y no se reproducen: Daniel los pega desde `src/@core/data/frases-mensuales.ts` del portal, en el mismo orden. Mientras estén vacíos la tarjeta no se dibuja.
     - La fecha de hoy se calcula con el desplazamiento fijo UTC-3 de Argentina (sin horario de verano desde 2009), no con `Intl`, para no depender del motor del celular. El portal usa `Intl` con `America/Argentina/Buenos_Aires`; el resultado es el mismo.
     - El spinner de feriados del portal nunca se llegaba a mostrar (un bug); la app lo muestra mientras carga.
@@ -20,7 +20,7 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **Portal CAE**: se agrega la variable opcional `PORTAL_CAE_URL` (sin valor en `.env.template`, `config/env.ts` -> `env.portalCaeUrl`). Vacía, la notificación "para revisión" lleva a Docencia, igual que el portal con `NEXT_PUBLIC_PORTAL_CAE_URL` vacía.
     - **Endpoint** `api/hrfactors/inactivartarea` en `config/api/endpointsNotificaciones.ts` (archivo aparte para no reenviar `endpoints.ts` entero; se puede unificar cuando haya otro cambio en ese archivo).
     - `htmlAtexto` usa expresiones regulares (el portal usa `DOMParser`, que no existe en React Native). Decodifica las entidades nombradas básicas y las numéricas.
-    - **Acceso desde Inicio**: botón "Notificaciones (N)" con la cantidad de pendientes (en el portal es la campana del encabezado). La ruta está disponible para todos los roles (inferido).
+    - **Acceso desde Inicio**: botón "Notificaciones (N)" con la cantidad de pendientes (en el portal es la campana del encabezado). La ruta está disponible para todos los roles (inferido). *(Ver decisión 92: ahora es una campana en la barra de Inicio y una entrada del menú, sin la cantidad.)*
     - Nada probado ni llamado a la API.
 
 ## 2026-10-26 (Documentación del legajo)
@@ -32,6 +32,19 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **El check y la fecha temporales se marcan solo si la subida salió bien.** El portal los marca antes y los deja aunque falle. Viven en memoria (el portal usa `sessionStorage`).
     - **Tarjetas en lugar de tabla** y "Sin registros" en la lista vacía (texto propio). El archivo se abre con el visor del sistema.
     - **Endpoint** `adjuntoDocumentacionEmpleado` en `config/api/endpointsDocumentacion.ts` (archivo aparte para no reenviar `endpoints.ts` entero; se puede unificar cuando haya otro cambio en ese archivo).
-    - **Acceso desde Inicio**: botón "Documentación". Ruta para todos los roles: el menú del portal la muestra a todos; no se leyó el guard del layout del dashboard (inferido).
+    - **Acceso desde Inicio**: botón "Documentación". Ruta para todos los roles: el menú del portal la muestra a todos; no se leyó el guard del layout del dashboard (inferido). *(Ver decisión 92: en la demostración abre una pantalla vacía.)*
     - Sin verificar: el ícono `checkmark-circle` (ver `PENDIENTES.md`).
+    - Nada probado ni llamado a la API.
+
+## 2026-10-26 (MVP de demostración: menú, modo de color y ajustes)
+
+92. **Alcance MVP de demostración y base general de la app.** Pedido de Daniel: la app es una demo para que Austral decida; "algún poco pero bien", con lo general muy bien (menú, modo de color, ajustes, notificaciones, aspecto) y solo algunos módulos de prueba; el resto de los módulos queda **en el menú pero vacío**. Ver `docs/ALCANCE-MVP.md`.
+    - **Menú lateral propio** (`components/menu/MenuLateral.tsx`, `BotonMenu.tsx`, `stores/menuStore.ts`): panel que se desliza desde la izquierda, con foto/nombre/puesto arriba, entradas agrupadas (Principal, Legajo, Gestión, Perfil, Cuenta) y "Cerrar sesión" abajo. Se armó con `Modal` + `Animated` de React Native: **no se suma ninguna librería** (un drawer de react-navigation exigiría dependencias nuevas). El botón de hamburguesa va a la derecha del encabezado de cada pantalla (`headerRight`) y en la barra superior de Inicio. Las entradas navegan con `irAModulo` (`navigation/navigationRef.ts`): un `reset` que deja Inicio debajo, de modo que "atrás" vuelve a Inicio y el menú no apila pantallas (el aviso de cambios sin guardar de Datos personales sigue disparando por `beforeRemove`, inferido).
+    - **Catálogo único de módulos** (`navigation/modulosMenu.ts`): título, ícono, grupo, quién lo ve (mismas reglas de puesto que el portal) y `enDemo`. **Con contenido en la demo: Inicio, Notificaciones, Datos personales, Licencias y vacaciones y Ajustes.** El resto (Documentación, Plan de trabajo, Formación, Trayectoria, Extensión, Gestión académica, Docencia, Investigación) figura en el menú y abre `ModuloVacioScreen` ("Este módulo todavía no está disponible en la versión de demostración."). **Su código no se borró**: para habilitar uno basta con poner `enDemo: true`. Plan de trabajo vacío tampoco registra el detalle.
+    - **Inicio**: barra superior con campana (Notificaciones) y menú; los accesos de abajo son solo los módulos con contenido (hoy Datos personales y Licencias y vacaciones). Se quitó el botón "Cerrar sesión" (está en el menú y en Ajustes) y **la cantidad de pendientes junto a Notificaciones** (no se releyó el hook para mostrarla en la campana; pendiente opcional).
+    - **Modo de color** (`stores/modoColorStore.ts`, `theme/theme.tsx`, `AjustesScreen`): preferencia Sistema / Claro / Oscuro, guardada en el almacenamiento local (clave `modoColor`), por defecto Sistema (reemplaza la limitación de la decisión 27: ya hay selector, como el `settingsContext` del portal, que no se leyó). El login sigue forzado a claro (`modo="light"`, igual que el portal).
+    - **Pantalla Ajustes** (`screens/ajustes/AjustesScreen.tsx`): selector de modo de color, datos de la cuenta (nombre, correo, puesto), "Versión de demostración" y cerrar sesión. Textos y estructura propios (el portal no tiene esta pantalla).
+    - **Corrección de zona segura bajo el encabezado**: `Screen` sumaba la zona segura de arriba aunque el encabezado nativo ya la ocupa, dejando un hueco de más en las pantallas con encabezado. Ahora `Screen` lee `EncabezadoVisibleContext` y `RootNavigator` envuelve cada pantalla con encabezado (`conEncabezado`). Inicio, ingreso y selección de puesto no llevan encabezado y no cambian.
+    - **Avatar de la cabecera del legajo**: borde de 3 px `primaryLight` (azulLight) en la variante completa, como el portal (decisión 88 lo dejaba en 2 px). La variante compacta queda en 2 px.
+    - Sin verificar (ver `PENDIENTES.md`): los íconos `menu-outline`, `settings-outline`, `log-out-outline`, `construct-outline`, `phone-portrait-outline`, `sunny-outline`, `moon-outline`, `radio-button-on` y `radio-button-off`; `createNavigationContainerRef` / `CommonActions.reset` / `headerRight` de react-navigation 7.
     - Nada probado ni llamado a la API.

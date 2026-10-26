@@ -6,6 +6,8 @@
 // (decisión 88) solo en la variante completa.
 // Iniciales: `getInitials` del portal (@core/utils/get-initials) = primera letra de CADA palabra, sin recortar ni
 // pasar a mayúsculas (verificado).
+// Borde del avatar: 3 px `azulLight` (primaryLight) en la variante completa, como la cabecera de Datos personales del
+// portal (decisión 92). La variante compacta conserva 2 px del color de la tarjeta (sin fuente para ajustarla).
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
@@ -201,8 +203,8 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       width: tamanioAvatar,
       height: tamanioAvatar,
       borderRadius: tamanioAvatar / 2,
-      borderWidth: 2,
-      borderColor: c.card,
+      borderWidth: compacto ? 2 : 3,
+      borderColor: compacto ? c.card : c.primaryLight,
     },
     avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
     camara: {
