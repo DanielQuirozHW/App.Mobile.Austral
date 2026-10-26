@@ -29,8 +29,8 @@ interface Props {
 }
 
 const TITULO = 'Experiencia laboral fuera del ámbito académico';
-const SUB_NUEVO = 'Agrega una nueva experiencia laboral';
-const SUB_EDITAR = 'Modifica la información de la experiencia laboral';
+const SUB_NUEVO = 'Agrega una nueva experiencia laboral fuera del ámbito académico';
+const SUB_EDITAR = 'Modifica la información de la experiencia laboral fuera del ámbito académico';
 
 export const ModalExperiencia: React.FC<Props> = ({ modo, item, onClose }) => {
   const [guardando, setGuardando] = useState(false);

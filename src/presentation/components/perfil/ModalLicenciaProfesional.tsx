@@ -27,9 +27,10 @@ interface Props {
   onClose: () => void;
 }
 
-const TITULO = 'Licencia profesional / Membresía / Asociación';
-const SUB_NUEVO = 'Agrega una nueva licencia profesional, membresía o asociación';
-const SUB_EDITAR = 'Modifica la información de la licencia profesional, membresía o asociación';
+const TITULO = 'Licencia profesional / Membresías / Asociaciones profesionales';
+const SUB_NUEVO = 'Agrega una nueva Licencia / Membresía / Asociación';
+const SUB_EDITAR = 'Modifica la información de la licencia / membresía / asociación';
+const ETIQUETA_TIPO = 'Tipo de licencia / Membresía / Asociación';
 
 export const ModalLicenciaProfesional: React.FC<Props> = ({ modo, item, onClose }) => {
   const [guardando, setGuardando] = useState(false);
@@ -65,7 +66,7 @@ export const ModalLicenciaProfesional: React.FC<Props> = ({ modo, item, onClose 
     return (
       <ModalPerfil modo="ver" titulo={TITULO} subtituloNuevo={SUB_NUEVO} subtituloEditar={SUB_EDITAR} onClose={onClose}>
         <View style={{ gap: 8 }}>
-          <FilaDato label="Tipo" valor={item.tipo} />
+          <FilaDato label={ETIQUETA_TIPO} valor={item.tipo} />
           <FilaDato label="Organismo emisor" valor={item.organismo} />
           <FilaDato label="Fecha de obtención" valor={aMesAnioVisible(item.fechaObtencion)} />
           <FilaDato label="Vigencia hasta" valor={aMesAnioVisible(item.vigenciaHasta)} />
@@ -86,7 +87,7 @@ export const ModalLicenciaProfesional: React.FC<Props> = ({ modo, item, onClose 
       onGuardar={guardar}
     >
       <Campos>
-        <FormTextField control={control} name="tipo" label="Tipo" required maximo={200} mostrarContador />
+        <FormTextField control={control} name="tipo" label={ETIQUETA_TIPO} required maximo={200} mostrarContador />
         <FormTextField
           control={control}
           name="organismo"

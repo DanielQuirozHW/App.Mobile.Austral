@@ -29,8 +29,8 @@ interface Props {
 }
 
 const TITULO = 'Consultoría externa';
-const SUB_NUEVO = 'Agrega una nueva consultoría externa';
-const SUB_EDITAR = 'Modifica la información de la consultoría externa';
+const SUB_NUEVO = 'Agrega una nueva consultoría';
+const SUB_EDITAR = 'Modifica la información de la consultoría';
 
 export const ModalConsultoria: React.FC<Props> = ({ modo, item, onClose }) => {
   const [guardando, setGuardando] = useState(false);
@@ -103,7 +103,13 @@ export const ModalConsultoria: React.FC<Props> = ({ modo, item, onClose }) => {
           maximo={200}
           mostrarContador
         />
-        <FormDateField control={control} name="fechaInicio" label="Fecha de inicio" required />
+        <FormDateField
+          control={control}
+          name="fechaInicio"
+          label="Fecha de inicio"
+          required
+          maximumDate={new Date()}
+        />
         <FormDateField control={control} name="fechaFin" label="Fecha de fin" clearable />
         <FormSelectField
           control={control}

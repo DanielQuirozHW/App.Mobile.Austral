@@ -24,8 +24,8 @@ interface Props {
 }
 
 const TITULO = 'Comité profesional o técnico';
-const SUB_NUEVO = 'Agrega un nuevo comité profesional o técnico';
-const SUB_EDITAR = 'Modifica la información del comité profesional o técnico';
+const SUB_NUEVO = 'Agrega un nuevo comité';
+const SUB_EDITAR = 'Modifica la información del comité';
 
 export const ModalComite: React.FC<Props> = ({ modo, item, onClose }) => {
   const [guardando, setGuardando] = useState(false);

@@ -39,7 +39,7 @@ export const ModalIdioma: React.FC<Props> = ({ modo, item, onClose }) => {
 
   const guardar = handleSubmit(async (valores: any) => {
     setGuardando(true);
-    const idToast = toast.loading('Guardando…');
+    const idToast = toast.loading(nuevo ? 'Guardando…' : 'Guardando los cambios…');
     try {
       await guardarIdioma(valores as FormularioIdioma, nuevo ? undefined : item?.id);
       toast.dismiss(idToast);

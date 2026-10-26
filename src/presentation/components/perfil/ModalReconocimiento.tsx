@@ -27,9 +27,9 @@ interface Props {
   onClose: () => void;
 }
 
-const TITULO = 'Reconocimiento profesional';
-const SUB_NUEVO = 'Agrega un nuevo reconocimiento profesional';
-const SUB_EDITAR = 'Modifica la información del reconocimiento profesional';
+const TITULO = 'Reconocimientos profesionales';
+const SUB_NUEVO = 'Agrega un nuevo reconocimiento';
+const SUB_EDITAR = 'Modifica la información del reconocimiento';
 
 export const ModalReconocimiento: React.FC<Props> = ({ modo, item, onClose }) => {
   const [guardando, setGuardando] = useState(false);

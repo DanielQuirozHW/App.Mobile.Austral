@@ -59,7 +59,7 @@ export const ModalAreaExpertise: React.FC<Props> = ({ modo, item, onClose }) => 
 
   const guardar = handleSubmit(async (valores: any) => {
     setGuardando(true);
-    const idToast = toast.loading('Guardando…');
+    const idToast = toast.loading(nuevo ? 'Guardando…' : 'Guardando los cambios…');
     try {
       const datos = valores as FormularioAreaExpertise;
       // Si la opción no es "otras", el texto libre no corresponde.

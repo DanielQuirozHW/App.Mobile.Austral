@@ -58,7 +58,11 @@ export const esquemaExperiencia = yup.object({
 export const esquemaConsultoria = yup.object({
   tema: yup.string().trim().max(300, MSG_300).required('El tema es obligatorio'),
   cliente: yup.string().trim().max(200, 'Máximo 200 caracteres').required('El cliente es obligatorio'),
-  fechaInicio: fechaRequerida('La fecha de inicio es obligatoria'),
+  fechaInicio: fechaRequerida('La fecha de inicio es obligatoria').test(
+    'inicio-no-futura',
+    'La fecha de inicio no puede ser mayor a la fecha actual',
+    (valor) => !valor || !esFechaFutura(valor),
+  ),
   fechaFin: fechaOpcional().test('fin-orden', 'La fecha de fin no puede ser menor a la fecha de inicio', function (valor) {
     const inicio = this.parent.fechaInicio as Date | null;
     return !valor || !inicio || valor.getTime() >= inicio.getTime();
