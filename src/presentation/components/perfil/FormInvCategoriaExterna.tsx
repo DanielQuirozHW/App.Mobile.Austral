@@ -131,6 +131,7 @@ export const FormInvCategoriaExterna: React.FC = () => {
           control={control}
           name="categoria"
           label="Categorización externa"
+          required={!esUA}
           options={CATEGORIZACION_EXTERNA as any}
           disabled={bloqueadoGeneral}
           clearable
@@ -231,7 +232,7 @@ export const FormInvCategoriaExterna: React.FC = () => {
               control={control}
               name="lugar"
               label={ETIQUETA_LUGAR[codigo]}
-              required={codigo !== EXTERNA_OTRA}
+              required
               options={lugares as any}
               buscable
               disabled={bloqueadoGeneral}

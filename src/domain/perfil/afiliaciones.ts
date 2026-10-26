@@ -171,7 +171,8 @@ const finNoAnteriorCon = (mensaje: string) =>
     return dia(valor) >= dia(inicio);
   });
 
-const finNoAnterior = finNoAnteriorCon('La fecha de fin debe ser igual o posterior a la fecha de inicio');
+/** Mensaje de la categorización externa y PRINUAR del portal (la regla permite igual: v >= inicio). */
+const FIN_EXTERNA = 'La fecha de fin no puede ser anterior o igual a la fecha de inicio';
 
 const inicioNoPosterior = (mensaje: string) =>
   fechaRequerida('La fecha de inicio es obligatoria').test('inicio-orden', mensaje, function (valor) {
@@ -585,7 +586,8 @@ export const armarPayloadExterna = (empleadoId: string, f: FormularioExterna): R
 };
 
 /**
- * Esquema de la categorización externa. `bloqueado` = el formulario se abrió con una categoría ya cargada: solo se puede
+ * Esquema de la categorización externa (textos iguales a schemaExterna de categorizacion-externa/page.tsx del portal).
+ * `bloqueado` = el formulario se abrió con una categoría ya cargada: solo se puede
  * tocar la fecha de fin, así que no se exige nada más (el portal bloquea el resto de los campos).
  */
 export const esquemaExterna = (bloqueado: boolean) => {
@@ -603,41 +605,43 @@ export const esquemaExterna = (bloqueado: boolean) => {
       });
   const tieneCategoria = (padre: any) => tieneValor(padre.categoria);
   return yup.object({
-    ua: opcionOpcional().test('ua-obligatoria', 'Debe indicar si su lugar de trabajo es la Universidad Austral', function (v) {
+    ua: opcionOpcional().test('ua-obligatoria', 'El lugar de trabajo Universidad Austral es requerido', function (v) {
       return bloqueado || tieneValor(v as OpcionLaxa);
     }),
-    categoria: opcionOpcional(),
-    tipo: opcionSi('tipo-obligatorio', 'El tipo es obligatorio', (p) => categoriaEs(p, CAT_CONICET, CAT_CIC)),
+    // Con lugar de trabajo en la UA el formulario queda bloqueado (la categoría la carga el área central).
+    categoria: opcionSi('categoria-requerida', 'La categorización externa es requerida', (p) => !esValor(p.ua, 1)),
+    tipo: opcionSi('tipo-obligatorio', 'El tipo de categorización es requerido', (p) => categoriaEs(p, CAT_CONICET, CAT_CIC)),
     categoriaConicet: opcionSi(
       'conicet-obligatoria',
-      'La categoría es obligatoria',
+      'La categoría es requerida',
       (p) => categoriaEs(p, CAT_CONICET) && tieneValor(p.tipo),
     ),
     categoriaCic: opcionSi(
       'cic-obligatoria',
-      'La categoría es obligatoria',
+      'La categoría es requerida',
       (p) => categoriaEs(p, CAT_CIC) && tieneValor(p.tipo),
     ),
-    categoriaAgencia: opcionSi('agencia-obligatoria', 'La categoría es obligatoria', (p) => categoriaEs(p, CAT_AGENCIA)),
-    otraCategoria: opcionSi('otra-obligatoria', 'Debe indicar si tiene otra categoría', (p) => categoriaEs(p, CAT_OTRA)),
+    categoriaAgencia: opcionSi('agencia-obligatoria', 'La categoría es requerida', (p) => categoriaEs(p, CAT_AGENCIA)),
+    otraCategoria: opcionSi('otra-obligatoria', 'Otra categoría es requerida', (p) => categoriaEs(p, CAT_OTRA)),
     textoOtraCategoria: textoSi(
       'texto-otra-obligatorio',
-      'La categoría es obligatoria',
+      'La categoría es requerida',
       (p) => categoriaEs(p, CAT_OTRA) && esValor(p.otraCategoria, 1),
     ),
-    fechaInicio: fechaOpcional().test('inicio-obligatoria', 'La fecha de inicio es obligatoria', function (v) {
+    fechaInicio: fechaOpcional().test('inicio-obligatoria', 'La fecha de inicio es requerida', function (v) {
       return bloqueado || !tieneCategoria(this.parent) || Boolean(v);
     }),
-    fechaFin: finNoAnterior,
-    lugar: opcionSi('lugar-obligatorio', 'El lugar de trabajo es obligatorio', (p) =>
-      categoriaEs(p, CAT_CONICET, CAT_CIC, CAT_AGENCIA),
+    fechaFin: finNoAnteriorCon(FIN_EXTERNA),
+    // El esquema del portal exige el lugar de trabajo con cualquier categoría (también con "Otra").
+    lugar: opcionSi('lugar-obligatorio', 'El lugar de trabajo es requerido', (p) =>
+      categoriaEs(p, CAT_CONICET, CAT_CIC, CAT_AGENCIA, CAT_OTRA),
     ),
     otroLugar: textoSi('otro-lugar-obligatorio', 'Debe especificar el lugar de trabajo', (p) =>
       esOtra(p.lugar) && tieneCategoria(p),
     ),
     unidadCertificante: textoSi(
       'unidad-obligatoria',
-      'La unidad certificante es obligatoria',
+      'La unidad certificante es requerida',
       (p) => categoriaEs(p, CAT_CONICET) && esValor(p.ua, 1),
     ),
   });
@@ -717,20 +721,23 @@ export const armarPayloadPrinuar = (empleadoId: string, f: FormularioPrinuar): R
   return payload;
 };
 
-/** Igual que la externa: con una categoría ya cargada solo se edita la fecha de fin y no se exige el resto. */
+/**
+ * Igual que la externa: con una categoría ya cargada solo se edita la fecha de fin y no se exige el resto.
+ * Textos iguales a schemaPrinuar de categorizacion-externa/page.tsx del portal.
+ */
 export const esquemaPrinuar = (bloqueado: boolean) =>
   yup.object({
-    ua: opcionOpcional().test('ua-obligatoria', 'Debe indicar si su lugar de trabajo es la Universidad Austral', function (v) {
+    ua: opcionOpcional().test('ua-obligatoria', 'El lugar de trabajo Universidad Austral Prinuar es requerido', function (v) {
       return bloqueado || tieneValor(v as OpcionLaxa);
     }),
-    categoria: opcionOpcional().test('categoria-obligatoria', 'La categoría es obligatoria', function (v) {
+    categoria: opcionOpcional().test('categoria-obligatoria', 'La categoría Prinuar es requerida', function (v) {
       return bloqueado || tieneValor(v as OpcionLaxa);
     }),
-    fechaInicio: fechaOpcional().test('inicio-obligatoria', 'La fecha de inicio es obligatoria', function (v) {
+    fechaInicio: fechaOpcional().test('inicio-obligatoria', 'La fecha de inicio es requerida', function (v) {
       return bloqueado || Boolean(v);
     }),
-    fechaFin: finNoAnterior,
-    lugar: opcionOpcional().test('lugar-obligatorio', 'El lugar de trabajo es obligatorio', function (v) {
+    fechaFin: finNoAnteriorCon(FIN_EXTERNA),
+    lugar: opcionOpcional().test('lugar-obligatorio', 'El lugar de trabajo Prinuar es requerido', function (v) {
       return bloqueado || tieneValor(v as OpcionLaxa);
     }),
     otroLugar: yup
