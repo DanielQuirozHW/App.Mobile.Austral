@@ -1,23 +1,32 @@
 # CLAUDE.md — App Mobile Austral
 
-App mobile (React Native) para el cliente Austral. Es la versión mobile del Portal Austral (Portal Universidad Austral): hace lo mismo, se ve como el portal y consume exactamente la misma API. Es un proyecto de prueba/test.
+App mobile (React Native) para el cliente Austral. Es la versión mobile del Portal Austral (Portal Universidad Austral): se ve como el portal y consume exactamente la misma API. Es un proyecto de prueba/test.
+
+## ALCANCE REAL: MVP DE DEMOSTRACIÓN (leer primero)
+
+**La idea NO es migrar todos los módulos del portal.** La idea es presentar a Austral un **MVP chico y prolijo, con 1 o 2 módulos de prueba**, para que vean la app y decidan si les gusta y si quieren seguir. Lo que tiene que estar muy bien es **lo general**: estructura, configuración, navegación y menús, modo de color (claro / oscuro), notificaciones y aspecto del portal.
+
+- **No se construyen módulos nuevos ni mejoras de módulos** salvo pedido expreso de Daniel en esa conversación.
+- **Si Daniel pide un listado para elegir con qué seguir, se le da el listado con una recomendación y se espera su respuesta. No se programa.**
+- Lo que ya está escrito queda como está (no se borra, no se amplía). Detalle, reporte de lo terminado y opciones: `docs/ALCANCE-MVP.md`.
 
 Este archivo se escribe con lo verificado en el código de los repos de referencia, no copiado de sus README ni de sus documentos. El detalle verificado está en `docs/contexto/`.
 
 ## Cómo retomar el trabajo (leer en este orden)
 
 1. Este archivo.
-2. **`docs/ESTADO.md` — qué está hecho, qué no, qué hacer al arrancar una sesión nueva y cómo trabaja Daniel.**
-3. `docs/DECISIONES.md` (decisiones 1 a 88) y `docs/DECISIONES_89_en_adelante.md` — todo lo que decidió Daniel.
-4. `docs/STACK.md` — librerías y versiones aprobadas.
-5. `docs/ERRORES.md` — errores ya cometidos y las reglas que salen de ellos.
-6. `docs/PENDIENTES.md` — lo que falta, lo que hace Daniel y lo que hay que verificar.
-7. `docs/SETUP-NATIVO.md` — checklist de lo que hace Daniel con la PC (proyecto nativo, Firebase, fuentes, logos, pruebas).
-8. `docs/contexto/` — lo entendido del código del portal, la API y el prototipo.
+2. **`docs/ALCANCE-MVP.md` — el alcance real: MVP de demostración, qué está terminado y qué se puede hacer.**
+3. **`docs/ESTADO.md` — qué está hecho, qué no, qué hacer al arrancar una sesión nueva y cómo trabaja Daniel.**
+4. `docs/DECISIONES.md` (decisiones 1 a 88) y `docs/DECISIONES_89_en_adelante.md` — todo lo que decidió Daniel.
+5. `docs/STACK.md` — librerías y versiones aprobadas.
+6. `docs/ERRORES.md` — errores ya cometidos y las reglas que salen de ellos.
+7. `docs/PENDIENTES.md` — lo que falta, lo que hace Daniel y lo que hay que verificar.
+8. `docs/SETUP-NATIVO.md` — checklist de lo que hace Daniel con la PC (proyecto nativo, Firebase, fuentes, logos, pruebas).
+9. `docs/contexto/` — lo entendido del código del portal, la API y el prototipo.
 
 Todo lo decidido vive en el repo, no en ningún chat.
 
-**Estado resumido:** está construido el login, el Tablero de Inicio, Notificaciones, Datos personales, Documentación, Licencias y vacaciones, el Perfil completo y el Plan de Trabajo. Siguen las mejoras de Plan de Trabajo, Licencias y Vacaciones, y al final Nombramientos y Promoción (orden fijado por Daniel el 2026-10-26, en `docs/ESTADO.md`, sección 4). Los demás módulos del portal quedan **pendientes y no se construyen hasta que Daniel lo pida**.
+**Estado resumido:** está escrito el login, el Tablero de Inicio, Notificaciones, Datos personales, Documentación, Licencias y vacaciones, el Perfil completo y el Plan de Trabajo (todo sin probar). **No se siguen sumando módulos ni mejoras: el objetivo es un MVP de demostración** (`docs/ALCANCE-MVP.md`). Lo que queda por pulir es lo general (menú de navegación, selector de modo de color, ajustes, aspecto contra el tema del portal), a elección de Daniel.
 
 ---
 
@@ -45,7 +54,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 8. No tomar como fuente la documentación de los otros repos (README, ARCHITECTURE, CLAUDE.md, etc.): puede estar desactualizada o mal. Vale el código. Si no coinciden, se avisa la discrepancia.
 9. No clonar, hacer fork ni copiar contenido o historial del prototipo. Del prototipo se toma estructura y forma de programar, no contenido, lógica ni aspecto.
 10. No arrastrar errores heredados del prototipo (por ejemplo el typo "Protoype" o su README genérico de React Native).
-11. No construir módulos que no estén confirmados, ni agregar funcionalidades extra. Registro y recuperar contraseña **no** se construyen (decisión 36).
+11. **No construir módulos ni mejoras que Daniel no haya pedido de forma expresa, y no migrar "todo": es un MVP de demostración con 1 o 2 módulos.** Registro y recuperar contraseña **no** se construyen (decisión 36).
 12. No inventar endpoints, payloads ni reglas de negocio: si no están en el código, se pregunta.
 13. No presentar como verificado algo que se supuso.
 14. No preguntar por la publicación de las apps ni por el registro en Firebase: se deja todo preparado y Daniel lo hace cuando decida.
@@ -58,6 +67,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 21. **La app es del portal de Austral, no de Humanware.** Colores, tipografía (Montserrat), radios, botones, campos, textos y logos salen del portal (`src/@core/theme`, páginas de `src/app`), nunca del prototipo. Ver decisión 26 y `docs/ERRORES.md` #11.
 22. No copiar datos de ejemplo ni de personas que aparezcan en el código del portal (por ejemplo los `uiname` fijos de sus consultas FetchXML). Ver decisión 67.
 23. No copiar pasajes de libros ni de otros textos con derechos (los 18 mensajes del mes del Tablero de Inicio quedan vacíos y los pega Daniel). Ver decisión 89.
+24. **No programar cuando Daniel pidió un listado o una opinión para elegir.** Se responde con el listado y una recomendación, y se espera.
 
 ---
 
@@ -91,9 +101,9 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 - Las carpetas `android/` e `ios/` no existen en este repo: las genera Daniel con el comando oficial cuando tenga la PC (ver `docs/SETUP-NATIVO.md`).
 - `push_files` reemplaza el archivo completo: para cambiar un archivo se reenvía entero.
 - Cada commit termina con las líneas de atribución que indique la sesión.
-- Al terminar una etapa se actualizan `docs/ESTADO.md`, las decisiones (`docs/DECISIONES_89_en_adelante.md` desde la 89), `docs/PENDIENTES.md`, este archivo y el contexto del módulo en `docs/contexto/`.
+- Al terminar un trabajo se actualizan `docs/ESTADO.md`, las decisiones (`docs/DECISIONES_89_en_adelante.md` desde la 89), `docs/PENDIENTES.md`, este archivo y el contexto en `docs/contexto/`.
 
-## Orden de trabajo
+## Orden de trabajo (lo que se hizo)
 
 1. Base del proyecto (hecha): configuración, entorno, tema del portal, responsive, componentes base, providers.
 2. Cliente HTTP, token y endpoints; adaptadores de almacenamiento.
@@ -101,7 +111,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 4. Navegación, selección de puesto y guardas por rol.
 5. Foto de perfil, foto de portada y cabecera del legajo (decisiones 45, 47 y 88).
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
-7. Funciones de Nombramientos y Promoción (**pendiente, va al final por pedido de Daniel**).
+7. Funciones de Nombramientos y Promoción (**no se hace**, salvo pedido expreso).
 8. Licencias y vacaciones (licencias propias, vacaciones, calendario y gestión del equipo).
 9. Perfil: Formación y Trayectoria profesional (decisiones 57 a 63).
 10. Perfil: Extensión y Gestión académica (decisión 64).
@@ -111,24 +121,25 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 14. Tablero de Inicio real (decisión 89): hecho.
 15. Notificaciones (decisión 90): hecho.
 16. Documentación (decisión 91): hecho.
-17. Mejoras de Plan de Trabajo, Licencias y Vacaciones: sigue.
+17. **Cancelado:** mejoras de Plan de Trabajo, Licencias y Vacaciones. El objetivo es un MVP de demostración (`docs/ALCANCE-MVP.md`).
 
-Daniel autorizó avanzar sin pedir aprobación por etapa **dentro de lo que pide**. Se frena solo ante una decisión que no se pueda deshacer o una duda real. Cada etapa se contrasta contra el código del portal, leyendo; no se verifica ejecutando.
+Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica ejecutando. Daniel autorizó avanzar sin pedir aprobación **dentro de lo que pide**; se frena ante una decisión que no se pueda deshacer o una duda real.
 
 ## Alcance
 
+**MVP de demostración: 1 o 2 módulos de prueba + lo general muy bien (ver arriba y `docs/ALCANCE-MVP.md`). No se migran todos los módulos.** Lo ya escrito:
+
 - Autenticación: se migra lo que hace el portal, **salvo registro y recuperar contraseña** (decisión 36: las cuentas con usuario y contraseña las crea Austral en Firebase). El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Se mantiene la selección de puesto. Sin probar y con credenciales vacías.
 - Foto de perfil y foto de portada: migradas (la portada la pidió Daniel aunque el portal no la muestra; decisión 88).
-- Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Su uso en navegación y guardas (etapa 7) queda pendiente, al final.
-- Primer módulo: Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia).
-- Segundo módulo: Licencias y vacaciones, confirmado por Daniel y migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55.
-- Perfil, pedido por Daniel: migrado completo, salvo Promoción > Postulación. Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación (Afiliaciones, Actividad I+D con proyectos, financiamientos y formación de RRHH, y Resultados / Impacto I+D con producción científica, jornadas y estancias). Ver `docs/contexto/perfil.md`.
-- Plan de Trabajo (`/planes-de-trabajo`), solo docente, pedido por Daniel: migrado completo (lista por pestañas, detalle, dieciocho secciones de registros, resumen con adjuntos y envío a Secretaría Académica). Ver decisiones 75 a 86 y `docs/contexto/plan-de-trabajo.md`.
-- Tablero de Inicio, pedido por Daniel: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día y próximos feriados. Ver decisión 89 y `docs/contexto/inicio.md`.
-- Notificaciones, pedido por Daniel: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas. Sin SignalR (recarga cada 5 minutos). Ver decisión 90 y `docs/contexto/notificaciones.md`.
-- Documentación (Legajo > Documentación), pedido por Daniel: lista de documentos requeridos del empleado con "Ver adjuntos" y "Cargar archivo". Ver decisión 91 y `docs/contexto/documentacion.md`.
-- **Pedidos y todavía sin construir:** mejoras de Plan de Trabajo, Licencias y Vacaciones, y las funciones de Nombramientos y Promoción (al final).
-- **Módulos que quedan pendientes sin pedido (no se construyen hasta que Daniel los pida):** GDD, Indicadores, Funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
+- Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Su uso en navegación y guardas (etapa 7) **no se hace**.
+- Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia). Candidato 1 para la demo.
+- Licencias y vacaciones, migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55. Candidato 2 para la demo.
+- Perfil, ya escrito: Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación (salvo Promoción > Postulación). Ver `docs/contexto/perfil.md`. Extra.
+- Plan de Trabajo (`/planes-de-trabajo`), solo docente, ya escrito. Ver decisiones 75 a 86 y `docs/contexto/plan-de-trabajo.md`. Extra.
+- Tablero de Inicio: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día y próximos feriados. Ver decisión 89 y `docs/contexto/inicio.md`.
+- Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas. Sin SignalR (recarga cada 5 minutos). Ver decisión 90 y `docs/contexto/notificaciones.md`.
+- Documentación (Legajo > Documentación): lista de documentos requeridos del empleado con "Ver adjuntos" y "Cargar archivo". Ver decisión 91 y `docs/contexto/documentacion.md`. Extra.
+- **No se hacen:** mejoras de Plan de Trabajo, Licencias y Vacaciones; Nombramientos y Promoción; GDD, Indicadores, Funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
 
 ## Cómo comunicar
 
@@ -143,6 +154,7 @@ Daniel autorizó avanzar sin pedir aprobación por etapa **dentro de lo que pide
 
 | Ruta | Qué hay |
 |---|---|
+| `docs/ALCANCE-MVP.md` | Alcance real (MVP de demostración), reporte de lo terminado y opciones para seguir |
 | `docs/ESTADO.md` | Estado actual, qué falta y qué hacer al retomar en una sesión nueva |
 | `docs/DECISIONES.md` | Decisiones tomadas (1 a 88) |
 | `docs/DECISIONES_89_en_adelante.md` | Decisiones desde la 89 (Tablero de Inicio, Notificaciones, Documentación y lo que siga) |
@@ -220,4 +232,4 @@ Daniel autorizó avanzar sin pedir aprobación por etapa **dentro de lo que pide
 
 ## Estado actual
 
-Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto y navegación raíz. Etapa 5 escrita: foto de perfil, foto de portada y cabecera del legajo. Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación con Afiliaciones, Actividad I+D y Resultados / Impacto I+D), salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Etapa 14 escrita: Tablero de Inicio (faltan los textos del mensaje del mes, que pega Daniel). Etapa 15 escrita: Notificaciones. Etapa 16 escrita: Documentación del legajo. Pendientes sin construir: mejoras de Plan de Trabajo, Licencias y Vacaciones, etapa 7 (uso de las funciones de Nombramientos y Promoción en navegación y guardas, al final) y, sin pedido, GDD, Indicadores, Funciones SA / VRAA, Referente MATHU y Promoción > Postulación. Todo sin probar. No hay carpetas nativas todavía: las genera Daniel (ver `docs/SETUP-NATIVO.md`). Detalle y próximos pasos en `docs/ESTADO.md`.
+**Alcance: MVP de demostración (`docs/ALCANCE-MVP.md`); no se siguen sumando módulos.** Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto y navegación raíz. Etapa 5 escrita: foto de perfil, foto de portada y cabecera del legajo. Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo, salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Etapa 14 escrita: Tablero de Inicio (faltan los textos del mensaje del mes, que pega Daniel). Etapa 15 escrita: Notificaciones. Etapa 16 escrita: Documentación del legajo. Lo general que falta (a elección de Daniel): menú de navegación, selector de modo de color, pantalla de ajustes, ajuste del aspecto contra el tema del portal y revisión estática de `src/`. Todo sin probar. No hay carpetas nativas todavía: las genera Daniel (ver `docs/SETUP-NATIVO.md`). Detalle y próximos pasos en `docs/ESTADO.md`.
