@@ -1,6 +1,6 @@
 # Decisiones 89 en adelante
 
-Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **94**.
+Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **95**.
 
 ## 2026-10-26 (Tablero de Inicio y Notificaciones)
 
@@ -60,6 +60,16 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **Títulos repetidos**: Formación, Trayectoria, Extensión y Gestión académica mostraban el título (h5) igual al del encabezado nativo; se quitó y queda la bajada del portal. En Docencia el título cambia según la pestaña y se mantiene, más chico (h6).
     - **Tipos**: `TrayectoriaScreen` deja de usar `any` en el formulario (`ValoresTrayectoria`). `FormacionScreen` conserva `any` (el valor del selector es una opción de lista).
     - **Red de seguridad**: `components/ErrorBoundary.tsx`, dentro del tema y fuera de React Query en `AppProviders`. Si una pantalla falla al dibujarse, muestra "Algo salió mal" con "Reintentar" en vez de cerrar la app. Propia de la app (el portal usa el manejo de errores de Next.js). No atrapa errores de eventos ni de código asíncrono.
-    - **No revisado todavía**: los componentes internos de Investigación (`InvestigacionAfiliaciones`, `InvestigacionActividad`, `InvestigacionResultados`) y los de `components/perfil/*` por el mismo problema de márgenes y títulos; el aspecto contra los overrides del tema del portal.
+    - **No revisado todavía** *(superado por la decisión 94: la lógica de estos componentes se auditó contra el portal)*: los componentes internos de Investigación (`InvestigacionAfiliaciones`, `InvestigacionActividad`, `InvestigacionResultados`) y los de `components/perfil/*` por el mismo problema de márgenes y títulos; el aspecto contra los overrides del tema del portal.
     - Sin verificar: los íconos `person-circle-outline`, `alert-circle-outline` y `chevron-forward`; que `AppIconName` los acepte (ver `PENDIENTES.md`).
+    - Nada probado ni llamado a la API.
+
+## 2026-10-26 (Auditoría de paridad con el portal)
+
+94. **Auditoría de paridad con el portal de todos los módulos del MVP.** Pedido de Daniel (18:24 y 18:34): "revisa todo, deja esos módulos perfectos, que coincidan con el portal", "no solo de ese módulo, de todos los del MVP". Se hizo **leyendo** el código del portal (`Portal-Austral-Dev`, `master`, sha `40f665d`) y contrastándolo con la app; no se ejecutó ni se llamó a nada. Detalle completo en `docs/AUDITORIA-PARIDAD.md`.
+    - **Corregido** en el código de la app: Formación (`146bb53`), Trayectoria (`2b1794f`), Extensión (`bc813e7`), Gestión académica (`2253c79`), Docencia (`3b02cf2`), Investigación (`c9994925`, `8b957b1`, `2b2b06a`), pasada de UI (`1cfe34e`) y, en esta última tanda (`8cbc5b4`): `guardarDatosPersonales` ahora traga el error del `PUT` y devuelve `false`, igual que `actualizacionLegajo` del portal; el modal de carga de documento muestra nombre y descripción del documento.
+    - **Sin divergencias encontradas** al leer Licencias (modales propio y de equipo, estados, validaciones, servicio y consultas), Inicio y Notificaciones. `registrarConsultaDeTipos` (el `logConsultaTipoLicencias` del portal) está implementado.
+    - **Diferencias conscientes** con el portal: lista completa en `AUDITORIA-PARIDAD.md`, sección 4. Ninguna cambia lo que se guarda en el CRM salvo las que corrigen un defecto del portal (por ejemplo, Perfiles y Prinuar) y están marcadas como tales.
+    - **Queda sin contrastar**: Vacaciones (panel, modales de solicitud y de aprobación, calendario) y la existencia de un flujo "requiere más información" en licencias. También quedan abiertos la escritura de `new_lugardetrabajouniv` del portal y los íconos `person-circle-outline`, `alert-circle-outline`, `chevron-forward` y `folder-open-outline`.
+    - "Sin divergencias" significa que la lógica coincide al leerla, **no** que funcione: las pruebas las hace Daniel.
     - Nada probado ni llamado a la API.
