@@ -1,8 +1,8 @@
 # Auditoría de paridad con el portal (2026-10-26)
 
-Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código antes de esta documentación: `8cbc5b4`).
+Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `8faedbc`).
 
-Decisión asociada: **94** (`DECISIONES_89_en_adelante.md`).
+Decisiones asociadas: **94** y **95** (`DECISIONES_89_en_adelante.md`).
 
 ## 1. Resultado por módulo
 
@@ -19,15 +19,26 @@ Decisión asociada: **94** (`DECISIONES_89_en_adelante.md`).
 | Investigación (jurados, pertenencia, categorización externa, Prinuar) | stores y modales | Divergencias corregidas | `8b957b1`, `2b2b06a` |
 | Aspecto general de las pantallas | tema del portal | Pasada de UI | `1cfe34e` |
 | Licencias (propias y del equipo) | ver 3 | **Sin divergencias encontradas** | (sin cambios) |
+| Vacaciones: panel, solicitud, aprobación, detalle, consultas, cancelación | ver 3 | Divergencia corregida en el panel (ver 2b) | `43ec0af` |
+| Calendario y pestañas de Licencias y vacaciones | `licencias/page.tsx`, `CalendarioWrapper.tsx`, `Calendar.tsx` | Dos divergencias corregidas (ver 2b) | `8faedbc` |
 | Inicio | `(dashboard)/page.tsx`, `useGetFeriados.ts`, `useGetCumpleanios.ts` | **Sin divergencias encontradas** | (sin cambios) |
 | Notificaciones | `notificaciones/page.tsx`, `useGetNotificaciones.ts`, `rutaNotificacion.ts`, `getNotificacionesEmpleado` | **Sin divergencias encontradas** | (sin cambios) |
 
-## 2. Divergencias corregidas en esta pasada (Datos personales y Documentación)
+## 2. Divergencias corregidas (Datos personales y Documentación)
 
 - **Guardar datos personales** (`src/application/legajo/legajoService.ts`): el `PUT` de `useLegajoStore.actualizacionLegajo` del portal traga el error y devuelve `undefined`. La app ahora hace lo mismo: `actualizarLegajo(...).catch(() => null)` y devuelve `false` si no hay resultado. La baja del cónyuge (`eliminarFamiliar`) sigue lanzando error.
 - **Modal de carga de documento** (`ModalCargarDocumento.tsx`, `DocumentacionScreen.tsx`): el encabezado muestra el nombre del documento y, debajo, su descripción (`titulo`), como el modal del portal.
 
-## 3. Licencias: qué se contrastó y qué no
+## 2b. Divergencias corregidas (Vacaciones y calendario)
+
+- **Panel de vacaciones** (`src/presentation/components/licencias/VacacionesPanel.tsx`, commit `43ec0af`). Portal: `licencias/_components/vacaciones/components/VacacionesPanel.tsx`.
+  - El portal dibuja **tres** tarjetas (la de "Días a Gozar" está comentada allá): Días Solicitados, Días Pendientes y Días Gozados. La app dibujaba cuatro números; se quitó "Días a gozar".
+  - Faltaban las descripciones ("Días en proceso de solicitud / Días aprobados", "Días pendientes de ser solicitados", "Días ya utilizados"), el texto de ayuda de Solicitados y el desglose de Pendientes (correspondientes, adicionales, período anterior, con total) y de Gozados. Ahora están; el Popover y el Tooltip del portal pasan a un diálogo que se abre al tocar la tarjeta.
+  - Colores de la barra: el portal usa `success.main` (gozados), `primary.main` (solicitados) y `primary.light` (pendientes). La app usaba warning / info. `primary.light` del portal es `#B0B3E0` en claro y `#9FE6F0` en oscuro (`src/@core/theme/palette/index.ts`); se agregó el token `primaryMid` a `theme/colors.ts` con esos valores.
+- **Color por persona del calendario** (`src/domain/licencias/calendario.ts`, commit `8faedbc`). Portal: `calendar/Calendar.tsx`, `colorFromName`: `hash = char + ((hash << 5) - hash)` y `hue = Math.abs(hash) % 360`. La app usaba `(hash * 31 + char) % 360`, que da otro tono (el desplazamiento del portal trabaja en 32 bits con signo). Ahora es la misma cuenta.
+- **Nombre de la pestaña de líderes** (`LicenciasScreen.tsx`, commit `8faedbc`): en el portal se llama "Gestión" (`licencias/page.tsx`); la app decía "Equipo". La clave interna sigue siendo `equipo`.
+
+## 3. Licencias y vacaciones: qué se contrastó y qué no
 
 **Contrastado (portal vs app):**
 
@@ -36,23 +47,34 @@ Decisión asociada: **94** (`DECISIONES_89_en_adelante.md`).
 - `ModalLicenciasEquipo.tsx` vs `ModalLicenciaEquipo.tsx`: aprobar / rechazar solo si el usuario es `idAprobador1`, el estado es `1` o `100000007` y, cuando `certificadoobligatorio = 2` y `requierevalidacion != 100000000`, hay adjuntos; motivo de hasta 300 caracteres, obligatorio al rechazar; título "Aprobación".
 - `ModalSolicitud.tsx`: esquema de domicilio y mensajes de validación (`validaciones.ts`); el armado del payload se contrastó antes con el store.
 - `logConsultaTipoLicencias` **sí está** en la app (`registrarConsultaDeTipos`).
+- **Vacaciones, consultas**: `src/stores/useVacacionesStore.ts` vs `vacacionesApi.ts` y `equipoApi.ts`. Coinciden `VacacionesFetch` (períodos abiertos: `new_publicado = 1` y `new_fechaapertura` en o antes de hoy), `fetchVacacionesGestion` (solicitudes propias, segmento `100000004`, join externo a `new_vacaciones`), `vacacionesEquipoFetch`, `VacacionesEquipoPendientes` y `fetchLicenciasEquipoCalendario` (dos consultas unidas sin repetir por `new_licenciaid`).
+- **Vacaciones, escrituras**: `useSolicitarVacaciones.ts` (`POST hrfactors/vacaciones`, mensaje "Solicitud cargada con éxito"), `useAprobarVacacion.ts` (`PUT hrfactors/aprobarrechazarvacaciones` con `new_licenciaId`, `new_tipodelicencia`, `new_aprobacionsupervisor`, `new_motivoderechazo`; mensajes "Solicitud aprobada" / "Solicitud rechazada") y `useCancelarVacacion.ts` (`DELETE hrfactors/vacaciones` con `new_licenciaid`; "Solicitud cancelada con éxito") vs `payload.ts`, `endpoints.ts` y `licenciasService.ts`.
+- **Vacaciones, pantallas**: `ModalSolicitarVacaciones.tsx` (validaciones, notas, comentarios de hasta 200), `ModalAprobarVacacion.tsx` (campos, título "Aprobación", subtítulo "Revisá y gestioná la vacación del equipo", botones solo si `reportaA` es el usuario, motivo obligatorio al rechazar, máximo 200), `ModalVerVacacion.tsx` ("Vacación solicitada" / "Solo lectura") y `VacacionesPanel.tsx` (ver 2b).
+- **Calendario**: `CalendarioWrapper.tsx` (se ocultan "Cancelada" y "No Aprobada"; feriados como eventos de un día) y `Calendar.tsx` (color por persona, ver 2b) vs `domain/licencias/calendario.ts`.
+- **Pestañas**: `licencias/page.tsx` (Licencias, Vacaciones, Calendario y Gestión solo para líderes).
 
-**Sin contrastar en esta pasada (queda para revisar):**
+**Sin contrastar (queda para revisar):**
 
-- Vacaciones: `VacacionesPanel`, `BotonesAprobacion`, los modales de vacaciones y de aprobación de vacaciones, y el calendario del portal. Los estados y las etiquetas de vacaciones ya se habían verificado al construirlos (`estados.ts`).
+- `RespuestaLider` de la app (compartido entre licencias y vacaciones): no se releó en esta tanda el diálogo de confirmación del portal ("¿Desea aprobar esta licencia?" / "¿Desea rechazar esta licencia?", botones Si / No).
+- `ModalCalendario.tsx` (detalle del evento) y `GestionSolicitudes` (grilla de gestión, filtros y el parámetro `?tipo=`), `columnsVacaciones.tsx` (acciones de la grilla, incluida la cancelación) y los hooks `useVacaciones`, `useLicenciasCalendario`, `useEsLiderEquipo`.
+- `getSubperiodovacacional` del store del portal (subperíodos por unidad organizativa): la app no lo tiene; no se buscó dónde se usa en el portal.
 - Si el portal tiene un flujo de "requiere más información" para licencias (la consulta trae `new_requieremasinformacion`): en los tres modales leídos no aparece; **no se buscó en el store ni en la página** si hay otro punto de entrada. Sin confirmar.
 
 ## 4. Diferencias conscientes con el portal (acumuladas)
 
 Las decisiones de diseño de la app que no copian el portal a la letra. Todas están pensadas para celular o para evitar un defecto del portal.
 
-**Licencias**
+**Licencias y vacaciones**
 
 - Selector de fecha con mes y año, en lugar del campo mes/año del portal.
 - Certificado: si la carga del archivo falla, la app no marca el adjunto como cargado (el portal igual llama a `marcaradjuntocargado`).
 - Cancelar una vacación también refresca la lista de solicitudes.
 - Cancelar una licencia: si la API no devuelve texto, se muestra "No se pudo cancelar la solicitud".
 - La lista de adjuntos no trae `documentbody`; el contenido se pide al abrir cada archivo.
+- El módulo abre directo en las pestañas; el portal abre antes con tarjetas de inicio y un botón "Volver al inicio".
+- Panel de vacaciones: la app agrega un encabezado con el período, el rango para gozar y los días disponibles (en el portal el chip del período está comentado). El desglose y el texto de ayuda se ven en un diálogo al tocar la tarjeta (Popover y Tooltip en el portal). El fondo de cada tarjeta usa los tintes de la app (`accentPrimaryMuted`, `warningLight`, `successLight`); en el portal el de Pendientes es `info.light`, que en oscuro es celeste y en la app queda anaranjado.
+- Detalle de una vacación (`ModalVerVacacion`): la app muestra tipo, fechas, días, comentarios y motivo de rechazo; el portal solo muestra los días y el motivo de rechazo.
+- Aprobar una vacación: el portal avisa "Límite de 300 caracteres" al pasarse, aunque el tope es 200 (defecto del portal); la app usa 200 con contador.
 
 **Datos personales**
 
@@ -87,10 +109,10 @@ Las decisiones de diseño de la app que no copian el portal a la letra. Todas es
 ## 5. Sin verificar / abierto
 
 - La escritura de `new_lugardetrabajouniv` del portal (ver Categorización externa): no se encontró dónde se persiste.
-- Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` (más los que ya figuran en `PENDIENTES.md`).
+- Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` y, del panel de vacaciones, `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline` (más los que ya figuran en `PENDIENTES.md`). `AppIconName` es el tipo de nombres de Ionicons: si alguno no existe, el compilador lo marca.
 - `FormacionScreen` conserva `any` en el formulario (el valor del selector es una opción de lista).
 - El aspecto de campos y diálogos contra los overrides del tema del portal (`input`, `dialog`, pestañas): no se contrastó campo por campo.
-- Vacaciones y el flujo "requiere más información" (ver 3).
+- Lo que figura en "Sin contrastar" de la sección 3 (`RespuestaLider`, `ModalCalendario`, gestión, `columnsVacaciones`, hooks de lectura, subperíodos, "requiere más información").
 
 ## 6. Cómo leer esto
 

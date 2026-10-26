@@ -1,6 +1,6 @@
 # Decisiones 89 en adelante
 
-Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **95**.
+Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **96**.
 
 ## 2026-10-26 (Tablero de Inicio y Notificaciones)
 
@@ -67,9 +67,17 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
 ## 2026-10-26 (Auditoría de paridad con el portal)
 
 94. **Auditoría de paridad con el portal de todos los módulos del MVP.** Pedido de Daniel (18:24 y 18:34): "revisa todo, deja esos módulos perfectos, que coincidan con el portal", "no solo de ese módulo, de todos los del MVP". Se hizo **leyendo** el código del portal (`Portal-Austral-Dev`, `master`, sha `40f665d`) y contrastándolo con la app; no se ejecutó ni se llamó a nada. Detalle completo en `docs/AUDITORIA-PARIDAD.md`.
-    - **Corregido** en el código de la app: Formación (`146bb53`), Trayectoria (`2b1794f`), Extensión (`bc813e7`), Gestión académica (`2253c79`), Docencia (`3b02cf2`), Investigación (`c9994925`, `8b957b1`, `2b2b06a`), pasada de UI (`1cfe34e`) y, en esta última tanda (`8cbc5b4`): `guardarDatosPersonales` ahora traga el error del `PUT` y devuelve `false`, igual que `actualizacionLegajo` del portal; el modal de carga de documento muestra nombre y descripción del documento.
+    - **Corregido** en el código de la app: Formación (`146bb53`), Trayectoria (`2b1794f`), Extensión (`bc813e7`), Gestión académica (`2253c79`), Docencia (`3b02cf2`), Investigación (`c9994925`, `8b957b1`, `2b2b06a`), pasada de UI (`1cfe34e`) y, en esa tanda (`8cbc5b4`): `guardarDatosPersonales` ahora traga el error del `PUT` y devuelve `false`, igual que `actualizacionLegajo` del portal; el modal de carga de documento muestra nombre y descripción del documento.
     - **Sin divergencias encontradas** al leer Licencias (modales propio y de equipo, estados, validaciones, servicio y consultas), Inicio y Notificaciones. `registrarConsultaDeTipos` (el `logConsultaTipoLicencias` del portal) está implementado.
     - **Diferencias conscientes** con el portal: lista completa en `AUDITORIA-PARIDAD.md`, sección 4. Ninguna cambia lo que se guarda en el CRM salvo las que corrigen un defecto del portal (por ejemplo, Perfiles y Prinuar) y están marcadas como tales.
-    - **Queda sin contrastar**: Vacaciones (panel, modales de solicitud y de aprobación, calendario) y la existencia de un flujo "requiere más información" en licencias. También quedan abiertos la escritura de `new_lugardetrabajouniv` del portal y los íconos `person-circle-outline`, `alert-circle-outline`, `chevron-forward` y `folder-open-outline`.
+    - Lo que en esta decisión quedó "sin contrastar" (Vacaciones y calendario) se cerró en la decisión 95.
     - "Sin divergencias" significa que la lógica coincide al leerla, **no** que funcione: las pruebas las hace Daniel.
+    - Nada probado ni llamado a la API.
+
+95. **Auditoría de Vacaciones y del calendario contra el portal.** Pedido de Daniel ("Si, continua con vacaciones"). Se hizo leyendo `Portal-Austral-Dev` (`master`, sha `40f665d`); nada se ejecutó ni se llamó a la API. Detalle en `docs/AUDITORIA-PARIDAD.md`, secciones 2b, 3 y 4.
+    - **Coinciden sin cambios**: las cinco consultas de `useVacacionesStore` (períodos abiertos, solicitudes propias, equipo, días pendientes del equipo, calendario), las tres escrituras (`POST hrfactors/vacaciones`, `PUT hrfactors/aprobarrechazarvacaciones`, `DELETE hrfactors/vacaciones`) con sus cuerpos y mensajes, las validaciones del modal de solicitud, el modal de aprobación y el de detalle, el filtrado de estados del calendario y las pestañas.
+    - **Corregido**: (1) `VacacionesPanel`: tres tarjetas como el portal (se quita "Días a gozar", que allá está comentada), con descripciones, texto de ayuda y desglose de Pendientes y Gozados, y barra con los colores del portal; nuevo token `primaryMid` (`primary.light` del portal: `#B0B3E0` en claro, `#9FE6F0` en oscuro) en `theme/colors.ts` (commit `43ec0af`). (2) `colorDePersona` del calendario: misma cuenta de hash que `colorFromName` del portal (commit `8faedbc`). (3) La pestaña de líderes se llama "Gestión", como en el portal (commit `8faedbc`).
+    - **Diferencias conscientes nuevas**: panel con encabezado de período y días disponibles; desglose y ayuda en un diálogo; el detalle de una vacación muestra más campos que el del portal; el módulo abre directo en las pestañas (el portal abre con tarjetas de inicio).
+    - **Sigue sin contrastar**: el diálogo de confirmación de `RespuestaLider`, `ModalCalendario`, la grilla de gestión y el parámetro `?tipo=`, `columnsVacaciones`, los hooks de lectura, `getSubperiodovacacional` y el flujo "requiere más información".
+    - Sin verificar: los íconos `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline`.
     - Nada probado ni llamado a la API.

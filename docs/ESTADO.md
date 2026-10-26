@@ -1,6 +1,6 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (auditoría de paridad con el portal de todos los módulos del MVP; decisión 94; ver `AUDITORIA-PARIDAD.md`).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (auditoría de paridad con el portal de todos los módulos del MVP, incluidas Vacaciones y el calendario; decisiones 94 y 95; ver `AUDITORIA-PARIDAD.md`).
 
 ## 0. ALCANCE REAL (leer primero)
 
@@ -14,7 +14,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
 4. **No se construye nada nuevo sin que Daniel lo elija** (sección 0). Lo que sí vale: pulir lo general y los módulos de la demo.
-5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **95**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
+5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **96**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
 
@@ -34,7 +34,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 | 16 | Documentación del legajo: documentos requeridos del empleado, "Ver adjuntos" y "Cargar archivo" | 91 | `contexto/documentacion.md` |
 | 17 | MVP de demostración: menú lateral, selector de modo de color (Sistema / Claro / Oscuro), pantalla Ajustes, módulos fuera de la demo vacíos, corrección de la zona segura bajo el encabezado | 92 | `docs/DECISIONES_89_en_adelante.md` (propio de la app; el portal no tiene estas pantallas) |
 | 18 | Módulo 1 = Mi perfil completo: pantalla `MiPerfil`, menú reagrupado, campana con pendientes, pantalla de error general, márgenes y títulos de Perfil corregidos | 93 | `docs/DECISIONES_89_en_adelante.md` (propio de la app) |
-| 19 | **Auditoría de paridad con el portal de todos los módulos del MVP (leyendo el código): divergencias corregidas en Perfil, Datos personales y Documentación; Licencias, Inicio y Notificaciones sin divergencias encontradas** | 94 | `docs/AUDITORIA-PARIDAD.md` |
+| 19 | **Auditoría de paridad con el portal de todos los módulos del MVP (leyendo el código): divergencias corregidas en Perfil, Datos personales, Documentación, panel de Vacaciones, calendario y pestañas; Licencias, Inicio y Notificaciones sin divergencias encontradas** | 94, 95 | `docs/AUDITORIA-PARIDAD.md` |
 
 **Navegación actual:** menú lateral (botón de hamburguesa en el encabezado de cada pantalla y en la barra de Inicio) con los módulos en cuatro grupos: Principal (Inicio, Notificaciones), Mi perfil (Mi perfil, Datos personales para docente / codocente, Documentación, Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia, Investigación), Gestión (Licencias y vacaciones; Plan de trabajo solo docente, **vacío**) y Cuenta (Ajustes). Inicio tiene accesos a Mi perfil y a Licencias y vacaciones. El catálogo está en `src/presentation/navigation/modulosMenu.ts` (`enDemo`, `accesoInicio`).
 
@@ -44,7 +44,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 
 **Lo general que se puede pulir (a elección de Daniel; detalle en `ALCANCE-MVP.md`):** contrastar el aspecto con los overrides del tema del portal (campos, diálogos, pestañas), tiempo real de notificaciones (dependencia nueva). La **lógica** de los componentes internos de Investigación y de `components/perfil/*` ya se auditó contra el portal (decisión 94); las líneas de `ALCANCE-MVP.md`, `CLAUDE.md` y de la decisión 93 que dicen "sin revisar" quedaron superadas por esa auditoría.
 
-**Pendiente de la auditoría (ver `AUDITORIA-PARIDAD.md`, secciones 3 y 5):** contrastar Vacaciones (panel, modales, aprobación, calendario) con el portal; confirmar si el portal tiene un flujo de "requiere más información" para licencias; íconos sin verificar; `new_lugardetrabajouniv`.
+**Pendiente de la auditoría (ver `AUDITORIA-PARIDAD.md`, secciones 3 y 5):** el diálogo de confirmación de `RespuestaLider`, `ModalCalendario`, la grilla de gestión (`GestionSolicitudes`, `?tipo=`) y `columnsVacaciones`; confirmar si el portal tiene un flujo de "requiere más información" para licencias; íconos sin verificar; `new_lugardetrabajouniv`.
 
 **Otros pendientes:**
 
@@ -64,7 +64,7 @@ Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo
 4. **Módulos nuevos**: Tablero de Inicio (hecho, decisión 89), notificaciones (hecho, decisión 90) y Documentación (hecho, decisión 91). **Aclaración posterior de Daniel (2026-10-26): no se siguen sumando módulos ni mejoras. El objetivo es un MVP de demostración (sección 0).**
 5. **Base general de la demo** (menú, modo de color, Ajustes, módulos vacíos) — hecha por pedido de Daniel (decisión 92).
 6. **Módulo 1 = todo el perfil, campana con pendientes, pantalla de error** — hecho por pedido de Daniel (decisión 93).
-7. **Auditoría de paridad de todos los módulos del MVP** — hecha por pedido de Daniel (decisión 94); queda Vacaciones.
+7. **Auditoría de paridad de todos los módulos del MVP** — hecha por pedido de Daniel (decisiones 94 y 95); quedan los puntos listados en la sección 3.
 8. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
 
 Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
