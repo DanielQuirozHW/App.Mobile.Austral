@@ -103,4 +103,4 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 10. Perfil: Extensión y Gestión académica (**escritas**, sin probar; decisión 64).
 11. Perfil: Docencia (**escrita**, sin probar; decisiones 64 y 66).
 12. Perfil: Investigación, con Afiliaciones, Actividad I+D (proyectos, financiamientos, formación de RRHH y "Más info" de los siete tipos de resultado) y Resultados / Impacto I+D (**escritas**, sin probar; decisiones 65 a 74 y 87).
-13. Plan de Trabajo (`/planes-de-trabajo`, solo docente): lista, detalle con sus pestañas, dieciséis secciones de registros, resumen con adjuntos y envío (**escrito**, sin probar; decisiones 75 a 86 y 87; ver `contexto/plan-de-trabajo.md`). Acceso desde `Inicio`.
+13. Plan de Trabajo (`/planes-de-trabajo`, solo docente): lista, detalle con sus pestañas, dieciocho secciones de registros, resumen con adjuntos y envío (**escrito**, sin probar; decisiones 75 a 86 y 87; ver `contexto/plan-de-trabajo.md`). Acceso desde `Inicio`.
