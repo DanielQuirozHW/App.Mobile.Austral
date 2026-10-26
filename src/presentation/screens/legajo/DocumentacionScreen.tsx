@@ -69,7 +69,11 @@ export const DocumentacionScreen: React.FC = () => {
 
       {cargarArchivo ? (
         <ModalCargarDocumento
-          documento={{ id: cargarArchivo.id, nombre: cargarArchivo.titulo || cargarArchivo.nombre }}
+          documento={{
+            id: cargarArchivo.id,
+            nombre: cargarArchivo.nombre || 'Documento',
+            descripcion: cargarArchivo.titulo || null,
+          }}
           subir={subirAdjuntosDeEmpleado}
           onClose={() => setCargarArchivo(null)}
         />

@@ -76,8 +76,9 @@ export const obtenerAdjuntosDeDocumento = async (documentacionId: string): Promi
 /**
  * Guarda el legajo. Si viene `eliminarConyugeId` (el usuario confirmó la baja por cambio de estado civil), primero
  * se elimina al cónyuge y después se guarda el legajo, igual que el portal.
- * Devuelve false si la API respondió sin cuerpo (el portal lo trata como "Hubo un error al actualizar los datos
- * del legajo"); lanza si la llamada falló.
+ * Devuelve false si el PUT falló o respondió sin cuerpo: el store del portal captura el error del PUT y devuelve
+ * undefined, y la pantalla muestra "Hubo un error al actualizar los datos del legajo.". Lanza solo si falla la baja
+ * del cónyuge (en el portal esa llamada no captura el error y cae en el catch de la pantalla).
  */
 export const guardarDatosPersonales = async (
   datos: FormularioDatosPersonales,
@@ -86,7 +87,7 @@ export const guardarDatosPersonales = async (
   const id = empleadoIdActual();
   if (eliminarConyugeId) await eliminarFamiliar(eliminarConyugeId);
 
-  const resultado = await actualizarLegajo(id, datos);
+  const resultado = await actualizarLegajo(id, datos).catch(() => null);
   if (!resultado) return false;
 
   await Promise.all([useLegajoStore.getState().cargar(id), useFamiliaStore.getState().cargarFamiliares(id)]);

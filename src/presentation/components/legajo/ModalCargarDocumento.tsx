@@ -26,7 +26,11 @@ import { Etiqueta } from '../Etiqueta';
 import { InfoAlert } from '../InfoAlert';
 
 interface ModalCargarDocumentoProps {
-  documento: { id: string; nombre: string };
+  /**
+   * `nombre` es el encabezado del documento; `descripcion` (opcional) va debajo, como en el portal
+   * (row.nombre y row.descripcion de ModalCargarDocumentos).
+   */
+  documento: { id: string; nombre: string; descripcion?: string | null };
   onClose: () => void;
   /** Sube los archivos al documento. Si falta, se sube a un documento de familiar. */
   subir?: (documentoId: string, archivos: ArchivoParaCarga[]) => Promise<void>;
@@ -95,6 +99,11 @@ export const ModalCargarDocumento: React.FC<ModalCargarDocumentoProps> = ({ docu
       <View style={styles.encabezado}>
         <Etiqueta texto="Documento requerido" tipo="info" />
         <AppText variant="h6">{documento.nombre}</AppText>
+        {documento.descripcion ? (
+          <AppText variant="body2" tone="secondary">
+            {documento.descripcion}
+          </AppText>
+        ) : null}
       </View>
 
       <View style={[styles.zona, { borderColor: globalColors.border, backgroundColor: globalColors.inputBackground }]}>
