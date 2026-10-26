@@ -2,6 +2,7 @@
 //   Login -> (blank)/login, SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/",
 //   Notificaciones -> (dashboard)/notificaciones,
 //   DatosPersonales -> (dashboard)/legajo/datos-personales,
+//   Documentacion -> (dashboard)/legajo/documentacion,
 //   Licencias -> (dashboard)/licencias (licencias, vacaciones, calendario y gestión del equipo),
 //   Formacion -> (dashboard)/perfil/formacion, Trayectoria -> (dashboard)/perfil/trayectoria,
 //   Extension -> (dashboard)/perfil/extension, GestionAcademica -> (dashboard)/perfil/gestion-academica,
@@ -17,6 +18,7 @@ export type RootStackParams = {
   Inicio: undefined;
   Notificaciones: undefined;
   DatosPersonales: undefined;
+  Documentacion: undefined;
   Licencias: { seccion?: 'licencias' | 'vacaciones' | 'calendario' | 'equipo' } | undefined;
   Formacion: undefined;
   Trayectoria: undefined;

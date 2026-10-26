@@ -1,5 +1,7 @@
-// Adjuntos ya cargados de un documento de familiar. Port de Portal-Austral-Dev -> ModalVerDocumentosFamiliar.tsx.
-// El portal previsualiza PDF e imágenes dentro del modal; acá el archivo se abre con el visor del sistema.
+// Adjuntos ya cargados de un documento (de familiar o requerido del empleado). Port de Portal-Austral-Dev ->
+// ModalVerDocumentosFamiliar.tsx y ModalVerDocumentos.tsx. El portal previsualiza PDF e imágenes dentro del modal;
+// acá el archivo se abre con el visor del sistema. Por defecto lee los de un documento de familiar; Documentación pasa
+// su propia función `obtener` (debe ser una función estable, no una definida en el render).
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { obtenerAdjuntosDeDocumento } from '../../../application/legajo/legajoService';
@@ -18,17 +20,20 @@ import { InfoAlert } from '../InfoAlert';
 interface ModalVerAdjuntosProps {
   documento: { id: string; nombre?: string };
   onClose: () => void;
+  /** Lee los adjuntos del documento. Si falta, se leen los de un documento de familiar. */
+  obtener?: (documentoId: string) => Promise<Adjunto[]>;
 }
 
-export const ModalVerAdjuntos: React.FC<ModalVerAdjuntosProps> = ({ documento, onClose }) => {
+export const ModalVerAdjuntos: React.FC<ModalVerAdjuntosProps> = ({ documento, onClose, obtener }) => {
   const { globalColors } = useThemeColors();
   const [adjuntos, setAdjuntos] = useState<Adjunto[]>([]);
   const [cargando, setCargando] = useState(true);
   const [fallo, setFallo] = useState(false);
+  const leer = obtener ?? obtenerAdjuntosDeDocumento;
 
   useEffect(() => {
     let activo = true;
-    obtenerAdjuntosDeDocumento(documento.id)
+    leer(documento.id)
       .then((lista) => {
         if (activo) setAdjuntos(lista);
       })
@@ -41,7 +46,7 @@ export const ModalVerAdjuntos: React.FC<ModalVerAdjuntosProps> = ({ documento, o
     return () => {
       activo = false;
     };
-  }, [documento.id]);
+  }, [documento.id, leer]);
 
   const abrir = async (adjunto: Adjunto) => {
     try {

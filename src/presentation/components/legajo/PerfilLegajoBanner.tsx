@@ -1,8 +1,11 @@
 // Cabecera del legajo. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/_components/UserProfileBanner.tsx
 // (y PerfilHeader). Portada con botón para cambiarla, avatar con botón de cámara, nombre completo de la sesión,
 // puesto (DOCENTE / STAFF) y sede.
+// `compacto` = la variante `compact` del portal (Documentación): avatar de 56 en vez de 72, menos relleno y nombre
+// en subtitle1. El portal no dibuja portada en ninguna variante; acá la portada se agrega a pedido de Daniel
+// (decisión 88) solo en la variante completa.
 // Iniciales: `getInitials` del portal (@core/utils/get-initials) = primera letra de CADA palabra, sin recortar ni
-// pasar a mayúsculas (verificado). El portal hoy no muestra portada; se agrega a pedido de Daniel (decisión 88).
+// pasar a mayúsculas (verificado).
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
@@ -22,9 +25,10 @@ import { AppText } from '../AppText';
 interface PerfilLegajoBannerProps {
   /** Sede / localidad del legajo (el portal la pasa como `localidadLabel`). */
   localidadLabel?: string;
+  /** Variante `compact` del portal: sin portada, avatar de 56 y nombre en subtitle1. */
+  compacto?: boolean;
 }
 
-const TAMANIO_AVATAR = scale(72);
 const TAMANIO_CAMARA = scale(28);
 const ALTO_PORTADA = scale(110);
 
@@ -43,9 +47,10 @@ const formatearPuesto = (puesto: string): string => {
 
 type Destino = 'perfil' | 'portada';
 
-export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localidadLabel }) => {
+export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localidadLabel, compacto = false }) => {
   const { globalColors } = useThemeColors();
-  const styles = useMemo(() => createStyles(globalColors), [globalColors]);
+  const tamanioAvatar = scale(compacto ? 56 : 72);
+  const styles = useMemo(() => createStyles(globalColors, tamanioAvatar, compacto), [globalColors, tamanioAvatar, compacto]);
   const user = useAuthStore((s) => s.user);
   const [subiendo, setSubiendo] = useState<Destino | null>(null);
 
@@ -86,24 +91,26 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
 
   return (
     <View style={styles.card}>
-      <View style={styles.portada}>
-        {portadaUrl ? (
-          <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" />
-        ) : null}
-        <Pressable
-          onPress={() => cambiarFoto('portada')}
-          disabled={subiendo !== null}
-          accessibilityRole="button"
-          accessibilityLabel="Cambiar foto de portada"
-          style={styles.camaraPortada}
-        >
-          {subiendo === 'portada' ? (
-            <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
-          ) : (
-            <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
-          )}
-        </Pressable>
-      </View>
+      {compacto ? null : (
+        <View style={styles.portada}>
+          {portadaUrl ? (
+            <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" />
+          ) : null}
+          <Pressable
+            onPress={() => cambiarFoto('portada')}
+            disabled={subiendo !== null}
+            accessibilityRole="button"
+            accessibilityLabel="Cambiar foto de portada"
+            style={styles.camaraPortada}
+          >
+            {subiendo === 'portada' ? (
+              <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+            ) : (
+              <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
+            )}
+          </Pressable>
+        </View>
+      )}
 
       <View style={styles.cuerpo}>
         <View style={styles.avatarContenedor}>
@@ -111,7 +118,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
             <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={user.fullname} />
           ) : (
             <View style={[styles.avatar, styles.avatarIniciales]}>
-              <AppText variant="h5" style={{ color: globalColors.accentPrimaryOn }}>
+              <AppText variant={compacto ? 'h6' : 'h5'} style={{ color: globalColors.accentPrimaryOn }}>
                 {iniciales(user.fullname ?? '')}
               </AppText>
             </View>
@@ -132,7 +139,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
         </View>
 
         <View style={styles.textos}>
-          <AppText variant="h6" numberOfLines={2}>
+          <AppText variant={compacto ? 'subtitle1' : 'h6'} numberOfLines={2}>
             {user.fullname}
           </AppText>
           <View style={styles.fila}>
@@ -159,7 +166,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
   );
 };
 
-const createStyles = (c: ColorTokens) =>
+const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) =>
   StyleSheet.create({
     card: {
       backgroundColor: c.card,
@@ -187,13 +194,13 @@ const createStyles = (c: ColorTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.lg,
-      padding: spacing.lg,
+      padding: compacto ? spacing.md : spacing.lg,
     },
-    avatarContenedor: { width: TAMANIO_AVATAR, height: TAMANIO_AVATAR },
+    avatarContenedor: { width: tamanioAvatar, height: tamanioAvatar },
     avatar: {
-      width: TAMANIO_AVATAR,
-      height: TAMANIO_AVATAR,
-      borderRadius: TAMANIO_AVATAR / 2,
+      width: tamanioAvatar,
+      height: tamanioAvatar,
+      borderRadius: tamanioAvatar / 2,
       borderWidth: 2,
       borderColor: c.card,
     },

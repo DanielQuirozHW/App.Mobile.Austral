@@ -1,5 +1,6 @@
-// Carga de archivos a un documento de familiar. Port de Portal-Austral-Dev -> ModalCargarDocumentos.tsx
-// (textos, tipos aceptados y límite de peso); la selección usa los selectores del sistema en lugar del dropzone web.
+// Carga de archivos a un documento (de familiar o requerido del empleado). Port de Portal-Austral-Dev ->
+// ModalCargarDocumentos.tsx (textos, tipos aceptados y límite de peso); la selección usa los selectores del sistema
+// en lugar del dropzone web. Por defecto sube a un documento de familiar; Documentación pasa su propia función `subir`.
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { subirAdjuntosDeFamiliar } from '../../../application/legajo/legajoService';
@@ -12,6 +13,7 @@ import {
   type ArchivoElegido,
   type ResultadoSeleccion,
 } from '../../../infrastructure/archivos/seleccionArchivos';
+import type { ArchivoParaCarga } from '../../../infrastructure/legajo/familiaresApi';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, iconSizes, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
@@ -26,12 +28,15 @@ import { InfoAlert } from '../InfoAlert';
 interface ModalCargarDocumentoProps {
   documento: { id: string; nombre: string };
   onClose: () => void;
+  /** Sube los archivos al documento. Si falta, se sube a un documento de familiar. */
+  subir?: (documentoId: string, archivos: ArchivoParaCarga[]) => Promise<void>;
 }
 
-export const ModalCargarDocumento: React.FC<ModalCargarDocumentoProps> = ({ documento, onClose }) => {
+export const ModalCargarDocumento: React.FC<ModalCargarDocumentoProps> = ({ documento, onClose, subir }) => {
   const { globalColors } = useThemeColors();
   const [archivos, setArchivos] = useState<ArchivoElegido[]>([]);
   const [cargando, setCargando] = useState(false);
+  const enviar = subir ?? subirAdjuntosDeFamiliar;
 
   const agregar = async (elegir: () => Promise<ResultadoSeleccion>) => {
     try {
@@ -52,7 +57,7 @@ export const ModalCargarDocumento: React.FC<ModalCargarDocumentoProps> = ({ docu
     setCargando(true);
     const idToast = toast.loading('Procesando...');
     try {
-      await subirAdjuntosDeFamiliar(
+      await enviar(
         documento.id,
         archivos.map(({ uri, name, type }) => ({ uri, name, type })),
       );
