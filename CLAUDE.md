@@ -6,16 +6,17 @@ App mobile (React Native) para el cliente Austral. Es la versión mobile del Por
 
 **La idea NO es migrar todos los módulos del portal.** La idea es presentar a Austral un **MVP chico y prolijo, con 1 o 2 módulos de prueba**, para que vean la app y decidan si les gusta y si quieren seguir. Lo que tiene que estar muy bien es **lo general**: estructura, configuración, navegación y menús, modo de color (claro / oscuro), notificaciones y aspecto del portal.
 
+- Módulos con contenido en la demo: **Datos personales** y **Licencias y vacaciones** (más Inicio, Notificaciones y Ajustes). El resto de los módulos **está en el menú pero abre una pantalla vacía** (`enDemo` en `src/presentation/navigation/modulosMenu.ts`; su código no se borró).
 - **No se construyen módulos nuevos ni mejoras de módulos** salvo pedido expreso de Daniel en esa conversación.
 - **Si Daniel pide un listado para elegir con qué seguir, se le da el listado con una recomendación y se espera su respuesta. No se programa.**
-- Lo que ya está escrito queda como está (no se borra, no se amplía). Detalle, reporte de lo terminado y opciones: `docs/ALCANCE-MVP.md`.
+- Lo que ya está escrito queda como está (no se borra, no se amplía). Detalle, reporte de lo terminado y lo que queda: `docs/ALCANCE-MVP.md`.
 
 Este archivo se escribe con lo verificado en el código de los repos de referencia, no copiado de sus README ni de sus documentos. El detalle verificado está en `docs/contexto/`.
 
 ## Cómo retomar el trabajo (leer en este orden)
 
 1. Este archivo.
-2. **`docs/ALCANCE-MVP.md` — el alcance real: MVP de demostración, qué está terminado y qué se puede hacer.**
+2. **`docs/ALCANCE-MVP.md` — el alcance real: MVP de demostración, qué está terminado y qué queda.**
 3. **`docs/ESTADO.md` — qué está hecho, qué no, qué hacer al arrancar una sesión nueva y cómo trabaja Daniel.**
 4. `docs/DECISIONES.md` (decisiones 1 a 88) y `docs/DECISIONES_89_en_adelante.md` — todo lo que decidió Daniel.
 5. `docs/STACK.md` — librerías y versiones aprobadas.
@@ -26,7 +27,7 @@ Este archivo se escribe con lo verificado en el código de los repos de referenc
 
 Todo lo decidido vive en el repo, no en ningún chat.
 
-**Estado resumido:** está escrito el login, el Tablero de Inicio, Notificaciones, Datos personales, Documentación, Licencias y vacaciones, el Perfil completo y el Plan de Trabajo (todo sin probar). **No se siguen sumando módulos ni mejoras: el objetivo es un MVP de demostración** (`docs/ALCANCE-MVP.md`). Lo que queda por pulir es lo general (menú de navegación, selector de modo de color, ajustes, aspecto contra el tema del portal), a elección de Daniel.
+**Estado resumido:** está escrito el login, el menú lateral, el selector de modo de color y Ajustes, el Tablero de Inicio, Notificaciones, Datos personales, Licencias y vacaciones, Documentación, el Perfil completo y el Plan de Trabajo (todo sin probar). **En la demo tienen contenido Datos personales y Licencias y vacaciones; los demás módulos están en el menú, vacíos.** No se siguen sumando módulos ni mejoras (`docs/ALCANCE-MVP.md`).
 
 ---
 
@@ -59,7 +60,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 13. No presentar como verificado algo que se supuso.
 14. No preguntar por la publicación de las apps ni por el registro en Firebase: se deja todo preparado y Daniel lo hace cuando decida.
 15. No plantear el tema de seguridad de las credenciales del usuario de servicio: es del portal.
-16. No agregar ni cambiar una dependencia sin verificar su versión en la web (registro de npm o sitio oficial) y registrarla en `docs/STACK.md`. Las versiones no se miran en los repos de referencia.
+16. No agregar ni cambiar una dependencia sin verificar su versión en la web (registro de npm o sitio oficial) y registrarla en `docs/STACK.md`. Las versiones no se miran en los repos de referencia. (El menú lateral se armó sin librerías nuevas por esto.)
 17. No usar Expo, UI Kitten, React Native Paper, moment, dayjs ni el SDK web de Firebase (ver `docs/STACK.md`).
 18. No elegir una librería "porque la usa el portal" o "porque la usa el prototipo". Se elige por mérito técnico, con fuente.
 19. No dejar de implementar la confirmación al salir con cambios sin guardar en los formularios (el portal la tiene).
@@ -68,6 +69,7 @@ Esta regla está por encima de cualquier otra y no tiene excepciones.
 22. No copiar datos de ejemplo ni de personas que aparezcan en el código del portal (por ejemplo los `uiname` fijos de sus consultas FetchXML). Ver decisión 67.
 23. No copiar pasajes de libros ni de otros textos con derechos (los 18 mensajes del mes del Tablero de Inicio quedan vacíos y los pega Daniel). Ver decisión 89.
 24. **No programar cuando Daniel pidió un listado o una opinión para elegir.** Se responde con el listado y una recomendación, y se espera.
+25. En los mensajes de commit no se escriben secuencias literales como `\uXXXX`: se escribe el texto normal.
 
 ---
 
@@ -109,7 +111,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 2. Cliente HTTP, token y endpoints; adaptadores de almacenamiento.
 3. Autenticación (Microsoft, email/contraseña, validación del empleado, `usuarios` en Firestore, cierre de sesión). Sin registro ni recuperación.
 4. Navegación, selección de puesto y guardas por rol.
-5. Foto de perfil, foto de portada y cabecera del legajo (decisiones 45, 47 y 88).
+5. Foto de perfil, foto de portada y cabecera del legajo (decisiones 45, 47, 88 y 92).
 6. Datos personales completo, con confirmación al salir con cambios sin guardar.
 7. Funciones de Nombramientos y Promoción (**no se hace**, salvo pedido expreso).
 8. Licencias y vacaciones (licencias propias, vacaciones, calendario y gestión del equipo).
@@ -122,6 +124,7 @@ React Native 0.88 (última estable), proyecto nativo sin Expo, TypeScript. react
 15. Notificaciones (decisión 90): hecho.
 16. Documentación (decisión 91): hecho.
 17. **Cancelado:** mejoras de Plan de Trabajo, Licencias y Vacaciones. El objetivo es un MVP de demostración (`docs/ALCANCE-MVP.md`).
+18. Base general de la demo (decisión 92): menú lateral, selector de modo de color, Ajustes, módulos fuera de la demo vacíos, zona segura bajo el encabezado: hecho.
 
 Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica ejecutando. Daniel autorizó avanzar sin pedir aprobación **dentro de lo que pide**; se frena ante una decisión que no se pueda deshacer o una duda real.
 
@@ -130,15 +133,13 @@ Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica 
 **MVP de demostración: 1 o 2 módulos de prueba + lo general muy bien (ver arriba y `docs/ALCANCE-MVP.md`). No se migran todos los módulos.** Lo ya escrito:
 
 - Autenticación: se migra lo que hace el portal, **salvo registro y recuperar contraseña** (decisión 36: las cuentas con usuario y contraseña las crea Austral en Firebase). El login principal es con cuenta Microsoft @austral, por el proveedor Microsoft de Firebase (decisión 18); email y contraseña quedan para algunos usuarios. Se mantiene la selección de puesto. Sin probar y con credenciales vacías.
+- Menú lateral, modo de color (Sistema / Claro / Oscuro) y Ajustes: propios de la app (decisión 92). El portal tiene menú vertical y selector de tema; no se leyó su `settingsContext`.
 - Foto de perfil y foto de portada: migradas (la portada la pidió Daniel aunque el portal no la muestra; decisión 88).
 - Funciones de Nombramientos y Promoción: se migra su resolución en la sesión, igual que el portal. Su uso en navegación y guardas (etapa 7) **no se hace**.
-- Datos personales, migrado completo (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia). Candidato 1 para la demo.
-- Licencias y vacaciones, migrado completo (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 48 a 55. Candidato 2 para la demo.
-- Perfil, ya escrito: Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación (salvo Promoción > Postulación). Ver `docs/contexto/perfil.md`. Extra.
-- Plan de Trabajo (`/planes-de-trabajo`), solo docente, ya escrito. Ver decisiones 75 a 86 y `docs/contexto/plan-de-trabajo.md`. Extra.
+- **Con contenido en la demo:** Datos personales (Identidad, Contacto, Domicilio real, Familia con cónyuge, hijos/as y su documentación, y Contacto de emergencia) y Licencias y vacaciones (licencias propias con certificado y domicilio por mudanza, vacaciones con progreso por período, calendario y gestión del equipo para líderes). Ver decisiones 37 a 44 y 48 a 55.
+- **Escritos pero vacíos en la demo (siguen en el menú):** Documentación (decisión 91), Perfil (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación, salvo Promoción > Postulación; `docs/contexto/perfil.md`) y Plan de Trabajo (solo docente; decisiones 75 a 86).
 - Tablero de Inicio: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día y próximos feriados. Ver decisión 89 y `docs/contexto/inicio.md`.
 - Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas. Sin SignalR (recarga cada 5 minutos). Ver decisión 90 y `docs/contexto/notificaciones.md`.
-- Documentación (Legajo > Documentación): lista de documentos requeridos del empleado con "Ver adjuntos" y "Cargar archivo". Ver decisión 91 y `docs/contexto/documentacion.md`. Extra.
 - **No se hacen:** mejoras de Plan de Trabajo, Licencias y Vacaciones; Nombramientos y Promoción; GDD, Indicadores, Funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
 
 ## Cómo comunicar
@@ -154,10 +155,10 @@ Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica 
 
 | Ruta | Qué hay |
 |---|---|
-| `docs/ALCANCE-MVP.md` | Alcance real (MVP de demostración), reporte de lo terminado y opciones para seguir |
+| `docs/ALCANCE-MVP.md` | Alcance real (MVP de demostración), reporte de lo terminado y lo que queda |
 | `docs/ESTADO.md` | Estado actual, qué falta y qué hacer al retomar en una sesión nueva |
 | `docs/DECISIONES.md` | Decisiones tomadas (1 a 88) |
-| `docs/DECISIONES_89_en_adelante.md` | Decisiones desde la 89 (Tablero de Inicio, Notificaciones, Documentación y lo que siga) |
+| `docs/DECISIONES_89_en_adelante.md` | Decisiones desde la 89 (Tablero de Inicio, Notificaciones, Documentación, menú / modo de color / Ajustes y lo que siga) |
 | `docs/STACK.md` | Stack definitivo con versiones verificadas |
 | `docs/ERRORES.md` | Errores cometidos y reglas para no repetirlos |
 | `docs/PENDIENTES.md` | Pendientes, tareas externas y lo que falta verificar |
@@ -195,7 +196,7 @@ Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica 
 | `src/infrastructure/perfil/` | Llamadas a la API de Perfil: `perfilApi` (lectura por empleado, escritura, subida), `formacionApi`, `trayectoriaApi`, `extensionApi`, `gestionAcademicaApi`, `docenciaApi`, `afiliacionesApi`, `actividadApi`, `proyectosApi`, `resultadosApi` |
 | `src/infrastructure/pta/ptaApi.ts` | Llamadas a la API del Plan de Trabajo: lectura de planes, secciones, indicadores y adjuntos; escritura de plan y registros; cambio de estado; subida y baja de adjuntos; catálogos |
 | `src/infrastructure/archivos/` | Selección de archivos (documentos, galería, cámara), selección de la foto de perfil y visor de adjuntos |
-| `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido) |
+| `src/infrastructure/storage/almacenamiento.ts` | AsyncStorage (rol elegido y preferencia de modo de color) |
 | `src/application/auth/authService.ts` | Login Microsoft y email, logout (vacía también los stores de Perfil y del Plan de Trabajo), escucha de sesión y revalidación |
 | `src/application/auth/fotoPerfilService.ts` | Cambio de foto de perfil y de portada (Storage + `usuarios`) |
 | `src/application/notificaciones/notificacionesService.ts` | Marcar como leída y marcar todas (tandas de 5), con los avisos del portal |
@@ -204,25 +205,27 @@ Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica 
 | `src/application/licencias/` | `licenciasService.ts` (solicitar, cancelar, certificado, aprobar / rechazar, carga de datos) y `adjuntosService.ts` |
 | `src/application/perfil/` | Un servicio por página de Perfil: `formacionService`, `trayectoriaService`, `extensionService`, `gestionAcademicaService`, `docenciaService`, `afiliacionesService`, `actividadService`, `proyectosService` (con `cargarMasInfo` de los siete tipos de resultado) y `resultadosService` |
 | `src/application/pta/ptaService.ts` | Flujos del Plan de Trabajo: abrir el detalle, guardar registros y bajas, plan y observaciones, total de investigación, lectura de observaciones, adjuntos y envío |
-| `src/presentation/stores/` | `authStore`, `rolStore`, `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `toastStore`, de Perfil: `formacionStore`, `trayectoriaStore`, `extensionStore`, `gestionAcademicaStore`, `docenciaStore`, `afiliacionesStore`, `actividadStore`, `proyectosStore`, `resultadosStore`, y `ptaStore` (Plan de Trabajo) |
+| `src/presentation/stores/` | `authStore`, `rolStore`, `modoColorStore` (preferencia Sistema / Claro / Oscuro), `menuStore` (menú lateral abierto / cerrado), `legajoStore`, `familiaStore`, `catalogosStore`, `licenciasStore`, `equipoStore`, `toastStore`, de Perfil: `formacionStore`, `trayectoriaStore`, `extensionStore`, `gestionAcademicaStore`, `docenciaStore`, `afiliacionesStore`, `actividadStore`, `proyectosStore`, `resultadosStore`, `ptaStore` (Plan de Trabajo) y `documentacionStore` |
 | `src/presentation/hooks/` | `useTablero` (feriados y cumpleaños, TanStack Query) y `useNotificaciones` (lista, pendientes / completadas, acciones; recarga cada 5 minutos) |
-| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según el estado de sesión y puesto; `PlanesDeTrabajo` y `PlanTrabajoDetalle` solo para docente), `AppNavigation.tsx` (contenedor, tema, avisos y overlay), `navigationTheme.ts`, `tipos.ts` (rutas) |
+| `src/presentation/navigation/` | `RootNavigator.tsx` (pantallas según sesión y puesto; todos los módulos registrados, los que no son de la demo apuntan a `ModuloVacioScreen`; `conEncabezado` evita sumar dos veces la zona segura), `AppNavigation.tsx` (contenedor, tema, menú lateral, avisos y overlay), `modulosMenu.ts` (**catálogo de módulos del menú con `enDemo`**), `navigationRef.ts` (`irAModulo`: reset con Inicio debajo), `navigationTheme.ts`, `tipos.ts` (rutas) |
 | `src/presentation/screens/auth/` | `LoginScreen`, `SeleccionarPuestoScreen` |
-| `src/presentation/screens/InicioScreen.tsx` | Tablero de Inicio (bienvenida, mensaje del mes, cumpleaños, feriados) con los accesos a los módulos y el cierre de sesión |
+| `src/presentation/screens/InicioScreen.tsx` | Tablero de Inicio (barra con campana y menú, bienvenida, mensaje del mes, cumpleaños, feriados) con los accesos a los módulos de la demo |
+| `src/presentation/screens/ModuloVacioScreen.tsx` | Pantalla vacía de los módulos que no son de la demo (título según la ruta) |
+| `src/presentation/screens/ajustes/AjustesScreen.tsx` | Ajustes: modo de color, datos de la cuenta, versión de demostración y cerrar sesión |
 | `src/presentation/screens/notificaciones/NotificacionesScreen.tsx` | Pantalla de Notificaciones (pestañas con cantidad, filtros, tarjetas, confirmación de "Marcar todas") |
 | `src/presentation/screens/legajo/DatosPersonalesScreen.tsx` | Pantalla de Datos personales |
-| `src/presentation/screens/legajo/DocumentacionScreen.tsx` | Pantalla de Documentación (cabecera compacta, aviso, tarjetas, modales de ver y cargar) |
-| `src/presentation/stores/documentacionStore.ts` | Lista de documentos del empleado y marcas temporales de carga (solo en memoria) |
+| `src/presentation/screens/legajo/DocumentacionScreen.tsx` | Pantalla de Documentación (cabecera compacta, aviso, tarjetas, modales de ver y cargar). Vacía en la demo |
 | `src/presentation/screens/licencias/LicenciasScreen.tsx` | Pantalla de Licencias y vacaciones (pestañas: Licencias, Vacaciones, Calendario, Equipo) |
-| `src/presentation/screens/perfil/` | `FormacionScreen`, `TrayectoriaScreen`, `ExtensionScreen`, `GestionAcademicaScreen`, `DocenciaScreen` e `InvestigacionScreen` (con `InvestigacionAfiliaciones`, `InvestigacionActividad` e `InvestigacionResultados`) |
-| `src/presentation/screens/pta/` | `PlanTrabajoScreen` (lista por pestañas) y `PlanTrabajoDetalleScreen` (Datos personales, Observaciones del Sec. Académico y Actividad académica con nueve subpestañas) |
-| `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` permite forzar claro) |
+| `src/presentation/screens/perfil/` | `FormacionScreen`, `TrayectoriaScreen`, `ExtensionScreen`, `GestionAcademicaScreen`, `DocenciaScreen` e `InvestigacionScreen` (con `InvestigacionAfiliaciones`, `InvestigacionActividad` e `InvestigacionResultados`). Vacías en la demo |
+| `src/presentation/screens/pta/` | `PlanTrabajoScreen` (lista por pestañas) y `PlanTrabajoDetalleScreen` (Datos personales, Observaciones del Sec. Académico y Actividad académica con nueve subpestañas). Vacío en la demo |
+| `src/presentation/theme` | Colores, tipografía y proveedor de tema (valores del portal; `modo` fuerza claro/oscuro, por ejemplo el ingreso; sin `modo` manda la preferencia de `modoColorStore`) |
 | `src/presentation/utils/` | `responsive.ts` (escala, espacios, radios) y `toast.ts` (avisos) |
-| `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen`, `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
+| `src/presentation/components` | Base: `AppText`, `AppButton`, `AppTextField`, `AppCheckbox`, `AppIcon`, `Screen` (con `EncabezadoVisibleContext`), `AuthLayout`, `LogoAustral`, `LoadingScreen`, `OverlayCerrandoSesion`. Datos personales: `AppModal`, `ConfirmDialog`, `ToastHost`, `SeccionCard`, `InfoAlert`, `Etiqueta`, `AccionIcono` |
+| `src/presentation/components/menu/` | `MenuLateral` (panel que se desliza desde la izquierda, con `Modal` + `Animated`, sin librerías nuevas) y `BotonMenu` (hamburguesa) |
 | `src/presentation/components/inicio/` | Tablero: `TarjetaTablero` (marco), `SaludoInicio`, `FraseDelMes`, `CumpleaniosCard`, `ProximosFeriadosCard` |
 | `src/presentation/components/notificaciones/TarjetaNotificacion.tsx` | Fila de la grilla de notificaciones como tarjeta, con "Ir" y "Marcar como leída" |
 | `src/presentation/components/form/` | Campos de formulario: `SelectField`, `DateField`, `FormTextField`, `FormSelectField`, `FormDateField`, `FormTileSelector`, `ScrollFormulario` |
-| `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos` (los dos sirven a familiares y a Documentación con sus props `subir` / `obtener`), `TarjetaDocumento`, `PerfilLegajoBanner` (cabecera con foto de perfil y de portada; variante `compacto` sin portada), `FilaDato` |
+| `src/presentation/components/legajo/` | `BloqueFamilia`, `ModalConyuge`, `ModalHijo`, `ModalCargarDocumento`, `ModalVerAdjuntos` (los dos sirven a familiares y a Documentación con sus props `subir` / `obtener`), `TarjetaDocumento`, `PerfilLegajoBanner` (cabecera con foto de perfil y de portada; variante `compacto` sin portada; avatar con borde de 3 px azulLight), `FilaDato` |
 | `src/presentation/components/licencias/` | Secciones (`MisLicenciasSeccion`, `VacacionesSeccion`, `CalendarioSeccion`, `GestionSeccion`), modales de solicitud, detalle, aprobación y calendario, y piezas comunes (`EstadoChip`, `Pestanias`, `ListaPaginada`, `TarjetaSolicitud`, `SelectorArchivos`, `RespuestaLider`, `VacacionesPanel`, `FormularioDomicilio`, `DomicilioDeclarado`) |
 | `src/presentation/components/perfil/` | Piezas comunes: `SeccionRegistros` (sección genérica con Ver / Editar / Eliminar), `ModalPerfil` (marco de los modales), `CamposComunes`, `ModalLectura`. Un modal por sección de Formación, Trayectoria, Extensión, Gestión académica, Docencia, Afiliaciones y Actividad I+D. Proyectos: `SeccionProyectos`, `ModalProyecto`, `ParticipantesDelProyecto`, `ModalParticipante`, `ResultadosDelProyecto`, `ModalVincularResultado`, `ModalMasInfoResultado`. Resultados / Impacto I+D: `SeccionProducciones`, `ModalProduccion`, `AutoresDeProduccion`, `ModalAutor`, `ModalJornada`, `ModalEstancia` |
 | `src/presentation/components/pta/` | Plan de Trabajo: `SeccionPta` (sección genérica con Ver / Editar / Eliminar) y `ModalSeccionPta` (modal genérico por `DefinicionSeccion`), `CajaPta`, `TotalesPta`, `ActividadPta` (contenido de cada subpestaña), `DatosDocenciaPta`, `DatosInvestigacionPta`, `ResumenPta` (indicadores, observaciones, adjuntos y envío) y `ejecutarPta` (avisos de proceso) |
@@ -232,4 +235,4 @@ Cada trabajo se contrasta contra el código del portal, leyendo; no se verifica 
 
 ## Estado actual
 
-**Alcance: MVP de demostración (`docs/ALCANCE-MVP.md`); no se siguen sumando módulos.** Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto y navegación raíz. Etapa 5 escrita: foto de perfil, foto de portada y cabecera del legajo. Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo (licencias propias, vacaciones, calendario y gestión del equipo). Etapas 9 a 12 escritas: Perfil completo, salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Etapa 14 escrita: Tablero de Inicio (faltan los textos del mensaje del mes, que pega Daniel). Etapa 15 escrita: Notificaciones. Etapa 16 escrita: Documentación del legajo. Lo general que falta (a elección de Daniel): menú de navegación, selector de modo de color, pantalla de ajustes, ajuste del aspecto contra el tema del portal y revisión estática de `src/`. Todo sin probar. No hay carpetas nativas todavía: las genera Daniel (ver `docs/SETUP-NATIVO.md`). Detalle y próximos pasos en `docs/ESTADO.md`.
+**Alcance: MVP de demostración (`docs/ALCANCE-MVP.md`); no se siguen sumando módulos.** Etapa 1 (base) escrita. Etapa 2: cliente HTTP, token y endpoints escritos; falta la lectura de `UnidadDeNegocio`. Etapas 3 y 4 escritas: autenticación (servicio, roles, errores, stores), pantallas de ingreso y selección de puesto y navegación raíz. Etapa 5 escrita: foto de perfil, foto de portada y cabecera del legajo. Etapa 6 escrita: Datos personales completo con aviso de cambios sin guardar. Etapa 8 escrita: Licencias y vacaciones completo. Etapas 9 a 12 escritas: Perfil completo, salvo Promoción > Postulación. Etapa 13 escrita: Plan de Trabajo (solo docente). Etapa 14 escrita: Tablero de Inicio (faltan los textos del mensaje del mes, que pega Daniel). Etapa 15 escrita: Notificaciones. Etapa 16 escrita: Documentación del legajo. **Etapa 18 escrita (decisión 92): menú lateral, selector de modo de color (Sistema / Claro / Oscuro), pantalla Ajustes y módulos fuera de la demo vacíos en el menú. Con contenido en la demo: Datos personales y Licencias y vacaciones.** Lo general que se puede pulir (a elección de Daniel): contrastar el aspecto con los overrides del tema del portal, revisión estática del resto de `src/` y cantidad de pendientes en la campana de Inicio. Todo sin probar. No hay carpetas nativas todavía: las genera Daniel (ver `docs/SETUP-NATIVO.md`). Detalle y próximos pasos en `docs/ESTADO.md`.
