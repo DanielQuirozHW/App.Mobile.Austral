@@ -3,19 +3,24 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Notificaciones + Documentación + Licencias y
-//                                                           vacaciones + Perfil (Formación, Trayectoria, Extensión,
-//                                                           Gestión académica, Docencia e Investigación)
-//                                                           (+ Datos personales para docente / codocente)
-//                                                           (+ Plan de trabajo solo para docente: allowedRoles
-//                                                           ["docente"] de planes-de-trabajo/page.tsx)
+//   - resto                                              -> Inicio + Notificaciones + Ajustes + los módulos del menú
+//                                                           (Datos personales para docente / codocente; Plan de trabajo
+//                                                           solo para docente: allowedRoles ["docente"] de
+//                                                           planes-de-trabajo/page.tsx)
+//
+// MVP DE DEMOSTRACIÓN (docs/ALCANCE-MVP.md): todos los módulos están registrados y figuran en el menú, pero solo los que
+// tienen `enDemo: true` en navigation/modulosMenu.ts muestran su pantalla real; el resto abre ModuloVacioScreen.
 // Documentación: el menú del portal (navigation/vertical/index.tsx) la muestra a todos los roles. Falta leer el guard
 // del layout del dashboard por si restringe algo más (ver docs/PENDIENTES.md).
 import React, { useEffect } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, type NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { BotonMenu } from '../components/menu/BotonMenu';
+import { EncabezadoVisibleContext } from '../components/Screen';
+import { AjustesScreen } from '../screens/ajustes/AjustesScreen';
 import { InicioScreen } from '../screens/InicioScreen';
+import { ModuloVacioScreen } from '../screens/ModuloVacioScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
@@ -32,11 +37,53 @@ import { PlanTrabajoDetalleScreen } from '../screens/pta/PlanTrabajoDetalleScree
 import { PlanTrabajoScreen } from '../screens/pta/PlanTrabajoScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
+import { moduloEnDemo, type RutaDeMenu } from './modulosMenu';
 import type { RootStackParams } from './tipos';
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 
 const CargandoScreen: React.FC = () => <LoadingScreen />;
+
+/**
+ * Envuelve una pantalla que se muestra debajo del encabezado nativo para que `Screen` no sume dos veces la zona
+ * segura de arriba. Se llama una sola vez por pantalla, a nivel de módulo (no dentro de un render).
+ */
+const conEncabezado = (Componente: React.ComponentType): React.FC => {
+  const Envuelta: React.FC = () => (
+    <EncabezadoVisibleContext.Provider value>
+      <Componente />
+    </EncabezadoVisibleContext.Provider>
+  );
+  return Envuelta;
+};
+
+/** La pantalla real si el módulo está en la demostración; si no, la pantalla vacía. */
+const moduloODemo = (ruta: RutaDeMenu, real: React.ComponentType): React.FC =>
+  conEncabezado(moduloEnDemo(ruta) ? real : ModuloVacioScreen);
+
+const Notificaciones = moduloODemo('Notificaciones', NotificacionesScreen);
+const DatosPersonales = moduloODemo('DatosPersonales', DatosPersonalesScreen);
+const Documentacion = moduloODemo('Documentacion', DocumentacionScreen);
+const Licencias = moduloODemo('Licencias', LicenciasScreen);
+const Formacion = moduloODemo('Formacion', FormacionScreen);
+const Trayectoria = moduloODemo('Trayectoria', TrayectoriaScreen);
+const Extension = moduloODemo('Extension', ExtensionScreen);
+const GestionAcademica = moduloODemo('GestionAcademica', GestionAcademicaScreen);
+const Docencia = moduloODemo('Docencia', DocenciaScreen);
+const Investigacion = moduloODemo('Investigacion', InvestigacionScreen);
+const PlanesDeTrabajo = moduloODemo('PlanesDeTrabajo', PlanTrabajoScreen);
+const PlanTrabajoDetalle = conEncabezado(PlanTrabajoDetalleScreen);
+const Ajustes = moduloODemo('Ajustes', AjustesScreen);
+
+const renderBotonMenu = (): React.ReactElement => <BotonMenu />;
+
+/** Opciones comunes de las pantallas con encabezado: título, transición y botón del menú a la derecha. */
+const opciones = (title: string): NativeStackNavigationOptions => ({
+  headerShown: true,
+  title,
+  animation: 'slide_from_right',
+  headerRight: renderBotonMenu,
+});
 
 export const RootNavigator: React.FC = () => {
   const user = useAuthStore((s) => s.user);
@@ -70,71 +117,30 @@ export const RootNavigator: React.FC = () => {
       ) : (
         <>
           <Stack.Screen name="Inicio" component={InicioScreen} />
-          <Stack.Screen
-            name="Notificaciones"
-            component={NotificacionesScreen}
-            options={{ headerShown: true, title: 'Notificaciones', animation: 'slide_from_right' }}
-          />
+          <Stack.Screen name="Notificaciones" component={Notificaciones} options={opciones('Notificaciones')} />
           {puedeVerLegajo(role) ? (
-            <Stack.Screen
-              name="DatosPersonales"
-              component={DatosPersonalesScreen}
-              options={{ headerShown: true, title: 'Datos personales', animation: 'slide_from_right' }}
-            />
+            <Stack.Screen name="DatosPersonales" component={DatosPersonales} options={opciones('Datos personales')} />
           ) : null}
-          <Stack.Screen
-            name="Documentacion"
-            component={DocumentacionScreen}
-            options={{ headerShown: true, title: 'Documentación', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="Licencias"
-            component={LicenciasScreen}
-            options={{ headerShown: true, title: 'Licencias y vacaciones', animation: 'slide_from_right' }}
-          />
+          <Stack.Screen name="Documentacion" component={Documentacion} options={opciones('Documentación')} />
+          <Stack.Screen name="Licencias" component={Licencias} options={opciones('Licencias y vacaciones')} />
           {/* Perfil: el menú del portal lo muestra a todos los roles (navigation/vertical/index.tsx). */}
-          <Stack.Screen
-            name="Formacion"
-            component={FormacionScreen}
-            options={{ headerShown: true, title: 'Formación', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="Trayectoria"
-            component={TrayectoriaScreen}
-            options={{ headerShown: true, title: 'Trayectoria profesional', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="Extension"
-            component={ExtensionScreen}
-            options={{ headerShown: true, title: 'Extensión', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="GestionAcademica"
-            component={GestionAcademicaScreen}
-            options={{ headerShown: true, title: 'Gestión académica', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="Docencia"
-            component={DocenciaScreen}
-            options={{ headerShown: true, title: 'Docencia', animation: 'slide_from_right' }}
-          />
-          <Stack.Screen
-            name="Investigacion"
-            component={InvestigacionScreen}
-            options={{ headerShown: true, title: 'Investigación', animation: 'slide_from_right' }}
-          />
+          <Stack.Screen name="Formacion" component={Formacion} options={opciones('Formación')} />
+          <Stack.Screen name="Trayectoria" component={Trayectoria} options={opciones('Trayectoria profesional')} />
+          <Stack.Screen name="Extension" component={Extension} options={opciones('Extensión')} />
+          <Stack.Screen name="GestionAcademica" component={GestionAcademica} options={opciones('Gestión académica')} />
+          <Stack.Screen name="Docencia" component={Docencia} options={opciones('Docencia')} />
+          <Stack.Screen name="Investigacion" component={Investigacion} options={opciones('Investigación')} />
+          <Stack.Screen name="Ajustes" component={Ajustes} options={opciones('Ajustes')} />
           {role === 'docente' ? (
             <>
-              <Stack.Screen
-                name="PlanesDeTrabajo"
-                component={PlanTrabajoScreen}
-                options={{ headerShown: true, title: 'Plan de trabajo', animation: 'slide_from_right' }}
-              />
-              <Stack.Screen
-                name="PlanTrabajoDetalle"
-                component={PlanTrabajoDetalleScreen}
-                options={{ headerShown: true, title: 'Plan de Trabajo Anual', animation: 'slide_from_right' }}
-              />
+              <Stack.Screen name="PlanesDeTrabajo" component={PlanesDeTrabajo} options={opciones('Plan de trabajo')} />
+              {moduloEnDemo('PlanesDeTrabajo') ? (
+                <Stack.Screen
+                  name="PlanTrabajoDetalle"
+                  component={PlanTrabajoDetalle}
+                  options={opciones('Plan de Trabajo Anual')}
+                />
+              ) : null}
             </>
           ) : null}
         </>

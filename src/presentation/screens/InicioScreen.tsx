@@ -1,48 +1,59 @@
 // Inicio. Port de Portal-Austral-Dev -> src/app/(dashboard)/page.tsx: bienvenida, mensaje del mes, cumpleaños del día y
-// próximos feriados (decisión 89). Debajo van los accesos a los módulos construidos (en el portal están en el menú
-// lateral, que en el celular no existe) y el cierre de sesión.
+// próximos feriados (decisión 89). Arriba hay una barra con notificaciones y el menú lateral (en el portal el menú es
+// la barra lateral, que en el celular no existe). Debajo van los accesos a los módulos con contenido en la
+// demostración (navigation/modulosMenu.ts); el cierre de sesión está en el menú y en Ajustes.
 import React, { useMemo } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { cerrarSesion } from '../../application/auth/authService';
+import { Pressable, StyleSheet, View } from 'react-native';
 import {
   fraseDelMesActual,
   nombreParaBienvenida,
   periodoDelMes,
 } from '../../domain/inicio/tablero';
 import { AppButton } from '../components/AppButton';
+import { AppIcon } from '../components/AppIcon';
 import { AppText } from '../components/AppText';
 import { CumpleaniosCard } from '../components/inicio/CumpleaniosCard';
 import { FraseDelMes } from '../components/inicio/FraseDelMes';
 import { ProximosFeriadosCard } from '../components/inicio/ProximosFeriadosCard';
 import { SaludoInicio } from '../components/inicio/SaludoInicio';
+import { BotonMenu } from '../components/menu/BotonMenu';
 import { Screen } from '../components/Screen';
 import { useTablero } from '../hooks/useTablero';
-import type { RootStackParams } from '../navigation/tipos';
+import { ACCESOS_DE_INICIO } from '../navigation/modulosMenu';
+import { irAModulo } from '../navigation/navigationRef';
 import { useAuthStore } from '../stores/authStore';
-import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
-import { spacing } from '../utils/responsive';
+import { useRolStore } from '../stores/rolStore';
+import { useThemeColors } from '../theme/theme';
+import { iconSizes, platformSpecific, spacing } from '../utils/responsive';
 
 export const InicioScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const { globalColors } = useThemeColors();
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
   const { proximosFeriados, cargandoFeriados, cumpleaniosHoy, fechaDeHoy } = useTablero();
 
   const frase = useMemo(() => fraseDelMesActual(new Date()), []);
   const periodo = useMemo(() => periodoDelMes(new Date()), []);
-
-  const salir = async () => {
-    try {
-      await cerrarSesion();
-    } catch {
-      Alert.alert('No se pudo cerrar la sesión. Intentá nuevamente.');
-    }
-  };
+  const accesos = useMemo(() => ACCESOS_DE_INICIO.filter((item) => item.visiblePara(role)), [role]);
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
+      <View style={styles.barra}>
+        <AppText variant="h6">Inicio</AppText>
+        <View style={styles.barraAcciones}>
+          <Pressable
+            onPress={() => irAModulo('Notificaciones')}
+            hitSlop={spacing.sm}
+            accessibilityRole="button"
+            accessibilityLabel="Notificaciones"
+            style={styles.botonBarra}
+          >
+            <AppIcon name="notifications-outline" size={iconSizes.lg} color={globalColors.text} />
+          </Pressable>
+          <BotonMenu />
+        </View>
+      </View>
+
       <SaludoInicio nombre={nombreParaBienvenida(user)} subtitulo="Portal SIP – Universidad Austral" />
 
       <FraseDelMes frase={frase.texto} autor={frase.autor} fuente={`${frase.libro}, ${frase.numero}`} periodo={periodo} />
@@ -50,51 +61,29 @@ export const InicioScreen: React.FC = () => {
       <CumpleaniosCard fechaLabel={fechaDeHoy} cumpleanios={cumpleaniosHoy} />
       <ProximosFeriadosCard feriados={proximosFeriados} cargando={cargandoFeriados} />
 
-      <View style={styles.acciones}>
-        <AppText variant="overline" tone="secondary">
-          Accesos
-        </AppText>
-        {puedeVerLegajo(role) ? (
-          <AppButton title="Datos personales" icon="person-outline" onPress={() => navigation.navigate('DatosPersonales')} />
-        ) : null}
-        <AppButton
-          title="Documentación"
-          icon="document-text-outline"
-          onPress={() => navigation.navigate('Documentacion')}
-        />
-        <AppButton
-          title="Licencias y vacaciones"
-          icon="calendar-outline"
-          onPress={() => navigation.navigate('Licencias')}
-        />
-        <AppButton title="Formación" icon="school-outline" onPress={() => navigation.navigate('Formacion')} />
-        <AppButton
-          title="Trayectoria profesional"
-          icon="briefcase-outline"
-          onPress={() => navigation.navigate('Trayectoria')}
-        />
-        <AppButton title="Extensión" icon="people-outline" onPress={() => navigation.navigate('Extension')} />
-        <AppButton
-          title="Gestión académica"
-          icon="git-network-outline"
-          onPress={() => navigation.navigate('GestionAcademica')}
-        />
-        <AppButton title="Docencia" icon="book-outline" onPress={() => navigation.navigate('Docencia')} />
-        <AppButton title="Investigación" icon="flask-outline" onPress={() => navigation.navigate('Investigacion')} />
-        {role === 'docente' ? (
-          <AppButton
-            title="Plan de trabajo"
-            icon="clipboard-outline"
-            onPress={() => navigation.navigate('PlanesDeTrabajo')}
-          />
-        ) : null}
-        <AppButton title="Cerrar sesión" variant="secondary" onPress={salir} />
-      </View>
+      {accesos.length > 0 ? (
+        <View style={styles.acciones}>
+          <AppText variant="overline" tone="secondary">
+            Accesos
+          </AppText>
+          {accesos.map((item) => (
+            <AppButton key={item.ruta} title={item.titulo} icon={item.icono} onPress={() => irAModulo(item.ruta)} />
+          ))}
+        </View>
+      ) : null}
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
   contenido: { gap: spacing.xl, paddingBottom: spacing.xxxl },
+  barra: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  barraAcciones: { flexDirection: 'row', alignItems: 'center' },
+  botonBarra: {
+    minWidth: platformSpecific.minTouchTarget,
+    minHeight: platformSpecific.minTouchTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   acciones: { gap: spacing.md },
 });

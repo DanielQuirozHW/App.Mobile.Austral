@@ -9,8 +9,11 @@
 //   Docencia -> (dashboard)/perfil/docencia/* (categorización, nombramientos, promoción, docencia y asesoramiento),
 //   Investigacion -> (dashboard)/perfil/investigacion/* (afiliaciones, actividad I+D y resultados / impacto I+D),
 //   PlanesDeTrabajo -> (dashboard)/planes-de-trabajo (lista, solo docente),
-//   PlanTrabajoDetalle -> el modal del plan (ModalPlanDeTrabajoDocente) abierto desde la lista.
+//   PlanTrabajoDetalle -> el modal del plan (ModalPlanDeTrabajoDocente) abierto desde la lista,
+//   Ajustes -> propia de la app (modo de color, cuenta); el portal la resuelve con el selector de tema.
 // No hay registro ni recuperar contraseña: las cuentas con usuario y contraseña se crean desde Firebase (decisión 36).
+// MVP de demostración: solo algunos módulos tienen contenido (ver navigation/modulosMenu.ts); el resto muestra una
+// pantalla vacía.
 export type RootStackParams = {
   Cargando: undefined;
   Login: undefined;
@@ -29,4 +32,5 @@ export type RootStackParams = {
   PlanesDeTrabajo: undefined;
   /** `historico`: el plan se abrió desde VIGENTE o HISTÓRICO (estadoHistorico del portal): solo lectura. */
   PlanTrabajoDetalle: { planId: string; historico: boolean };
+  Ajustes: undefined;
 };
