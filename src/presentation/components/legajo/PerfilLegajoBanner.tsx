@@ -1,10 +1,11 @@
-// Cabecera del legajo. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/_components/UserProfileBanner.tsx.
-// Avatar con botón de cámara para cambiar la foto, nombre completo de la sesión, puesto (DOCENTE / STAFF) y sede.
-// El portal arma las iniciales con `getInitials` (@core/utils/get-initials, no leído): acá son las primeras letras
-// de las dos primeras palabras del nombre.
+// Cabecera del legajo. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/_components/UserProfileBanner.tsx
+// (y PerfilHeader). Portada con botón para cambiarla, avatar con botón de cámara, nombre completo de la sesión,
+// puesto (DOCENTE / STAFF) y sede.
+// Iniciales: `getInitials` del portal (@core/utils/get-initials) = primera letra de CADA palabra, sin recortar ni
+// pasar a mayúsculas (verificado). El portal hoy no muestra portada; se agrega a pedido de Daniel (decisión 88).
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
-import { actualizarFotoPerfil } from '../../../application/auth/fotoPerfilService';
+import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
 import {
   elegirFotoConCamara,
   elegirFotoDeGaleria,
@@ -13,7 +14,7 @@ import {
 import { useAuthStore } from '../../stores/authStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { borderRadius, platformSpecific, scale, spacing } from '../../utils/responsive';
+import { borderRadius, scale, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
@@ -25,16 +26,11 @@ interface PerfilLegajoBannerProps {
 
 const TAMANIO_AVATAR = scale(72);
 const TAMANIO_CAMARA = scale(28);
+const ALTO_PORTADA = scale(110);
 
+// getInitials del portal.
 const iniciales = (nombreCompleto: string): string =>
-  nombreCompleto
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((palabra) => palabra[0])
-    .join('')
-    .toUpperCase();
+  nombreCompleto.split(/\s/).reduce((respuesta, palabra) => respuesta + palabra.slice(0, 1), '');
 
 // formatRol del portal.
 const formatearPuesto = (puesto: string): string => {
@@ -45,59 +41,63 @@ const formatearPuesto = (puesto: string): string => {
   return puesto.toUpperCase();
 };
 
+type Destino = 'perfil' | 'portada';
+
 export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localidadLabel }) => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const user = useAuthStore((s) => s.user);
-  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [subiendo, setSubiendo] = useState<Destino | null>(null);
 
   if (!user) return null;
 
   const puesto = Array.isArray(user.puesto) ? user.puesto.join('') : (user.puesto ?? '');
   const fotoUrl = user.photoURL || undefined;
+  const portadaUrl = user.photoPORTADA || undefined;
 
-  const subir = async (elegir: () => Promise<FotoElegida | null>) => {
+  const subir = async (destino: Destino, elegir: () => Promise<FotoElegida | null>) => {
     try {
       const foto = await elegir();
       if (!foto) return;
-      setSubiendoFoto(true);
-      await actualizarFotoPerfil(foto.uri);
+      setSubiendo(destino);
+      if (destino === 'perfil') await actualizarFotoPerfil(foto.uri);
+      else await actualizarFotoPortada(foto.uri);
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : 'Error al actualizar la foto de perfil');
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : destino === 'perfil'
+            ? 'Error al actualizar la foto de perfil'
+            : 'Error al actualizar la foto de portada',
+      );
     } finally {
-      setSubiendoFoto(false);
+      setSubiendo(null);
     }
   };
 
-  const cambiarFoto = () => {
-    if (subiendoFoto) return;
-    Alert.alert('Cambiar foto de perfil', undefined, [
-      { text: 'Galería', onPress: () => void subir(elegirFotoDeGaleria) },
-      { text: 'Cámara', onPress: () => void subir(elegirFotoConCamara) },
+  const cambiarFoto = (destino: Destino) => {
+    if (subiendo) return;
+    Alert.alert(destino === 'perfil' ? 'Cambiar foto de perfil' : 'Cambiar foto de portada', undefined, [
+      { text: 'Galería', onPress: () => void subir(destino, elegirFotoDeGaleria) },
+      { text: 'Cámara', onPress: () => void subir(destino, elegirFotoConCamara) },
       { text: 'Cancelar', style: 'cancel' },
     ]);
   };
 
   return (
     <View style={styles.card}>
-      <View style={styles.avatarContenedor}>
-        {fotoUrl ? (
-          <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={user.fullname} />
-        ) : (
-          <View style={[styles.avatar, styles.avatarIniciales]}>
-            <AppText variant="h5" style={{ color: globalColors.accentPrimaryOn }}>
-              {iniciales(user.fullname ?? '')}
-            </AppText>
-          </View>
-        )}
+      <View style={styles.portada}>
+        {portadaUrl ? (
+          <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" />
+        ) : null}
         <Pressable
-          onPress={cambiarFoto}
-          disabled={subiendoFoto}
+          onPress={() => cambiarFoto('portada')}
+          disabled={subiendo !== null}
           accessibilityRole="button"
-          accessibilityLabel="Cambiar foto de perfil"
-          style={styles.camara}
+          accessibilityLabel="Cambiar foto de portada"
+          style={styles.camaraPortada}
         >
-          {subiendoFoto ? (
+          {subiendo === 'portada' ? (
             <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
           ) : (
             <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
@@ -105,27 +105,54 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
         </Pressable>
       </View>
 
-      <View style={styles.textos}>
-        <AppText variant="h6" numberOfLines={2}>
-          {user.fullname}
-        </AppText>
-        <View style={styles.fila}>
-          {puesto ? (
-            <View style={styles.dato}>
-              <AppIcon name="briefcase-outline" size={scale(14)} color={globalColors.textSecondary} />
-              <AppText variant="caption" tone="secondary" style={styles.datoTexto}>
-                {formatearPuesto(puesto)}
+      <View style={styles.cuerpo}>
+        <View style={styles.avatarContenedor}>
+          {fotoUrl ? (
+            <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={user.fullname} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarIniciales]}>
+              <AppText variant="h5" style={{ color: globalColors.accentPrimaryOn }}>
+                {iniciales(user.fullname ?? '')}
               </AppText>
             </View>
-          ) : null}
-          {localidadLabel ? (
-            <View style={styles.dato}>
-              <AppIcon name="location-outline" size={scale(14)} color={globalColors.textSecondary} />
-              <AppText variant="caption" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
-                {localidadLabel.toUpperCase()}
-              </AppText>
-            </View>
-          ) : null}
+          )}
+          <Pressable
+            onPress={() => cambiarFoto('perfil')}
+            disabled={subiendo !== null}
+            accessibilityRole="button"
+            accessibilityLabel="Cambiar foto de perfil"
+            style={styles.camara}
+          >
+            {subiendo === 'perfil' ? (
+              <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+            ) : (
+              <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
+            )}
+          </Pressable>
+        </View>
+
+        <View style={styles.textos}>
+          <AppText variant="h6" numberOfLines={2}>
+            {user.fullname}
+          </AppText>
+          <View style={styles.fila}>
+            {puesto ? (
+              <View style={styles.dato}>
+                <AppIcon name="briefcase-outline" size={scale(14)} color={globalColors.textSecondary} />
+                <AppText variant="caption" tone="secondary" style={styles.datoTexto}>
+                  {formatearPuesto(puesto)}
+                </AppText>
+              </View>
+            ) : null}
+            {localidadLabel ? (
+              <View style={styles.dato}>
+                <AppIcon name="location-outline" size={scale(14)} color={globalColors.textSecondary} />
+                <AppText variant="caption" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
+                  {localidadLabel.toUpperCase()}
+                </AppText>
+              </View>
+            ) : null}
+          </View>
         </View>
       </View>
     </View>
@@ -135,14 +162,32 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     card: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.lg,
-      padding: spacing.lg,
       backgroundColor: c.card,
       borderRadius: borderRadius.card,
       borderWidth: 1,
       borderColor: c.border,
+      overflow: 'hidden',
+    },
+    portada: { height: ALTO_PORTADA, backgroundColor: c.accentPrimary },
+    portadaImagen: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
+    camaraPortada: {
+      position: 'absolute',
+      right: spacing.md,
+      top: spacing.md,
+      width: TAMANIO_CAMARA,
+      height: TAMANIO_CAMARA,
+      borderRadius: TAMANIO_CAMARA / 2,
+      backgroundColor: c.accentPrimary,
+      borderWidth: 2,
+      borderColor: c.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cuerpo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg,
+      padding: spacing.lg,
     },
     avatarContenedor: { width: TAMANIO_AVATAR, height: TAMANIO_AVATAR },
     avatar: {
