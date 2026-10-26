@@ -1,12 +1,13 @@
 // Perfil > Extensión: tipos, mapeo, payload y validación de las actividades de extensión.
 // Port de Portal-Austral-Dev -> perfil/extension/page.tsx, hooks/useGetActividadesDeExtension.ts,
-// hooks/useCargarActividadExtension.ts, columns/columnsActividadesExtension.tsx y
+// hooks/useCargarActividadExtension.ts, hooks/useGetUnidadOrganizativa.ts, columns/columnsActividadesExtension.tsx y
 // perfil/_components/extension/modales/ModalExtension.tsx.
 import * as yup from 'yup';
 import { aFechaApi } from '../legajo/fechas';
 import type { Opcion, OpcionSelect } from '../legajo/tipos';
 import {
   esFechaFutura,
+  FV,
   fechaDeFila,
   fechaOpcional,
   fechaRequerida,
@@ -21,21 +22,30 @@ export interface ActividadExtension {
   id: string;
   actividad: string;
   unidadAcademica: Opcion;
+  /** Texto libre heredado: el portal ya no lo edita, pero lo conserva y lo reenvía al guardar. */
   otraUnidadAcademica: string;
+  /** Lookup "Otra entidad académica" (new_otraentidadacademica); null si no hay. */
+  otraEntidadAcademica: OpcionSelect | null;
   dedicacion: string;
   fechaInicio: Date | null;
   fechaFin: Date | null;
 }
 
-export const mapearActividadExtension = (fila: Fila): ActividadExtension => ({
-  id: texto(fila?.new_actividadesdeextensionid),
-  actividad: texto(fila?.new_actividad),
-  unidadAcademica: opcionDeFila(fila, '_new_unidadacademica1_value'),
-  otraUnidadAcademica: texto(fila?.new_unidadacademicaotro),
-  dedicacion: texto(fila?.new_dedicacionhorariaanual),
-  fechaInicio: fechaDeFila(fila, 'new_fechadeinicio'),
-  fechaFin: fechaDeFila(fila, 'new_fechadefinalizacion'),
-});
+export const mapearActividadExtension = (fila: Fila): ActividadExtension => {
+  const otraId = fila?._new_otraentidadacademica_value;
+  return {
+    id: texto(fila?.new_actividadesdeextensionid),
+    actividad: texto(fila?.new_actividad),
+    unidadAcademica: opcionDeFila(fila, '_new_unidadacademica1_value'),
+    otraUnidadAcademica: texto(fila?.new_unidadacademicaotro),
+    otraEntidadAcademica: otraId
+      ? { value: texto(otraId), label: texto(fila?.[`_new_otraentidadacademica_value${FV}`]) }
+      : null,
+    dedicacion: texto(fila?.new_dedicacionhorariaanual),
+    fechaInicio: fechaDeFila(fila, 'new_fechadeinicio'),
+    fechaFin: fechaDeFila(fila, 'new_fechadefinalizacion'),
+  };
+};
 
 /** Unidad académica / organizativa del catálogo (new_unidadorganigrama). */
 export const mapearUnidadAcademica = (fila: Fila): OpcionSelect => ({
@@ -43,10 +53,34 @@ export const mapearUnidadAcademica = (fila: Fila): OpcionSelect => ({
   label: texto(fila?.new_name),
 });
 
+// Sin acentos ni mayúsculas (sin normalize/\u: el motor de la app no garantiza las propiedades Unicode).
+const normalizar = (valor: unknown): string =>
+  texto(valor)
+    .trim()
+    .toLowerCase()
+    .replace(/[áàä]/g, 'a')
+    .replace(/[éèë]/g, 'e')
+    .replace(/[íìï]/g, 'i')
+    .replace(/[óòö]/g, 'o')
+    .replace(/[úùü]/g, 'u');
+
+const NOMBRES_OTRAS_ENTIDADES = ['otra', 'otras entidades academicas'];
+
+/**
+ * ¿La opción elegida es "Otras Entidades Académicas"? El BO la llamaba "Otra" hasta el Requerimiento Cambios 2 y un
+ * ambiente sin el cambio todavía la llama así: valen los dos nombres (esOtrasEntidadesAcademicas del portal,
+ * hooks/useGetUnidadOrganizativa.ts). Acepta la opción { value, label } o el texto suelto.
+ */
+export const esOtrasEntidadesAcademicas = (opcion: unknown): boolean => {
+  const etiqueta = typeof opcion === 'string' ? opcion : (opcion as { label?: unknown } | null | undefined)?.label;
+  return NOMBRES_OTRAS_ENTIDADES.includes(normalizar(etiqueta));
+};
+
 export interface FormularioActividadExtension {
   actividad: string;
   unidadAcademica: OpcionONull;
   otraUnidadAcademica: string;
+  otraEntidadAcademica: OpcionONull;
   dedicacion: string;
   fechaInicio: Date | null;
   fechaFin: Date | null;
@@ -71,6 +105,9 @@ export const actividadAFormulario = (
     actividad: a?.actividad ?? '',
     unidadAcademica: unidad,
     otraUnidadAcademica: a?.otraUnidadAcademica ?? '',
+    otraEntidadAcademica: a?.otraEntidadAcademica
+      ? { value: a.otraEntidadAcademica.value, label: a.otraEntidadAcademica.label }
+      : null,
     dedicacion: a?.dedicacion ?? '',
     fechaInicio: a?.fechaInicio ?? null,
     fechaFin: a?.fechaFin ?? null,
@@ -79,7 +116,9 @@ export const actividadAFormulario = (
 
 /**
  * Cuerpo de POST / PUT api/hrfactors/actividadesextension (useCargarActividadesExtension del portal).
- * Al editar se manda también `clear_new_fechadefinalizacion` cuando la fecha de fin quedó vacía.
+ * - `new_otraentidadacademica` va solo con "Otras Entidades Académicas" elegida; con cualquier otra entidad va vacío y la
+ *   API limpia la que hubiera quedado de antes.
+ * - Al editar se manda también `clear_new_fechadefinalizacion` cuando la fecha de fin quedó vacía.
  */
 export const armarPayloadActividad = (
   empleadoId: string,
@@ -94,17 +133,18 @@ export const armarPayloadActividad = (
   new_fechadefinalizacion: d.fechaFin ? aFechaApi(d.fechaFin) : null,
   new_unidadacademica: d.unidadAcademica?.value || '',
   new_unidadacademicaotro: d.otraUnidadAcademica || '',
+  new_otraentidadacademica: esOtrasEntidadesAcademicas(d.unidadAcademica) ? (d.otraEntidadAcademica?.value ?? '') : '',
   ...(id ? { clear_new_fechadefinalizacion: !d.fechaFin } : {}),
 });
 
 export const esquemaActividadExtension = yup.object({
   actividad: yup.string().trim().max(100, 'Máximo 100 caracteres').required('La actividad es requerida'),
-  unidadAcademica: opcionRequerida('La unidad académica es requerida'),
-  otraUnidadAcademica: yup
-    .string()
-    .max(200, 'Máximo 200 caracteres')
-    .test('otra-unidad', 'Otra unidad es requerida', function (valor) {
-      return this.parent.unidadAcademica?.label !== 'Otra' || Boolean(valor && valor.trim());
+  unidadAcademica: opcionRequerida('La entidad académica es requerida'),
+  otraEntidadAcademica: yup
+    .object()
+    .nullable()
+    .test('otra-entidad', 'La otra entidad académica es requerida', function (valor) {
+      return !esOtrasEntidadesAcademicas(this.parent.unidadAcademica) || Boolean(valor && (valor as any).value);
     }),
   dedicacion: yup
     .string()

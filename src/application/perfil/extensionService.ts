@@ -9,6 +9,7 @@ import {
 import {
   escribirActividadExtension,
   leerActividadesExtension,
+  leerOtrasEntidadesAcademicas,
   leerUnidadesAcademicas,
 } from '../../infrastructure/perfil/extensionApi';
 import { useAuthStore } from '../../presentation/stores/authStore';
@@ -41,10 +42,27 @@ const cargarUnidades = async (): Promise<void> => {
   store().fijar({ unidades: filas.map(mapearUnidadAcademica) });
 };
 
-/** Lo que lee la pantalla al abrirse: las actividades y el catálogo de unidades. */
+/**
+ * Las opciones de "Otra entidad académica" se piden una vez por sesión y, como en el portal, un fallo se ignora en
+ * silencio: no marca la pantalla con error (solo quedaría vacío ese selector).
+ */
+const cargarOtrasEntidades = async (): Promise<void> => {
+  if (store().otrasEntidades.length > 0) return;
+  try {
+    const filas = await leerOtrasEntidadesAcademicas();
+    if (Array.isArray(filas)) store().fijar({ otrasEntidades: (filas as Fila[]).map(mapearUnidadAcademica) });
+  } catch {
+    // Igual que el portal: sin opciones, no se bloquea el resto.
+  }
+};
+
+/** Lo que lee la pantalla al abrirse: las actividades y los catálogos de entidades. */
 export const cargarExtension = async (): Promise<void> => {
   store().fijarEstado({ cargando: true, error: false });
-  const resultados = await Promise.allSettled([cargarActividadesExtension(), cargarUnidades()]);
+  const [resultados] = await Promise.all([
+    Promise.allSettled([cargarActividadesExtension(), cargarUnidades()]),
+    cargarOtrasEntidades(),
+  ]);
   store().fijarEstado({
     cargando: false,
     cargado: true,

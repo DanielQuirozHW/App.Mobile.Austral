@@ -9,6 +9,7 @@ import { mensajeDeErrorApi } from '../../../config/api/apiError';
 import { aFechaVisible } from '../../../domain/legajo/fechas';
 import {
   actividadAFormulario,
+  esOtrasEntidadesAcademicas,
   esquemaActividadExtension,
   type ActividadExtension,
   type FormularioActividadExtension,
@@ -34,6 +35,7 @@ const SUB_EDITAR = 'Modifica la información de la actividad de extensión';
 
 export const ModalExtension: React.FC<Props> = ({ modo, item, onClose }) => {
   const unidades = useExtensionStore((s) => s.unidades);
+  const otrasEntidades = useExtensionStore((s) => s.otrasEntidades);
   const [guardando, setGuardando] = useState(false);
   const nuevo = modo === 'nuevo';
   const valoresIniciales = useMemo(() => actividadAFormulario(item, unidades), [item, unidades]);
@@ -68,8 +70,10 @@ export const ModalExtension: React.FC<Props> = ({ modo, item, onClose }) => {
       <ModalPerfil modo="ver" titulo={TITULO} subtituloNuevo={SUB_NUEVO} subtituloEditar={SUB_EDITAR} onClose={onClose}>
         <View style={{ gap: 8 }}>
           <FilaDato label="Actividad" valor={item.actividad} />
-          <FilaDato label="Unidad Académica" valor={item.unidadAcademica.label} />
-          {item.otraUnidadAcademica ? <FilaDato label="Otra unidad académica" valor={item.otraUnidadAcademica} /> : null}
+          <FilaDato label="Entidad Académica" valor={item.unidadAcademica.label} />
+          {esOtrasEntidadesAcademicas(item.unidadAcademica) && item.otraEntidadAcademica ? (
+            <FilaDato label="Otra entidad académica" valor={item.otraEntidadAcademica.label} />
+          ) : null}
           <FilaDato label="Dedicación horaria anual" valor={item.dedicacion} />
           <FilaDato label="Fecha de inicio" valor={aFechaVisible(item.fechaInicio)} />
           <FilaDato label="Fecha de finalización" valor={aFechaVisible(item.fechaFin)} />
@@ -94,19 +98,19 @@ export const ModalExtension: React.FC<Props> = ({ modo, item, onClose }) => {
         <FormSelectField
           control={control}
           name="unidadAcademica"
-          label="Unidad Académica"
+          label="Entidad Académica"
           required
           options={unidades as any}
           buscable
         />
-        {unidad?.label === 'Otra' ? (
-          <FormTextField
+        {esOtrasEntidadesAcademicas(unidad) ? (
+          <FormSelectField
             control={control}
-            name="otraUnidadAcademica"
-            label="Otra unidad académica"
+            name="otraEntidadAcademica"
+            label="Otra entidad académica"
             required
-            maximo={200}
-            mostrarContador
+            options={otrasEntidades as any}
+            buscable
           />
         ) : null}
         <FormTextField

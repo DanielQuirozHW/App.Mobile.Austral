@@ -1,4 +1,4 @@
-// Datos de Perfil > Extensión (actividades de extensión y catálogo de unidades académicas).
+// Datos de Perfil > Extensión (actividades de extensión y catálogos de entidades académicas).
 import { create } from 'zustand';
 import type { OpcionSelect } from '../../domain/legajo/tipos';
 import type { ActividadExtension } from '../../domain/perfil/extension';
@@ -6,6 +6,8 @@ import type { ActividadExtension } from '../../domain/perfil/extension';
 interface DatosExtension {
   actividades: ActividadExtension[];
   unidades: OpcionSelect[];
+  /** Opciones de "Otra entidad académica". */
+  otrasEntidades: OpcionSelect[];
 }
 
 interface ExtensionState extends DatosExtension {
@@ -21,10 +23,12 @@ interface ExtensionState extends DatosExtension {
 export const useExtensionStore = create<ExtensionState>()((set) => ({
   actividades: [],
   unidades: [],
+  otrasEntidades: [],
   cargando: false,
   cargado: false,
   error: false,
   fijar: (parcial) => set(parcial),
   fijarEstado: (parcial) => set(parcial),
-  reiniciar: () => set({ actividades: [], unidades: [], cargando: false, cargado: false, error: false }),
+  reiniciar: () =>
+    set({ actividades: [], unidades: [], otrasEntidades: [], cargando: false, cargado: false, error: false }),
 }));
