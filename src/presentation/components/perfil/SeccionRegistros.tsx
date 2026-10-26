@@ -1,14 +1,17 @@
 // Sección de Perfil con listado de registros y acciones Ver / Editar / Eliminar. Equivale a las secciones con grilla
 // del portal (Portal-Austral-Dev -> perfil/formacion y perfil/trayectoria): botón de alta, filas con acciones y
 // diálogo "Confirmar eliminación".
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { mensajeDeErrorDeBaja } from '../../../config/api/apiError';
 import type { Modo } from '../../../domain/perfil/comun';
-import { spacing } from '../../utils/responsive';
+import { ColorTokens } from '../../theme/colors';
+import { useThemeColors } from '../../theme/theme';
+import { borderRadius, iconSizes, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
 import { AccionIcono } from '../AccionIcono';
 import { AppButton } from '../AppButton';
+import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { InfoAlert } from '../InfoAlert';
@@ -66,6 +69,8 @@ export function SeccionRegistros<T>({
   onEliminar,
   renderModal,
 }: SeccionRegistrosProps<T>): React.ReactElement {
+  const { globalColors } = useThemeColors();
+  const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const [modal, setModal] = useState<{ modo: Modo; item?: T } | null>(null);
   const [aEliminar, setAEliminar] = useState<T | null>(null);
   const [eliminando, setEliminando] = useState(false);
@@ -97,7 +102,8 @@ export function SeccionRegistros<T>({
 
       {items.length === 0 ? (
         <View style={styles.vacio}>
-          <AppText variant="body2" tone="secondary">
+          <AppIcon name="folder-open-outline" size={iconSizes.xl} color={globalColors.textTertiary} />
+          <AppText variant="body2" tone="secondary" style={styles.textoVacio}>
             {textoVacio}
           </AppText>
         </View>
@@ -155,7 +161,18 @@ export function SeccionRegistros<T>({
   );
 }
 
-const styles = StyleSheet.create({
-  lista: { gap: spacing.md },
-  vacio: { alignItems: 'center', paddingVertical: spacing.lg },
-});
+const createStyles = (c: ColorTokens) =>
+  StyleSheet.create({
+    lista: { gap: spacing.md },
+    vacio: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xl,
+      paddingHorizontal: spacing.lg,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: c.border,
+    },
+    textoVacio: { textAlign: 'center' },
+  });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { useThemeColors } from '../theme/theme';
-import { iconSizes, platformSpecific, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, spacing } from '../utils/responsive';
 import { AppIcon, type AppIconName } from './AppIcon';
 
 interface AccionIconoProps {
@@ -13,9 +13,11 @@ interface AccionIconoProps {
   disabled?: boolean;
 }
 
-/** Botón de ícono para las acciones de una fila. */
+/** Botón de ícono para las acciones de una fila: fondo suave del color de la acción (primario o peligro). */
 export const AccionIcono: React.FC<AccionIconoProps> = ({ icono, etiqueta, onPress, peligro = false, disabled = false }) => {
   const { globalColors } = useThemeColors();
+  const color = peligro ? globalColors.danger : globalColors.accentPrimary;
+  const fondo = peligro ? globalColors.dangerLight : globalColors.accentPrimaryMuted;
   return (
     <Pressable
       onPress={onPress}
@@ -25,9 +27,9 @@ export const AccionIcono: React.FC<AccionIconoProps> = ({ icono, etiqueta, onPre
       accessibilityState={{ disabled }}
       hitSlop={spacing.xs}
       android_ripple={{ color: globalColors.hairline, borderless: true }}
-      style={[styles.boton, disabled && styles.deshabilitado]}
+      style={({ pressed }) => [styles.boton, { backgroundColor: fondo }, pressed && styles.presionado, disabled && styles.deshabilitado]}
     >
-      <AppIcon name={icono} size={iconSizes.lg} color={peligro ? globalColors.danger : globalColors.accentPrimary} />
+      <AppIcon name={icono} size={iconSizes.lg} color={color} />
     </Pressable>
   );
 };
@@ -36,8 +38,10 @@ const styles = StyleSheet.create({
   boton: {
     minWidth: platformSpecific.minTouchTarget,
     minHeight: platformSpecific.minTouchTarget,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  presionado: { opacity: 0.7 },
   deshabilitado: { opacity: 0.4 },
 });
