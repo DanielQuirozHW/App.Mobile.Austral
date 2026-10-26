@@ -40,12 +40,10 @@ export const ExtensionScreen: React.FC = () => {
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
-      <View style={styles.titulos}>
-        <AppText variant="h5">Extensión</AppText>
-        <AppText variant="body2" tone="secondary">
-          Aquí podrá cargar y actualizar la información relacionada a sus actividades de extensión.
-        </AppText>
-      </View>
+      {/* El título lo muestra el encabezado de la navegación: acá solo la bajada del portal. */}
+      <AppText variant="body2" tone="secondary">
+        Aquí podrá cargar y actualizar la información relacionada a sus actividades de extensión.
+      </AppText>
 
       {error ? (
         <View style={styles.aviso}>
@@ -81,10 +79,10 @@ export const ExtensionScreen: React.FC = () => {
   );
 };
 
+// El margen de la pantalla ya lo pone Screen: acá solo el espacio entre bloques.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
-    titulos: { gap: spacing.xs },
+    contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     aviso: { gap: spacing.sm },
   });

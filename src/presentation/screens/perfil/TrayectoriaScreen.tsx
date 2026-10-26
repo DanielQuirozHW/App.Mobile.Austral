@@ -21,6 +21,10 @@ import { useThemeColors } from '../../theme/theme';
 import { borderRadius, platformSpecific, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
 
+interface ValoresTrayectoria {
+  linkLinkedin: string;
+}
+
 export const TrayectoriaScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
@@ -30,7 +34,7 @@ export const TrayectoriaScreen: React.FC = () => {
   const empleado = useTrayectoriaStore((s) => s.empleado);
   const [guardando, setGuardando] = useState(false);
 
-  const { control, handleSubmit, reset, formState } = useForm<any>({
+  const { control, handleSubmit, reset, formState } = useForm<ValoresTrayectoria>({
     mode: 'onChange',
     defaultValues: { linkLinkedin: '' },
   });
@@ -48,7 +52,7 @@ export const TrayectoriaScreen: React.FC = () => {
     if (empleado) reset({ linkLinkedin: empleado.linkLinkedin });
   }, [empleado, reset]);
 
-  const guardar = handleSubmit(async (valores: any) => {
+  const guardar = handleSubmit(async (valores) => {
     setGuardando(true);
     const idToast = toast.loading('Procesando…');
     try {
@@ -74,12 +78,10 @@ export const TrayectoriaScreen: React.FC = () => {
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
-      <View style={styles.titulos}>
-        <AppText variant="h5">Trayectoria profesional</AppText>
-        <AppText variant="body2" tone="secondary">
-          Aquí podrá cargar y actualizar su trayectoria profesional.
-        </AppText>
-      </View>
+      {/* El título lo muestra el encabezado de la navegación: acá solo la bajada del portal. */}
+      <AppText variant="body2" tone="secondary">
+        Aquí podrá cargar y actualizar su trayectoria profesional.
+      </AppText>
 
       {error ? (
         <View style={styles.aviso}>
@@ -112,11 +114,11 @@ export const TrayectoriaScreen: React.FC = () => {
   );
 };
 
+// El margen de la pantalla ya lo pone Screen: acá solo el espacio entre bloques.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
-    titulos: { gap: spacing.xs },
+    contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     aviso: { gap: spacing.sm },
     tarjeta: {
       backgroundColor: c.card,
