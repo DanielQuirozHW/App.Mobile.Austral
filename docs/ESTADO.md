@@ -1,10 +1,10 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (MVP de demostración: menú lateral, modo de color y Ajustes hechos; módulos fuera de la demo vacíos; decisión 92).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (módulo 1 de la demo = Mi perfil completo; campana con pendientes; pantalla de error; márgenes de Perfil corregidos; decisión 93).
 
 ## 0. ALCANCE REAL (leer primero)
 
-**La app es un MVP de DEMOSTRACIÓN para que Austral decida si le gusta. NO es la idea migrar todos los módulos.** Lo que tiene que estar muy bien es lo general (estructura, configuración, menús, modo de color, notificaciones, aspecto del portal) y alcanzan 1 o 2 módulos de prueba (hoy: **Datos personales** y **Licencias y vacaciones**). El resto de los módulos está en el menú pero **vacío**. Detalle, reporte de lo terminado y lo que queda en [`ALCANCE-MVP.md`](ALCANCE-MVP.md).
+**La app es un MVP de DEMOSTRACIÓN para que Austral decida si le gusta. NO es la idea migrar todos los módulos.** Lo que tiene que estar muy bien es lo general (estructura, configuración, menús, modo de color, notificaciones, aspecto del portal) y alcanzan dos módulos de prueba: **módulo 1 = Mi perfil completo** (Datos personales, Documentación, Formación, Trayectoria, Extensión, Gestión académica, Docencia, Investigación) y **módulo 2 = Licencias y vacaciones**. Plan de trabajo está en el menú pero **vacío**. Detalle, reporte de lo terminado y lo que queda en [`ALCANCE-MVP.md`](ALCANCE-MVP.md).
 
 **No se construyen módulos nuevos ni mejoras de módulos salvo pedido expreso de Daniel. Si pregunta "con qué seguimos", se le da un listado con una recomendación y se espera su respuesta: no se programa.**
 
@@ -13,8 +13,8 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 1. Leer `CLAUDE.md` (reglas y mapa del repo), `docs/ALCANCE-MVP.md` y este archivo. Después `docs/DECISIONES.md` y `docs/DECISIONES_89_en_adelante.md`, `docs/PENDIENTES.md` y, según el tema, el archivo de `docs/contexto/`.
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
-4. **No se construye nada nuevo sin que Daniel lo elija** (sección 0). Lo que sí vale: pulir lo general y los 1 o 2 módulos de la demo.
-5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **93**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
+4. **No se construye nada nuevo sin que Daniel lo elija** (sección 0). Lo que sí vale: pulir lo general y los módulos de la demo.
+5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **94**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
 
@@ -27,20 +27,21 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 | 5 | Foto de perfil, foto de portada y cabecera del legajo; iniciales con la fórmula del portal; borde del avatar de 3 px | 45, 47, 88, 92 | `contexto/roles-puesto-y-fotos.md` |
 | 6 | Datos personales completo (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia) con aviso de cambios sin guardar | 37 a 44 | `contexto/datos-personales.md` |
 | 8 | Licencias y vacaciones (licencias, vacaciones, calendario, equipo) | 48 a 56 | `contexto/licencias-y-vacaciones.md` |
-| 9 a 12 | Perfil completo: Formación, Trayectoria, Extensión, Gestión académica, Docencia, Investigación (Afiliaciones, Actividad I+D, Resultados / Impacto I+D). Sin Promoción > Postulación | 57 a 74, 87 | `contexto/perfil.md` |
+| 9 a 12 | Perfil completo: Formación, Trayectoria, Extensión, Gestión académica, Docencia, Investigación (Afiliaciones, Actividad I+D, Resultados / Impacto I+D). Sin Promoción > Postulación | 57 a 74, 87, 93 | `contexto/perfil.md` |
 | 13 | Plan de Trabajo (solo docente): lista, detalle, 18 secciones de registros, resumen con adjuntos y envío | 75 a 87 | `contexto/plan-de-trabajo.md` |
-| 14 | Tablero de Inicio real: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día, próximos feriados y accesos | 89, 92 | `contexto/inicio.md` |
+| 14 | Tablero de Inicio real: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día, próximos feriados y accesos | 89, 92, 93 | `contexto/inicio.md` |
 | 15 | Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas | 90 | `contexto/notificaciones.md` |
 | 16 | Documentación del legajo: documentos requeridos del empleado, "Ver adjuntos" y "Cargar archivo" | 91 | `contexto/documentacion.md` |
-| 17 | **MVP de demostración: menú lateral, selector de modo de color (Sistema / Claro / Oscuro), pantalla Ajustes, módulos fuera de la demo vacíos, corrección de la zona segura bajo el encabezado** | 92 | `docs/DECISIONES_89_en_adelante.md` (propio de la app; el portal no tiene estas pantallas) |
+| 17 | MVP de demostración: menú lateral, selector de modo de color (Sistema / Claro / Oscuro), pantalla Ajustes, módulos fuera de la demo vacíos, corrección de la zona segura bajo el encabezado | 92 | `docs/DECISIONES_89_en_adelante.md` (propio de la app; el portal no tiene estas pantallas) |
+| 18 | **Módulo 1 = Mi perfil completo: pantalla `MiPerfil`, menú reagrupado, campana con pendientes, pantalla de error general, márgenes y títulos de Perfil corregidos** | 93 | `docs/DECISIONES_89_en_adelante.md` (propio de la app) |
 
-**Navegación actual:** menú lateral (botón de hamburguesa en el encabezado de cada pantalla y en la barra de Inicio) con todos los módulos agrupados. **Con contenido en la demo:** Inicio, Notificaciones, Datos personales (docente / codocente), Licencias y vacaciones y Ajustes. **En el menú pero vacíos:** Documentación, Plan de trabajo (solo docente), Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia e Investigación. El catálogo está en `src/presentation/navigation/modulosMenu.ts` (`enDemo`).
+**Navegación actual:** menú lateral (botón de hamburguesa en el encabezado de cada pantalla y en la barra de Inicio) con los módulos en cuatro grupos: Principal (Inicio, Notificaciones), Mi perfil (Mi perfil, Datos personales para docente / codocente, Documentación, Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia, Investigación), Gestión (Licencias y vacaciones; Plan de trabajo solo docente, **vacío**) y Cuenta (Ajustes). Inicio tiene accesos a Mi perfil y a Licencias y vacaciones. El catálogo está en `src/presentation/navigation/modulosMenu.ts` (`enDemo`, `accesoInicio`).
 
 ## 3. Qué NO está hecho
 
 **Módulos: no se hacen** (aclarado el 2026-10-26; ver sección 0). Ni las mejoras de Plan de Trabajo, Licencias y Vacaciones, ni Nombramientos y Promoción (etapa 7), ni GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación. Las notificaciones de esos módulos se muestran, pero "Ir" avisa que la sección no está disponible.
 
-**Lo general que se puede pulir (a elección de Daniel; detalle en `ALCANCE-MVP.md`):** contrastar el aspecto con los overrides del tema del portal, revisión estática del resto de `src/`, cantidad de pendientes en la campana de Inicio, tiempo real de notificaciones (dependencia nueva).
+**Lo general que se puede pulir (a elección de Daniel; detalle en `ALCANCE-MVP.md`):** contrastar el aspecto con los overrides del tema del portal, revisión estática del resto de `src/`, márgenes y títulos de los componentes internos de Investigación y `components/perfil/*`, tiempo real de notificaciones (dependencia nueva).
 
 **Otros pendientes:**
 
@@ -48,7 +49,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 - Lectura de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) del portal, por si hace falta otra variable de entorno.
 - Leer el guard del layout del dashboard del portal (`src/app/(dashboard)/layout.tsx` o equivalente) para confirmar qué rutas ve cada rol (afecta a Documentación y Notificaciones, hoy abiertas a todos los roles por inferencia).
 - Lo que figura como inferido o sin verificar está en `docs/PENDIENTES.md` (tabla "Falta verificar"). Cada punto dice en qué archivo del código está.
-- Revisión estática archivo por archivo del resto de `src/` (solo se revisaron la configuración, el Plan de Trabajo y lo escrito para el menú y Ajustes; ver `docs/VERIFICACIONES.md`).
+- Revisión estática archivo por archivo del resto de `src/` (solo se revisaron la configuración, el Plan de Trabajo y lo escrito para el menú, Ajustes y Mi perfil; ver `docs/VERIFICACIONES.md`).
 
 ## 4. Orden de trabajo acordado con Daniel (2026-10-26)
 
@@ -56,10 +57,11 @@ Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo
 
 1. **Configuración y estructura** — hecho: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
 2. **Cerrar los puntos inferidos leyendo el portal** — hecho (decisión 87). Lo que sigue inferido está en `PENDIENTES.md`.
-3. **UI**: iniciales del avatar y foto de portada — hechas (decisión 88); borde del avatar de la cabecera (3 px azulLight) — hecho (decisión 92). **Falta**: contrastar el aspecto con los overrides del tema del portal (`src/@core/theme/overrides`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`, hoy módulo vacío en la demo).
+3. **UI**: iniciales del avatar y foto de portada — hechas (decisión 88); borde del avatar de la cabecera (3 px azulLight) — hecho (decisión 92); márgenes y títulos de Perfil — hechos (decisión 93). **Falta**: contrastar el aspecto con los overrides del tema del portal (`src/@core/theme/overrides`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`, hoy módulo vacío en la demo).
 4. **Módulos nuevos**: Tablero de Inicio (hecho, decisión 89), notificaciones (hecho, decisión 90) y Documentación (hecho, decisión 91). **Aclaración posterior de Daniel (2026-10-26): no se siguen sumando módulos ni mejoras. El objetivo es un MVP de demostración (sección 0).**
 5. **Base general de la demo** (menú, modo de color, Ajustes, módulos vacíos) — hecha por pedido de Daniel (decisión 92).
-6. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
+6. **Módulo 1 = todo el perfil, campana con pendientes, pantalla de error** — hecho por pedido de Daniel (decisión 93).
+7. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
 
 Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
 
