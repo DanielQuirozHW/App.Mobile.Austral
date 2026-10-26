@@ -1,5 +1,6 @@
 // Rutas de la app. Equivalen a las páginas del portal:
 //   Login -> (blank)/login, SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/",
+//   Notificaciones -> (dashboard)/notificaciones,
 //   DatosPersonales -> (dashboard)/legajo/datos-personales,
 //   Licencias -> (dashboard)/licencias (licencias, vacaciones, calendario y gestión del equipo),
 //   Formacion -> (dashboard)/perfil/formacion, Trayectoria -> (dashboard)/perfil/trayectoria,
@@ -14,6 +15,7 @@ export type RootStackParams = {
   Login: undefined;
   SeleccionarPuesto: undefined;
   Inicio: undefined;
+  Notificaciones: undefined;
   DatosPersonales: undefined;
   Licencias: { seccion?: 'licencias' | 'vacaciones' | 'calendario' | 'equipo' } | undefined;
   Formacion: undefined;

@@ -3,9 +3,9 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Licencias y vacaciones + Perfil (Formación,
-//                                                           Trayectoria, Extensión, Gestión académica, Docencia e
-//                                                           Investigación)
+//   - resto                                              -> Inicio + Notificaciones + Licencias y vacaciones + Perfil
+//                                                           (Formación, Trayectoria, Extensión, Gestión académica,
+//                                                           Docencia e Investigación)
 //                                                           (+ Datos personales para docente / codocente)
 //                                                           (+ Plan de trabajo solo para docente: allowedRoles
 //                                                           ["docente"] de planes-de-trabajo/page.tsx)
@@ -18,6 +18,7 @@ import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
 import { LicenciasScreen } from '../screens/licencias/LicenciasScreen';
+import { NotificacionesScreen } from '../screens/notificaciones/NotificacionesScreen';
 import { DocenciaScreen } from '../screens/perfil/DocenciaScreen';
 import { ExtensionScreen } from '../screens/perfil/ExtensionScreen';
 import { FormacionScreen } from '../screens/perfil/FormacionScreen';
@@ -66,6 +67,11 @@ export const RootNavigator: React.FC = () => {
       ) : (
         <>
           <Stack.Screen name="Inicio" component={InicioScreen} />
+          <Stack.Screen
+            name="Notificaciones"
+            component={NotificacionesScreen}
+            options={{ headerShown: true, title: 'Notificaciones', animation: 'slide_from_right' }}
+          />
           {puedeVerLegajo(role) ? (
             <Stack.Screen
               name="DatosPersonales"
