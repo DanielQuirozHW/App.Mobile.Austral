@@ -1,5 +1,5 @@
 // Alta, edición y vista de un asesoramiento académico. Port de Portal-Austral-Dev ->
-// perfil/_components/docencia/asesoramiento/ModalAsesoramiento.tsx.
+// perfil/_components/docencia/asesoramiento-academico/modales/ModalAsesoramiento.tsx.
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -66,7 +66,7 @@ export const ModalAsesoramiento: React.FC<Props> = ({ modo, item, onClose }) => 
         <View style={{ gap: 8 }}>
           <FilaDato label="Cantidad alumnos asignados" valor={item.cantidadAlumnos} />
           <FilaDato label="Año" valor={item.anio} />
-          <FilaDato label="Unidad Académica / Facultad" valor={item.unidadAcademica.label ?? ''} />
+          <FilaDato label="Entidad Académica / Facultad" valor={item.unidadAcademica.label ?? ''} />
         </View>
       </ModalPerfil>
     );
@@ -105,7 +105,7 @@ export const ModalAsesoramiento: React.FC<Props> = ({ modo, item, onClose }) => 
         <FormSelectField
           control={control}
           name="unidadAcademica"
-          label="Unidad Académica / Facultad"
+          label="Entidad Académica / Facultad"
           required
           options={unidades as any}
           buscable

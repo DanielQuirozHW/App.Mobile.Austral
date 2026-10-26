@@ -254,9 +254,10 @@ export const diaADocenciaApi = (fecha: Date | null | undefined): string | null =
 
 const dia = (f: Date): number => new Date(f.getFullYear(), f.getMonth(), f.getDate()).getTime();
 
+/** Mismo mensaje que los modales de docencia del portal. */
 const finNoAnterior = fechaOpcional().test(
   'fin-orden',
-  'La fecha de fin debe ser igual o posterior a la fecha de inicio',
+  'La fecha de fin no puede ser anterior a la fecha de inicio',
   function (valor) {
     const inicio = this.parent.fechaInicio as Date | null;
     if (!valor || !inicio) return true;
@@ -369,9 +370,9 @@ export const armarPayloadDocenciaUA = (
 });
 
 export const esquemaDocenciaUA = yup.object({
-  unidadAcademica: opcionRequerida('La unidad académica es requerida'),
+  unidadAcademica: opcionRequerida('La entidad académica es requerida'),
   nivel: opcionRequerida('El nivel es requerido'),
-  otroNivel: otroSi('nivel', 'Otro', 'El otro nivel es requerido'),
+  otroNivel: otroSi('nivel', 'Otro', 'Otro nivel es requerido.'),
   carrera: yup.string().trim().max(100, 'Máximo 100 caracteres').required('La carrera / propuesta formativa es requerida'),
   materia: yup.string().trim().max(100, 'Máximo 100 caracteres').required('La materia / área es requerida'),
   regimen: opcionRequerida('El régimen de dictado es requerido'),
@@ -380,8 +381,12 @@ export const esquemaDocenciaUA = yup.object({
     .string()
     .required('La dedicación total es requerida')
     .test('entero', 'La dedicación total debe ser un número entero', (v) => !v || Number.isInteger(Number(v)))
-    .test('minimo', 'La dedicación total debe ser mayor o igual a 1', (v) => !v || Number(v) >= 1)
-    .test('maximo', 'La dedicación total es demasiado grande', (v) => !v || Number(v) <= 100000000000),
+    .test('minimo', 'La dedicación total debe ser mayor a 0', (v) => !v || Number(v) >= 1)
+    .test(
+      'maximo',
+      'La dedicación total no puede exceder los 100 mil millones',
+      (v) => !v || Number(v) <= 100000000000,
+    ),
   modalidad: opcionRequerida('La modalidad de dictado es requerida'),
   fechaInicio: fechaRequerida('La fecha de inicio es requerida'),
   fechaFin: finNoAnterior,
@@ -473,7 +478,11 @@ export const docenciaExternaAFormulario = (
   fechaFin: d?.fechaFin ?? null,
 });
 
-/** Cuerpo de POST / PUT api/hrfactors/docenciaexterna (hooks/docencia/useCargarDocenciaExterna del portal). */
+/**
+ * Cuerpo de POST / PUT api/hrfactors/docenciaexterna (hooks/docencia/useCargarDocenciaExterna del portal).
+ * DIFERENCIA CONSCIENTE: new_otrocargo, new_otrainstitucion y cr20a_otronivel van vacíos si la opción elegida no es la
+ * "Otro/Otra" correspondiente; el portal manda siempre lo que haya quedado escrito en el campo.
+ */
 export const armarPayloadDocenciaExterna = (
   empleadoId: string,
   d: FormularioDocenciaExterna,
@@ -505,22 +514,27 @@ export const esquemaDocenciaExterna = yup.object({
     .required('La asignatura / actividad curricular es requerida'),
   carrera: yup.string().trim().max(100, 'Máximo 100 caracteres').required('La carrera / propuesta formativa es requerida'),
   institucion: opcionRequerida('La institución es requerida'),
-  otraInstitucion: otroSi('institucion', 'Otra', 'La otra institución es requerida'),
+  otraInstitucion: otroSi('institucion', 'Otra', 'Otra institución es requerida'),
   unidadAcademica: yup
     .string()
     .trim()
     .max(100, 'Máximo 100 caracteres')
     .required('La unidad académica / facultad es requerida'),
   cargo: opcionRequerida('El cargo es requerido'),
-  otroCargo: otroSi('cargo', 'Otro de nivel superior', 'El otro cargo es requerido'),
+  otroCargo: otroSi('cargo', 'Otro de nivel superior', 'Otro cargo es requerido'),
   nivel: opcionRequerida('El nivel es requerido'),
-  otroNivel: otroSi('nivel', 'Otro', 'El otro nivel es requerido'),
+  otroNivel: otroSi('nivel', 'Otro', 'Otro nivel es requerido'),
   regimen: opcionRequerida('El régimen de dictado es requerido'),
   dedicacionHoraria: yup
     .string()
     .required('La dedicación horaria es requerida')
     .test('numero', 'La dedicación horaria debe ser un número', (v) => !v || !Number.isNaN(Number(v)))
-    .test('rango', 'La dedicación horaria debe estar entre 0 y 1000', (v) => !v || (Number(v) >= 0 && Number(v) <= 1000)),
+    .test('negativa', 'La dedicación horaria no puede ser negativa', (v) => !v || Number.isNaN(Number(v)) || Number(v) >= 0)
+    .test(
+      'maxima',
+      'La dedicación horaria no puede exceder las 1000 horas',
+      (v) => !v || Number.isNaN(Number(v)) || Number(v) <= 1000,
+    ),
   dedicacion: opcionRequerida('La dedicación es requerida'),
   fechaInicio: fechaRequerida('La fecha de inicio es requerida'),
   fechaFin: finNoAnterior,
@@ -575,18 +589,25 @@ export const armarPayloadAsesoramiento = (
   new_unidadacademica: d.unidadAcademica?.value || '',
 });
 
+/** Mensajes iguales a los de perfil/_components/docencia/asesoramiento-academico/modales/ModalAsesoramiento del portal. */
 export const esquemaAsesoramiento = yup.object({
   cantidadAlumnos: yup
     .string()
-    .required('La cantidad de alumnos asignados es requerida')
-    .test('entero', 'La cantidad debe ser un número entero', (v) => !v || Number.isInteger(Number(v)))
-    .test('rango', 'La cantidad debe estar entre 1 y 999', (v) => !v || (Number(v) >= 1 && Number(v) <= 999)),
+    .required('La cantidad de alumnos asignados es obligatoria')
+    .test('entero', 'La cantidad de alumnos debe ser un número entero', (v) => !v || Number.isInteger(Number(v)))
+    .test('minimo', 'La cantidad de alumnos debe ser mayor a 0', (v) => !v || Number.isNaN(Number(v)) || Number(v) >= 1)
+    .test(
+      'maximo',
+      'La cantidad de alumnos no puede ser mayor a 999',
+      (v) => !v || Number.isNaN(Number(v)) || Number(v) <= 999,
+    ),
   anio: yup
     .string()
-    .required('El año es requerido')
-    .test('cuatro', 'El año debe tener 4 dígitos', (v) => !v || /^\d{4}$/.test(v))
-    .test('rango', 'El año debe estar entre 2000 y 2100', (v) => !v || (Number(v) >= 2000 && Number(v) <= 2100)),
-  unidadAcademica: opcionRequerida('La unidad académica es requerida'),
+    .required('El año es obligatorio')
+    .test('cuatro', 'El año debe tener exactamente 4 dígitos', (v) => !v || /^\d{4}$/.test(v))
+    .test('maximo', 'El año no puede ser mayor a 2100', (v) => !v || Number.isNaN(Number(v)) || Number(v) <= 2100)
+    .test('minimo', 'El año no puede ser menor a 2000', (v) => !v || Number.isNaN(Number(v)) || Number(v) >= 2000),
+  unidadAcademica: opcionRequerida('La entidad académica es obligatoria'),
 });
 
 // Reexportes que usa la pantalla.

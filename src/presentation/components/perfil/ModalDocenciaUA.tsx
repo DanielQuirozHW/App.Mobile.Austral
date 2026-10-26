@@ -1,5 +1,5 @@
 // Alta, edición y vista de una docencia en la Universidad Austral. Port de Portal-Austral-Dev ->
-// perfil/_components/docencia/docencia/ModalDocenciaUAustral.tsx.
+// perfil/_components/docencia/docencia/modales.js/ModalDocenciaAustral.tsx.
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -79,7 +79,7 @@ export const ModalDocenciaUA: React.FC<Props> = ({ modo, item, onClose }) => {
     return (
       <ModalPerfil modo="ver" titulo={TITULO} subtituloNuevo={SUB_NUEVO} subtituloEditar={SUB_EDITAR} onClose={onClose}>
         <View style={{ gap: 8 }}>
-          <FilaDato label="Unidad Académica" valor={item.unidadAcademica.label ?? ''} />
+          <FilaDato label="Entidad Académica" valor={item.unidadAcademica.label ?? ''} />
           <FilaDato label="Nivel" valor={item.nivel.label ?? ''} />
           {item.otroNivel ? <FilaDato label="Otro nivel" valor={item.otroNivel} /> : null}
           <FilaDato label="Carrera / Propuesta formativa" valor={item.carrera} />
@@ -110,7 +110,7 @@ export const ModalDocenciaUA: React.FC<Props> = ({ modo, item, onClose }) => {
         <FormSelectField
           control={control}
           name="unidadAcademica"
-          label="Unidad Académica"
+          label="Entidad Académica"
           required
           options={unidades as any}
           buscable
