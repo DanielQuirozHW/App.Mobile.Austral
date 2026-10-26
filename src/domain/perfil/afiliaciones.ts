@@ -164,15 +164,14 @@ const siNoDeValor = (valor: unknown): OpcionONull => {
 
 const dia = (f: Date): number => new Date(f.getFullYear(), f.getMonth(), f.getDate()).getTime();
 
-const finNoAnterior = fechaOpcional().test(
-  'fin-orden',
-  'La fecha de fin debe ser igual o posterior a la fecha de inicio',
-  function (valor) {
+const finNoAnteriorCon = (mensaje: string) =>
+  fechaOpcional().test('fin-orden', mensaje, function (valor) {
     const inicio = this.parent.fechaInicio as Date | null;
     if (!valor || !inicio) return true;
     return dia(valor) >= dia(inicio);
-  },
-);
+  });
+
+const finNoAnterior = finNoAnteriorCon('La fecha de fin debe ser igual o posterior a la fecha de inicio');
 
 const inicioNoPosterior = (mensaje: string) =>
   fechaRequerida('La fecha de inicio es obligatoria').test('inicio-orden', mensaje, function (valor) {
@@ -181,10 +180,16 @@ const inicioNoPosterior = (mensaje: string) =>
     return dia(valor) <= dia(fin);
   });
 
-const otroSiValor = (campo: string, valor: number, mensaje: string, maximo = 100) =>
+const otroSiValor = (
+  campo: string,
+  valor: number,
+  mensaje: string,
+  mensajeMaximo = 'Máximo 100 caracteres',
+  maximo = 100,
+) =>
   yup
     .string()
-    .max(maximo, `Máximo ${maximo} caracteres`)
+    .max(maximo, mensajeMaximo)
     .test(`otro-${campo}`, mensaje, function (v) {
       return !esValor(this.parent[campo], valor) || Boolean(v && v.trim());
     });
@@ -328,8 +333,9 @@ export const armarPayloadPertenencia = (
   };
 };
 
+/** Textos de error iguales a los de ModalPertenencia del portal. */
 export const esquemaPertenencia = yup.object({
-  centro: opcionRequerida('Debe indicar si pertenece a un centro / instituto de investigación / HUA de la UA'),
+  centro: opcionRequerida('La pertenencia a centro/instituto es obligatoria'),
   pertenencia: opcionOpcional().test('pertenencia-obligatoria', 'El tipo de pertenencia es obligatorio', function (v) {
     return !esValor(this.parent.centro, 1) || tieneValor(v as OpcionLaxa);
   }),
@@ -339,8 +345,8 @@ export const esquemaPertenencia = yup.object({
     .test('texto-obligatorio', 'La pertenencia es obligatoria', function (v) {
       return !esValor(this.parent.centro, 0) || Boolean(v && v.trim());
     }),
-  fechaInicio: inicioNoPosterior('La fecha de inicio no puede ser posterior a la fecha de fin'),
-  fechaFin: finNoAnterior,
+  fechaInicio: inicioNoPosterior('La fecha de inicio no puede ser posterior a la fecha fin'),
+  fechaFin: finNoAnteriorCon('La fecha de fin no puede ser anterior a la fecha de inicio'),
 });
 
 // ---------------------------------------------------------------------------
@@ -417,24 +423,30 @@ export const armarPayloadJurado = (empleadoId: string, f: FormularioJurado, id?:
   new_observaciones: f.observaciones || '',
 });
 
+/** Textos de error iguales a los de ModalJuradoTribunal del portal. */
 export const esquemaJurado = yup.object({
-  tipoActividad: opcionRequerida('El tipo de actividad es obligatorio'),
-  otraActividad: otroSiValor('tipoActividad', TIPO_ACTIVIDAD_OTRO, 'Debe especificar el tipo de actividad'),
-  fechaInicio: inicioNoPosterior('La fecha de inicio no puede ser posterior a la fecha de fin').test(
+  tipoActividad: opcionRequerida('El tipo de actividad de evaluación es obligatorio'),
+  otraActividad: otroSiValor(
+    'tipoActividad',
+    TIPO_ACTIVIDAD_OTRO,
+    'Debe especificar el tipo de actividad',
+    'El tipo de actividad no puede exceder 100 caracteres',
+  ),
+  fechaInicio: inicioNoPosterior('La fecha de inicio no puede ser superior a la fecha de fin.').test(
     'inicio-no-futura',
     'La fecha de inicio no puede ser mayor a la fecha actual.',
     (valor) => !valor || !esFechaFutura(valor),
   ),
-  fechaFin: finNoAnterior,
+  fechaFin: finNoAnteriorCon('La fecha de fin no puede ser anterior a la fecha de inicio.'),
   institucion: yup
     .string()
     .trim()
-    .max(100, 'Máximo 100 caracteres')
-    .required('La institución convocante de la evaluación es obligatoria'),
+    .max(100, 'La institución convocante no puede exceder 100 caracteres')
+    .required('La institución convocante es obligatoria'),
   rol: opcionRequerida('El rol es obligatorio'),
-  otroRol: otroSiValor('rol', ROL_OTRO, 'Debe especificar el rol'),
-  pais: opcionRequerida('El país es obligatorio'),
-  ciudad: yup.string().trim().max(100, 'Máximo 100 caracteres').required('La ciudad es obligatoria'),
+  otroRol: otroSiValor('rol', ROL_OTRO, 'Debe especificar el rol', 'El rol no puede exceder 100 caracteres'),
+  pais: opcionRequerida('El País es obligatorio.'),
+  ciudad: yup.string().trim().max(100, 'La ciudad no puede exceder 100 caracteres').required('La ciudad es obligatoria'),
   observaciones: yup.string().max(500, 'Máximo 500 caracteres'),
 });
 
@@ -529,6 +541,13 @@ export const EXTERNA_OTRA = CAT_OTRA;
  * Diferencias conscientes: a las columnas que no corresponden a la categoría elegida se les manda null (el portal las
  * arma según la categoría); con "Otra" el lugar no se manda como lookup (el portal pasaría el texto "Otra" como id);
  * la unidad certificante no se manda porque el portal tampoco la manda en este endpoint.
+ *
+ * Lugar de trabajo cuando NO es la UA: el portal LEE ese lookup de _new_lugardetrabajoinsotor_value
+ * (hooks/investigacion-perfil/useGetCategorizacionExterna), pero su hook de escritura (useCargarEditarCategorizacionExterna)
+ * lo manda en new_lugardetrabajouniv. La API v1 (CategorizacionExternaService.SetVigenteAsync) tiene los tres campos
+ * (LugarDeTrabajoUnivId, LugarDeTrabajoAgenciaId, LugarDeTrabajoInsOtorId) y no se puede ver desde el código cómo el
+ * endpoint hrfactors mapea new_lugardetrabajouniv. La app lee y escribe insotor, así que lo que guarda es lo mismo que
+ * después muestra el portal. Pendiente de confirmar con quien conozca el CRM.
  */
 export const armarPayloadExterna = (empleadoId: string, f: FormularioExterna): Record<string, unknown> => {
   const categoria = Number(f.categoria?.value) || null;
