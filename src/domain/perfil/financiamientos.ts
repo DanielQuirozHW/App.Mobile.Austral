@@ -2,6 +2,7 @@
 // Port de Portal-Austral-Dev -> perfil/investigacion/actividad-i+d/financiamientos/page.tsx,
 // perfil/_components/investigacion/actividad-i+d/financiamientos/modales/{ModalFinanciamientoUA,ModalFinanciamientoExterno}.tsx,
 // hooks/investigacion-perfil/* y columns/investigacion/{columnsFinanciamientos,columnsFinanciamientoEXTERNO}.tsx.
+// Los textos de error son los de los modales del portal.
 import * as yup from 'yup';
 import { aFechaApi } from '../legajo/fechas';
 import { esValor } from './afiliaciones';
@@ -116,14 +117,15 @@ const diaApi = (f: Date | null | undefined): string | null => (f ? aFechaApi(f) 
 const numeroDeMonto = (v: string): number => Number(v.trim().replace(',', '.'));
 
 const MONTO_MAXIMO = 100000000000;
+const MAX_NOMBRE = 500;
 
 const esquemaMonto = yup
   .string()
   .trim()
-  .required('El monto es obligatorio')
-  .test('numero', 'El monto debe ser un número', (v) => !v || Number.isFinite(numeroDeMonto(v)))
-  .test('minimo', 'El monto no puede ser negativo', (v) => !v || !(numeroDeMonto(v) < 0))
-  .test('maximo', 'El monto no puede superar 100.000.000.000', (v) => !v || !(numeroDeMonto(v) > MONTO_MAXIMO))
+  .required('El monto es requerido')
+  .test('numero', 'Debe ingresar un monto válido', (v) => !v || Number.isFinite(numeroDeMonto(v)))
+  .test('minimo', 'El monto debe ser mayor o igual a 0', (v) => !v || !(numeroDeMonto(v) < 0))
+  .test('maximo', 'El monto máximo permitido es 100,000,000,000', (v) => !v || !(numeroDeMonto(v) > MONTO_MAXIMO))
   .test('decimales', 'El monto admite hasta 2 decimales', (v) => !v || !/[.,]\d{3,}/.test(v));
 
 const requiereOtorgamiento = (estado: OpcionONull): boolean =>
@@ -214,7 +216,8 @@ export const estadoPideOtorgamiento = requiereOtorgamiento;
 /**
  * Cuerpo de POST / PUT api/hrfactors/investigacion/financiamientoPropioUa (hooks/investigacion-perfil de financiamiento propio).
  * DIFERENCIA CONSCIENTE: el portal, al editar, lee datos.tipoFinanciamiento y datos.modalidad (campos que no existen) y
- * manda 0 en los dos; acá se manda el tipo y la modalidad elegidos.
+ * manda 0 en los dos; acá se manda el tipo y la modalidad elegidos. Además, otro financiamiento y modalidad solo van con el
+ * tipo que los pide (el portal manda lo que haya quedado cargado).
  */
 export const armarPayloadPropio = (
   empleadoId: string,
@@ -239,11 +242,11 @@ export const esquemaPropio = yup.object({
   nombre: yup
     .string()
     .trim()
-    .max(500, 'Máximo 500 caracteres')
+    .max(MAX_NOMBRE, `El nombre del subsidio no puede exceder ${MAX_NOMBRE} caracteres`)
     .required('El nombre del subsidio es requerido'),
-  rol: opcionRequerida('El rol es obligatorio'),
-  estado: opcionRequerida('El estado es obligatorio'),
-  fechaInicio: fechaRequerida('La fecha de inicio es obligatoria').test(
+  rol: opcionRequerida('El rol es requerido'),
+  estado: opcionRequerida('El estado es requerido'),
+  fechaInicio: fechaRequerida('La fecha de inicio es requerida').test(
     'inicio-orden',
     'La fecha de inicio no puede ser posterior a la fecha de fin.',
     function (valor) {
@@ -261,20 +264,24 @@ export const esquemaPropio = yup.object({
       if (!valor || !inicio) return true;
       return dia(valor) >= dia(inicio);
     }),
-  tipo: opcionRequerida('El tipo de financiamiento es obligatorio'),
+  tipo: opcionRequerida('El tipo de financiamiento es requerido'),
   otroTipo: yup
     .string()
-    .max(100, 'Máximo 100 caracteres')
+    .max(100, 'El otro financiamiento no puede exceder 100 caracteres')
     .test('otro-tipo', 'Debe especificar el tipo de financiamiento', function (valor) {
       return !tipoEsOtro(this.parent.tipo) || Boolean(valor && valor.trim());
     }),
   modalidad: yup
     .mixed()
     .nullable()
-    .test('modalidad', 'La modalidad es obligatoria', function (valor) {
-      return !pideModalidad(this.parent.tipo) || Boolean((valor as any)?.value);
-    }),
-  moneda: opcionRequerida('La moneda es obligatoria'),
+    .test(
+      'modalidad',
+      "La modalidad es requerida cuando se selecciona 'Concurso Interno de Investigación UA'",
+      function (valor) {
+        return !pideModalidad(this.parent.tipo) || Boolean((valor as any)?.value);
+      },
+    ),
+  moneda: opcionRequerida('La moneda es requerida'),
   monto: esquemaMonto,
   fechaOtorgamiento: fechaOpcional()
     .test('otorgamiento-requerida', 'La fecha de otorgamiento es requerida para el estado seleccionado', function (valor) {
@@ -386,19 +393,19 @@ export const esquemaExterno = yup.object({
   nombre: yup
     .string()
     .trim()
-    .max(500, 'Máximo 500 caracteres')
+    .max(MAX_NOMBRE, `El nombre no puede exceder los ${MAX_NOMBRE} caracteres`)
     .required('El nombre del subsidio es requerido'),
-  rol: opcionRequerida('El rol es obligatorio'),
-  estado: opcionRequerida('El estado es obligatorio'),
-  fechaInicio: fechaRequerida('La fecha de inicio es obligatoria'),
+  rol: opcionRequerida('El rol es requerido'),
+  estado: opcionRequerida('El estado es requerido'),
+  fechaInicio: fechaRequerida('La fecha de inicio es requerida'),
   fechaFin: fechaOpcional(),
-  destino: opcionRequerida('El destino del financiamiento es obligatorio'),
+  destino: opcionRequerida('El destino del financiamiento es requerido'),
   institucion: yup
     .string()
     .trim()
-    .max(500, 'Máximo 500 caracteres')
-    .required('La institución otorgante es obligatoria'),
-  moneda: opcionRequerida('La moneda es obligatoria'),
+    .max(MAX_NOMBRE, `La institución otorgante no puede exceder los ${MAX_NOMBRE} caracteres`)
+    .required('La institución otorgante es requerida'),
+  moneda: opcionRequerida('La moneda es requerida'),
   monto: esquemaMonto,
   fechaOtorgamiento: fechaOpcional().test(
     'otorgamiento-requerida',

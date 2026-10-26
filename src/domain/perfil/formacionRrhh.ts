@@ -205,8 +205,9 @@ export const tesistaAFormulario = (t: Tesista | undefined, colaboradores: Opcion
 
 /**
  * Cuerpo de POST / PUT api/hrfactors/investigacion/formacionTesistas (hooks/investigacion-perfil/useCargarEditarFormacionTesistas).
- * Diferencias conscientes: el PUT no manda new_colaborador (el portal manda un texto vacío) y los textos de director /
- * codirector que no corresponden a la pertenencia elegida se mandan vacíos (el portal arrastra el valor viejo).
+ * Diferencias conscientes: el PUT no manda new_colaborador (el portal manda un texto vacío), los textos de director /
+ * codirector que no corresponden a la pertenencia elegida se mandan vacíos (el portal arrastra el valor viejo) y el año
+ * previsto / la fecha de defensa solo van con el estado que los pide (el portal manda lo que haya quedado cargado).
  */
 export const armarPayloadTesista = (
   empleadoId: string,
@@ -281,12 +282,26 @@ export const esquemaTesista = yup.object({
   ),
   titulo: yup.string().max(100, 'El campo título del trabajo debe tener máximo 100 caracteres'),
   pertenenciaTesista: opcionRequerida('El campo pertenencia del tesista es obligatorio'),
-  tesista: yup
-    .string()
-    .max(100, 'El campo tesista debe tener máximo 100 caracteres')
-    .test('tesista-req', 'El campo tesista es obligatorio', function (v) {
-      return !tieneValor(this.parent.pertenenciaTesista) || Boolean(v && v.trim());
-    }),
+  // El portal tiene dos campos (tesista UA y "otro tesista") con textos distintos; acá es un solo campo.
+  tesista: yup.string().test('tesista', 'El campo tesista es obligatorio', function (v) {
+    const pertenencia = this.parent.pertenenciaTesista as OpcionONull;
+    if (!tieneValor(pertenencia)) return true;
+    const otro = esValor(pertenencia, OTRO);
+    const valor = v ?? '';
+    if (!valor.trim()) {
+      return this.createError({
+        message: otro ? 'El campo otro tesista es obligatorio' : 'El campo tesista es obligatorio',
+      });
+    }
+    if (valor.length > 100) {
+      return this.createError({
+        message: otro
+          ? 'El campo otro tesista debe tener máximo 100 caracteres'
+          : 'El campo tesista debe tener máximo 100 caracteres',
+      });
+    }
+    return true;
+  }),
   institucionPrograma: opcionRequerida('El campo institución del programa es obligatorio'),
   programa: yup
     .string()
@@ -407,7 +422,8 @@ export const direccionAFormulario = (
 /**
  * Cuerpo de POST / PUT api/hrfactors/investigacion/investigadoresBecarios (hooks/investigacion-perfil/useCargarEditarInvestigadoresBecarios).
  * Diferencia consciente: el portal, al editar, manda el id del colaborador en new_investigadorbecarioprincipal (en vez de
- * su nombre, como al crear); acá se manda siempre el nombre.
+ * su nombre, como al crear); acá se manda siempre el nombre. Con "En curso" la fecha de fin va nula (el portal la vacía en
+ * el formulario).
  */
 export const armarPayloadDireccion = (
   empleadoId: string,
