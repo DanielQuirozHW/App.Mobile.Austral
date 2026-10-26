@@ -206,12 +206,16 @@ export const armarPayloadTitulo = (
   if (categoria === 'pregrado') return payload;
 
   const becado = opcionABoolean(datos.becado) === true;
-  // new_lorealizoconunabeca: `becado.value || null` ("No" se envía como null).
-  payload.new_lorealizoconunabeca = becado ? true : null;
+  // new_lorealizoconunabeca: el portal manda `becado.value` tal cual (true, false, o null si no se eligió).
+  payload.new_lorealizoconunabeca = opcionABoolean(datos.becado);
   const financiadora = datos.institucionFinanciadora ?? '';
   if (categoria === 'posdoctoral') {
-    // Sin beca y sin institución se manda un espacio; con beca, el texto recortado.
-    payload.new_institucionfinanciadoraseleccionada = becado ? financiadora.trim() : financiadora || ' ';
+    // Con beca, el texto recortado; sin beca, el texto tal cual o un espacio si está vacío.
+    payload.new_institucionfinanciadoraseleccionada = becado
+      ? financiadora.trim()
+      : !financiadora.trim()
+        ? ' '
+        : financiadora;
   } else {
     payload.new_institucionfinanciadoraseleccionada = financiadora;
   }

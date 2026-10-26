@@ -61,7 +61,7 @@ export const ModalCertificacion: React.FC<Props> = ({ modo, item, onClose }) => 
 
   const guardar = handleSubmit(async (valores: any) => {
     setGuardando(true);
-    const idToast = toast.loading('Guardando…');
+    const idToast = toast.loading(nuevo ? 'Guardando…' : 'Guardando los cambios…');
     try {
       await guardarCertificacion(valores as FormularioCertificacion, nuevo ? undefined : item?.id);
       toast.dismiss(idToast);
@@ -145,14 +145,16 @@ export const ModalCertificacion: React.FC<Props> = ({ modo, item, onClose }) => 
         {segmento?.label === 'Otro' ? (
           <FormTextField control={control} name="otroSegmento" label="Otro eje formativo" maximo={200} mostrarContador />
         ) : null}
-        <FormTextField
-          control={control}
-          name="denominacion"
-          label="Denominación de la certificación / capacitación"
-          required
-          maximo={200}
-          mostrarContador
-        />
+        {externa || interna ? (
+          <FormTextField
+            control={control}
+            name="denominacion"
+            label="Denominación de la certificación / capacitación"
+            required
+            maximo={200}
+            mostrarContador
+          />
+        ) : null}
         {externa ? (
           <FormTextField
             control={control}
@@ -216,12 +218,12 @@ export const ModalCertificacion: React.FC<Props> = ({ modo, item, onClose }) => 
             maximumDate={new Date()}
           />
         ) : null}
-        {finalizado ? (
+        {interna && finalizado ? (
           <FormDateField
             control={control}
             name="fechaFin"
             label="Fecha de finalización"
-            required={interna}
+            required
             maximumDate={new Date()}
           />
         ) : null}
