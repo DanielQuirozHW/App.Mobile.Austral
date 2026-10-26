@@ -1,14 +1,20 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (Documentación del legajo construida; decisión 91).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (alcance aclarado: MVP de demostración; Documentación construida, decisión 91).
+
+## 0. ALCANCE REAL (leer primero)
+
+**La app es un MVP de DEMOSTRACIÓN para que Austral decida si le gusta. NO es la idea migrar todos los módulos.** Lo que tiene que estar muy bien es lo general (estructura, configuración, menús, modo de color, notificaciones, aspecto del portal) y alcanzan 1 o 2 módulos de prueba. Detalle, reporte de lo terminado y opciones en [`ALCANCE-MVP.md`](ALCANCE-MVP.md).
+
+**No se construyen módulos nuevos ni mejoras de módulos salvo pedido expreso de Daniel. Si pregunta "con qué seguimos", se le da un listado con una recomendación y se espera su respuesta: no se programa.**
 
 ## 1. Qué hacer apenas se abre una sesión nueva
 
-1. Leer `CLAUDE.md` (reglas y mapa del repo) y este archivo. Después `docs/DECISIONES.md` y `docs/DECISIONES_89_en_adelante.md`, `docs/PENDIENTES.md` y, según el módulo que se toque, el archivo de `docs/contexto/`.
+1. Leer `CLAUDE.md` (reglas y mapa del repo), `docs/ALCANCE-MVP.md` y este archivo. Después `docs/DECISIONES.md` y `docs/DECISIONES_89_en_adelante.md`, `docs/PENDIENTES.md` y, según el tema, el archivo de `docs/contexto/`.
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
-4. **Se sigue el orden de la sección 4**, que fijó Daniel el 2026-10-26. No se construyen módulos fuera de esa lista.
-5. Si Daniel pide un módulo nuevo: leer primero el código del portal de ese módulo, escribir sus notas en `docs/contexto/<modulo>.md`, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **92**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
+4. **No se construye nada nuevo sin que Daniel lo elija** (sección 0). Lo que sí vale: pulir lo general y los 1 o 2 módulos de la demo.
+5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **92**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
 
@@ -27,15 +33,13 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 | 15 | Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas | 90 | `contexto/notificaciones.md` |
 | 16 | Documentación del legajo: documentos requeridos del empleado, "Ver adjuntos" y "Cargar archivo" | 91 | `contexto/documentacion.md` |
 
-Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos personales (docente / codocente), Documentación (todos los roles, inferido), Licencias y vacaciones, Perfil (todos los roles) y Plan de trabajo (solo docente).
+Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos personales (docente / codocente), Documentación (todos los roles, inferido), Licencias y vacaciones, Perfil (todos los roles) y Plan de trabajo (solo docente). **No hay menú de navegación general todavía** (ver `ALCANCE-MVP.md`).
 
 ## 3. Qué NO está hecho
 
-**Módulos del portal sin construir:**
+**Módulos: no se hacen** (aclarado el 2026-10-26; ver sección 0). Ni las mejoras de Plan de Trabajo, Licencias y Vacaciones, ni Nombramientos y Promoción (etapa 7), ni GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación. Las notificaciones de esos módulos se muestran, pero "Ir" avisa que la sección no está disponible.
 
-- Mejoras de Plan de Trabajo, Licencias y Vacaciones — pedido por Daniel (**siguen**)
-- Funciones de Nombramientos y Promoción en navegación y guardas (etapa 7) — pedido por Daniel, **al final**
-- GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación — sin pedido; no se construyen. Las notificaciones de esos módulos se muestran, pero "Ir" avisa que la sección no está disponible.
+**Lo general que falta (candidatos, a elección de Daniel; detalle en `ALCANCE-MVP.md`):** menú de navegación, selector de modo de color, pantalla de ajustes, ajuste del aspecto contra el tema del portal, revisión estática de `src/`.
 
 **Otros pendientes:**
 
@@ -47,13 +51,13 @@ Acceso desde `Inicio`: Notificaciones (con cantidad de pendientes), Datos person
 
 ## 4. Orden de trabajo acordado con Daniel (2026-10-26)
 
-Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo y escribiendo, sin credenciales. Orden:
+Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo y escribiendo, sin credenciales. Orden original:
 
-1. **Configuración y estructura** — hecho el 2026-10-26: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
-2. **Cerrar los puntos inferidos leyendo el portal** — hecho el 2026-10-26 (decisión 87): hooks del Plan de Trabajo y de Resultados / Impacto I+D leídos, sin cambios de código. Lo que sigue inferido (textos de avisos del store, modal de autores, `CustomDateField`) está en `PENDIENTES.md`.
-3. **UI**: iniciales del avatar y foto de portada — hechas el 2026-10-26 (decisión 88). **Falta**: ajustar el aspecto contra el tema del portal (`src/@core/theme/overrides`), el borde del avatar de la cabecera (el portal usa 3 px `azulLight`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`).
-4. **Módulos nuevos**, de a uno, leyendo primero el portal: Tablero de Inicio real (**hecho**, decisión 89), notificaciones (**hecho**, decisión 90), Documentación (**hecho**, decisión 91). **Siguen** las mejoras de Plan de Trabajo, Licencias y Vacaciones (Licencias puede necesitar aceptar el parámetro `tipo` que traen las rutas de las notificaciones).
-5. **Al final**: funciones de Nombramientos y Promoción en navegación y guardas.
+1. **Configuración y estructura** — hecho: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
+2. **Cerrar los puntos inferidos leyendo el portal** — hecho (decisión 87). Lo que sigue inferido está en `PENDIENTES.md`.
+3. **UI**: iniciales del avatar y foto de portada — hechas (decisión 88). **Falta**: ajustar el aspecto contra el tema del portal (`src/@core/theme/overrides`), el borde del avatar de la cabecera (el portal usa 3 px `azulLight`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`).
+4. **Módulos nuevos**: Tablero de Inicio (hecho, decisión 89), notificaciones (hecho, decisión 90) y Documentación (hecho, decisión 91). **Aclaración posterior de Daniel (2026-10-26): no se siguen sumando módulos ni mejoras. El objetivo es un MVP de demostración (sección 0).**
+5. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
 
 Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
 
@@ -74,13 +78,15 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 ## 6. Cómo trabaja Daniel (preferencias que ya dijo)
 
 - Español rioplatense, directo y breve. Responder solo lo que preguntó.
+- **Si pide un listado para elegir, se le da el listado y se espera. No se programa.**
+- **La idea es un MVP chico para que el cliente decida; no se migran todos los módulos** (sección 0).
 - Entregar todo **completo**, nunca fragmentos (`push_files` reemplaza el archivo entero: para cambiar un archivo se reenvía completo).
 - Separar siempre lo verificado en el código de lo supuesto. Citar repo + ruta.
-- La app es la versión mobile del **portal de Austral**: colores, textos y lógica salen del portal, no del prototipo. "Los módulos deben ser totalmente la misma lógica que hacen en el módulo del portal."
+- La app es la versión mobile del **portal de Austral**: colores, textos y lógica salen del portal, no del prototipo.
 - No probar nada y no usar credenciales, nunca.
 - No justificar una recomendación técnica con "no se puede probar".
 - No volver a plantear la seguridad del usuario de servicio del portal, ni preguntar por la publicación de las apps o el registro en Firebase.
-- Avanzar sin pedir aprobación por etapa dentro de lo que pide; frenar solo ante una decisión irreversible o una duda real. "Continuá, no frenes."
+- Avanzar sin pedir aprobación por etapa **dentro de lo que pide**; frenar solo ante una decisión irreversible o una duda real.
 - No copiar datos de personas ni de ejemplo del código del portal (decisión 67). Tampoco pasajes de libros (decisión 89).
 
 ## 7. Trampas conocidas del conector (aprendidas)
@@ -101,6 +107,7 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 | Archivo | Para qué |
 |---|---|
 | `CLAUDE.md` | Reglas, jerarquía de fuentes, alcance y mapa del código |
+| `docs/ALCANCE-MVP.md` | **Alcance real (MVP de demostración), reporte de lo terminado y opciones** |
 | `docs/ESTADO.md` | Este archivo: estado y qué hacer al retomar |
 | `docs/DECISIONES.md` | Decisiones numeradas (1 a 88) |
 | `docs/DECISIONES_89_en_adelante.md` | Decisiones numeradas desde la 89 |
