@@ -4,14 +4,16 @@ Se actualiza. Tres tipos: decisiones de Daniel, tareas externas al código y cos
 
 ## Decisiones de Daniel
 
-- Qué otros módulos entran en el MVP después de Datos personales, Licencias y vacaciones, Perfil y Plan de Trabajo. Los que Daniel elija entre los que quedan del portal (Documentación, GDD, Indicadores, funciones SA / VRAA, Referente MATHU, notificaciones, Promoción > Postulación).
+- **Orden de trabajo acordado (2026-10-26)**: primero configuración y estructura (revisada, ver [`VERIFICACIONES.md`](VERIFICACIONES.md)); después cerrar los puntos inferidos leyendo el portal; después UI (ajustar contra el tema del portal, iniciales del avatar y cabecera, foto de portada); después los módulos nuevos: Tablero de Inicio real, Documentación y notificaciones, junto con mejoras de lo ya hecho (Plan de Trabajo, Licencias, Vacaciones). **Nombramientos y Promoción va al final.**
+- Módulos que quedan pendientes sin pedido: GDD, Indicadores, funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
 - Si revierte alguno de los reemplazos de la decisión 20 (fs, file-viewer, íconos, native-stack, teclado).
 - Nombre visible de la app (`displayName` en `app.json` está como "Austral", provisorio; el portal se llama "Portal Universidad Austral" en `themeConfig.ts`) y nombre del proyecto nativo (`AustralMobile`).
 - Modo claro/oscuro: la app sigue el sistema; el portal arranca en claro y tiene un selector (su `settingsContext` no se leyó). Ver decisión 27.
+- Foto de portada: Daniel la pidió el 2026-10-26. Falta leer en el portal `PerfilHeader.tsx` y ubicar qué pantalla la usa antes de construirla (reemplaza la decisión 46 cuando se haga).
 
 ## Tareas externas al código (las hace Daniel, más adelante)
 
-La lista completa y ordenada está en [`SETUP-NATIVO.md`](SETUP-NATIVO.md). Resumen:
+La lista completa y ordenada, con checklist, está en [`SETUP-NATIVO.md`](SETUP-NATIVO.md). Resumen:
 
 - Generar `android/` e `ios/` con el comando oficial y combinar con este repo.
 - Registrar las apps iOS/Android en Firebase; habilitar el proveedor Microsoft; registro de la app en Microsoft Entra.
@@ -24,21 +26,18 @@ La lista completa y ordenada está en [`SETUP-NATIVO.md`](SETUP-NATIVO.md). Resu
 
 ## Falta verificar (escrito de memoria o con documentación incompleta)
 
-Estos puntos están ya en el código y no se pudieron confirmar con una fuente. Se contrastan con la documentación oficial antes de dar la etapa por cerrada.
+Estos puntos están ya en el código y no se pudieron confirmar con una fuente. Los que ya se contrastaron con documentación oficial están en [`VERIFICACIONES.md`](VERIFICACIONES.md) y se sacaron de esta tabla.
 
 | Qué | Dónde está en el código | Por qué quedó sin verificar |
 |---|---|---|
-| `KeyboardProvider` y `KeyboardAwareScrollView` exportados por `react-native-keyboard-controller` 1.22.6 | `AppProviders.tsx`, `Screen.tsx`, `ScrollFormulario.tsx` | La página de instalación pidió un permiso que no se respondió a tiempo |
-| Que `KeyboardAwareScrollView` acepte `ref` con `scrollTo`, `onScroll` y `scrollEventThrottle` como un `ScrollView` | `ScrollFormulario.tsx` | Escrito de memoria |
-| Uso de `focusManager.setFocused` con `AppState` en React Native | `src/config/api/queryClient.ts` | Misma causa con la página de TanStack Query |
+| `KeyboardProvider` exportado por `react-native-keyboard-controller` 1.22.6, y que `KeyboardAwareScrollView` reenvíe el `ref` con `scrollTo` | `AppProviders.tsx`, `Screen.tsx`, `ScrollFormulario.tsx` | La documentación leída no lo cubre (ver `VERIFICACIONES.md`) |
+| Uso de `focusManager.setFocused` con `AppState` en React Native | `src/config/api/queryClient.ts` | La página de TanStack Query pidió un permiso que no se respondió a tiempo |
 | Importación `{ Ionicons } from '@react-native-vector-icons/ionicons'` en React Native sin Expo | `AppIcon.tsx` | La página leída no cubre Android/iOS |
 | Que existan en Ionicons los nombres usados: `lock-closed-outline`, `shield-checkmark-outline`, `open-outline`, `swap-horizontal-outline`, `briefcase-outline`, `school-outline`, `id-card-outline`, `checkbox`, `square-outline`, `cloud-upload-outline`, `cloud-offline-outline`, `folder-open-outline`, `images-outline`, `camera-outline`, `document-text-outline`, `eye-outline`, `create-outline`, `trash-outline`, `information-circle`, `information-circle-outline`, `person-outline`, `search-outline`, `calendar-outline`, `close-circle`, `chevron-down`, `location-outline`, y en Licencias y vacaciones `add-circle-outline`, `checkmark-circle-outline`, `close-circle-outline`, `chevron-back`, `chevron-forward`, `home-outline`, `close`, y en Inicio `clipboard-outline` | Pantallas de ingreso, `AppCheckbox`, Datos personales, cabecera, Licencias y vacaciones e Inicio | Escritos de memoria; el tipo `AppIconName` (todos los nombres de Ionicons) los valida al compilar |
-| API de `@react-native-community/datetimepicker` 9.2.1: `DateTimePickerAndroid.open` con `onValueChange` / `onDismiss` y el componente con `onValueChange` en iOS | `DateField.tsx` | Visto en la documentación del paquete; no se confirmó contra los tipos de la versión exacta |
-| API de `react-native-image-picker` 8.2.1 (`launchCamera`, `launchImageLibrary`, `selectionLimit: 0` para varias, `assets[0].type`) | `seleccionArchivos.ts`, `seleccionFoto.ts` | Escrito de memoria |
-| API de `@react-native-documents/picker` 12.0.2: `pick`, `types`, `isErrorWithCode`, `errorCodes.OPERATION_CANCELED` | `seleccionArchivos.ts` | Escrito de memoria |
-| API de `@react-native-documents/viewer` 4.0.2: `viewDocument({ uri, mimeType, grantPermissions })` | `visorArchivos.ts` | Escrito de memoria |
-| API de `react-native-blob-util` 0.25.1: `fs.dirs.CacheDir` y `fs.writeFile(ruta, base64, 'base64')` | `visorArchivos.ts` | Escrito de memoria |
-| Que `FormData.append('file', { uri, name, type })` suba bien archivos `content://` de Android | `familiaresApi.ts`, `licenciasApi.ts`, `ptaApi.ts` | Es el patrón habitual de React Native; sin confirmar con la versión |
+| `types.images`, `types.doc` y `types.docx` de `@react-native-documents/picker` 12.0.2 | `seleccionArchivos.ts` | La documentación leída solo muestra `types.pdf` |
+| `viewDocument({ uri, mimeType, grantPermissions })`: nombres de `mimeType` y `grantPermissions` | `visorArchivos.ts` | Falta el README del paquete del visor |
+| API de `react-native-blob-util` 0.25.1: `fs.dirs.CacheDir` y `fs.writeFile(ruta, base64, 'base64')` | `visorArchivos.ts` | La documentación leída no las cubre |
+| Que `FormData.append('file', { uri, name, type })` suba bien archivos `content://` de Android | `familiaresApi.ts`, `licenciasApi.ts`, `perfilApi.ts` (`subirArchivos`), `ptaApi.ts` | Es el patrón habitual de React Native; sin confirmar con la versión |
 | Exportaciones modulares de `@react-native-firebase/storage` 26.4.0: `getStorage`, `ref`, `putFile`, `getDownloadURL` | `infrastructure/auth/fotosStorage.ts` | Escrito de memoria |
 | Que `putFile` acepte la ruta `file://` que devuelve `react-native-image-picker` y deduzca el tipo de contenido | `fotosStorage.ts`, `seleccionFoto.ts` | Escrito de memoria |
 | API de `@react-native-async-storage/async-storage` 3.1.1: se usa `import AsyncStorage` con `getItem/setItem/removeItem` | `infrastructure/storage/almacenamiento.ts` | La documentación leída muestra ese uso pero no dice si es de v2 o v3 |
@@ -73,16 +72,18 @@ Estos puntos están ya en el código y no se pudieron confirmar con una fuente. 
 | Plan de Trabajo: distribución en barras en lugar del gráfico de torta (`PieActiveArc`, no leído) y título propio del recuadro | `components/pta/ResumenPta.tsx` | Adaptación propia (decisiones 81 y 86) |
 | Plan de Trabajo: textos propios ("Todavía no hay datos cargados para mostrar.", "Todavía no se cargó ningún informe.", "No hay planes de trabajo en esta pestaña.", "No se encontró el plan de trabajo.", "Los días son requeridos") | `PlanTrabajoScreen.tsx`, `PlanTrabajoDetalleScreen.tsx`, `ResumenPta.tsx`, `DatosInvestigacionPta.tsx` | El portal no los tiene (decisión 86) |
 | Plan de Trabajo: encabezado de la página (`PlanTrabajoPageHeader`) | `PlanTrabajoScreen.tsx` | No se leyó |
+| Revisión estática archivo por archivo del resto de `src/` (imports, exports, tipos) | Todo `src/` salvo el Plan de Trabajo y la configuración (ver `VERIFICACIONES.md`) | Sin hacer |
 
 ## Falta verificar antes de construir lo que depende de ello
 
 | Qué | Cuándo |
 |---|---|
-| Tablero de inicio del portal (`/`): no se leyó ni se migra; `Inicio` es provisorio | Cuando se definan los módulos del MVP |
-| Foto de portada: `PerfilHeader.tsx` (`legajo/_components/component/`) no se leyó y no se encontró qué pantalla lo usa; la cabecera de Datos personales no muestra portada. Si alguna pantalla del MVP la usa, se agrega `actualizarFotoPortada` (`{uid}/foto portada`, `photoPORTADA`) | Cuando se definan los módulos del MVP |
+| Tablero de inicio del portal (`/`): no se leyó; `Inicio` es provisorio. Daniel pidió el Tablero de Inicio real | Próximo módulo a leer |
+| Foto de portada: `PerfilHeader.tsx` (`legajo/_components/component/`) no se leyó y no se encontró qué pantalla lo usa. Daniel la pidió; se agrega `actualizarFotoPortada` (`{uid}/foto portada`, `photoPORTADA`) una vez ubicado su uso | Antes de construir la portada |
 | Uso de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) en el portal; si hace falta una variable de entorno más | Etapa 2 (endpoints) |
 | Controllers de la API (`HROneClickController`, `ConsultafetchController`, `V1/*`) y diferencia entre `consultafetch` y `consultafetchs`, si hace falta | Cuando un contrato lo requiera |
 | Documentar en `contexto/perfil.md` el contrato detallado de Extensión, Gestión académica, Docencia, Afiliaciones y Actividad I+D | Antes de cerrar Perfil |
+| Módulos Documentación y notificaciones del portal: leer su código y escribir `contexto/<modulo>.md` | Antes de construirlos |
 
 Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, PDF, DOC, DOCX; 15 MB), campos de `ModalConyuge` y `ModalHijos`, rutas de adjuntos de familiares, `CustomTextField` / `CustomSearchSelect` / `CustomDateField` (comportamiento). Leído y migrado en la etapa 5: `UserProfileBanner`, `LegajoPageHeader` y `actualizarFotoPerfil`. Leído y migrado en la etapa 8: modales de licencias y vacaciones, `columnsLicencias`, `columnsVacaciones`, `columnsGestionSolicitudes`, `StatusBadge`, `useSolicitudesEquipo`, `useCancelarVacacion`, `useVacaciones`, `periodoSolicitable`, `DomicilioDeclarado`. Leído y migrado en las etapas 9 a 12: las páginas de Perfil del portal (Formación, Trayectoria, Extensión, Gestión académica, Docencia e Investigación) con sus modales, hooks y store. Leído y migrado en la etapa 13: la página `/planes-de-trabajo`, `ModalPlanDeTrabajoDocente`, `usePlanDeTrabajoStore`, `columnsPlanTrabajo`, los hooks de lectura, de cargos, encargos, transferencia, formaciones y bloques, los modales de cada sección, `TableIndicadores`, `FileUploaderMultiple`, `useEnviarArchivos` y los catálogos de `useAutocompletadosStore`.
 
@@ -92,9 +93,9 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 2. Cliente HTTP, token y endpoints (**escritos**, `config/api/endpoints.ts`). Falta la lectura de `UnidadDeNegocio`.
 3. Autenticación: servicio, roles, errores, store y consultas, más pantallas de ingreso y selección de puesto (**escritos**, sin probar). Sin registro ni recuperación (decisión 36).
 4. Navegación raíz por estado, overlay de cierre de sesión e `Inicio` provisorio con acceso a Datos personales (**escritos**, sin probar). `escucharSesion()` se conecta en `RootNavigator`.
-5. Foto de perfil y cabecera del legajo (**escritas**, sin probar; decisiones 45 a 47). La portada no se construye.
+5. Foto de perfil y cabecera del legajo (**escritas**, sin probar; decisiones 45 a 47). La portada está pedida y pendiente de ubicar.
 6. Datos personales (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia), con confirmación al salir con cambios sin guardar (**escrito**, sin probar; ver decisiones 37 a 44).
-7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **Sigue.**
+7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **Va al final, por pedido de Daniel.**
 8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito** y alineado con el portal, sin probar; decisiones 48 a 56; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`.
 9. Perfil: Formación y Trayectoria profesional (**escritos**, sin probar; decisiones 57 a 63).
 10. Perfil: Extensión y Gestión académica (**escritas**, sin probar; decisión 64).

@@ -1,13 +1,13 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-20 (Plan de Trabajo terminado).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (revisión de configuración y verificación de librerías).
 
 ## 1. Qué hacer apenas se abre una sesión nueva
 
 1. Leer `CLAUDE.md` (reglas y mapa del repo) y este archivo. Después `docs/DECISIONES.md`, `docs/PENDIENTES.md` y, según el módulo que se toque, el archivo de `docs/contexto/`.
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
-4. **No se construye nada nuevo hasta que Daniel lo pida.** El estado actual es: todo lo pedido está construido. Lo que sigue lo decide Daniel (sección 4).
+4. **Se sigue el orden de la sección 4**, que fijó Daniel el 2026-10-26. No se construyen módulos fuera de esa lista.
 5. Si Daniel pide un módulo nuevo: leer primero el código del portal de ese módulo, escribir sus notas en `docs/contexto/<modulo>.md`, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas a continuación de la 86 y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
@@ -28,33 +28,32 @@ Acceso desde `Inicio`: Datos personales (docente / codocente), Licencias y vacac
 
 ## 3. Qué NO está hecho
 
-**Módulos del portal que quedan pendientes (Daniel confirmó que quedan así; no se construyen sin pedido):**
+**Módulos del portal sin construir:**
 
-- Documentación
-- GDD
-- Indicadores
-- Funciones SA / VRAA
-- Referente MATHU
-- Notificaciones
-- Promoción > Postulación (dentro de Perfil; no se migra)
+- Tablero de Inicio real (hoy `Inicio` es provisorio) — pedido por Daniel
+- Documentación — pedido por Daniel
+- Notificaciones — pedido por Daniel
+- Funciones de Nombramientos y Promoción en navegación y guardas (etapa 7) — pedido por Daniel, **al final**
+- Foto de portada — pedida por Daniel; falta ubicar en el portal qué pantalla la usa
+- GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación — sin pedido; no se construyen
 
-**Otros pendientes de código (sin confirmar con Daniel):**
+**Otros pendientes:**
 
-- Etapa 7: usar las funciones de Nombramientos y Promoción en la navegación y las guardas. La resolución de funciones ya está en `src/domain/roles/`.
-- Tablero de inicio del portal (`/`): no se leyó; `Inicio` es provisorio.
-- Foto de portada: no se construye (decisión 46).
 - Lectura de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) del portal, por si hace falta otra variable de entorno.
-- Lo que figura como inferido o sin verificar está en `docs/PENDIENTES.md` (tablas "Falta verificar"). Cada punto dice en qué archivo del código está.
+- Lo que figura como inferido o sin verificar está en `docs/PENDIENTES.md` (tabla "Falta verificar"). Cada punto dice en qué archivo del código está.
+- Revisión estática archivo por archivo del resto de `src/` (solo se revisaron la configuración y el Plan de Trabajo; ver `docs/VERIFICACIONES.md`).
 
-## 4. Qué sigue
+## 4. Orden de trabajo acordado con Daniel (2026-10-26)
 
-No hay una tarea abierta de construcción. Opciones que decide Daniel:
+Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo y escribiendo, sin credenciales. Orden:
 
-1. Probar lo construido (lo hace él, con la PC): ver `docs/SETUP-NATIVO.md`, sección 6.
-2. Pedir uno de los módulos pendientes de la sección 3.
-3. Pedir correcciones que salgan de las pruebas. Ahí sí se puede tocar código ya escrito; cada corrección se contrasta contra el código del portal, leyendo.
+1. **Configuración y estructura** — hecho el 2026-10-26: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
+2. **Cerrar los puntos inferidos leyendo el portal**: primero los hooks del Plan de Trabajo que no se leyeron (áreas, proyectos, publicaciones, congresos, divulgaciones, dirección de tesis, jurado) y los de Resultados / Impacto I+D (decisiones 72 y 73). Corregir el código y sacar cada punto de `PENDIENTES.md`.
+3. **UI**: ajustar el aspecto contra el tema del portal (`src/@core/theme/overrides`), iniciales del avatar (`getInitials`) y cabecera (`PlanTrabajoPageHeader`), y la foto de portada (`PerfilHeader.tsx`).
+4. **Módulos nuevos**, de a uno, leyendo primero el portal: Tablero de Inicio real, Documentación, notificaciones. Después, mejoras de Plan de Trabajo, Licencias y Vacaciones.
+5. **Al final**: funciones de Nombramientos y Promoción en navegación y guardas.
 
-Si la sesión nueva no recibe instrucciones concretas, **resumir en pocas líneas este estado y preguntar con cuál sigue**.
+Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
 
 ## 5. Lo que hace Daniel (configuración fuera del código)
 
@@ -78,7 +77,7 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 - No probar nada y no usar credenciales, nunca.
 - No justificar una recomendación técnica con "no se puede probar".
 - No volver a plantear la seguridad del usuario de servicio del portal, ni preguntar por la publicación de las apps o el registro en Firebase.
-- Avanzar sin pedir aprobación por etapa; frenar solo ante una decisión irreversible o una duda real.
+- Avanzar sin pedir aprobación por etapa dentro de lo que pide; frenar solo ante una decisión irreversible o una duda real.
 - No copiar datos de personas ni de ejemplo del código del portal (decisión 67).
 
 ## 7. Trampas conocidas del conector (aprendidas)
@@ -89,6 +88,7 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 - Los mensajes de commit no llevan secuencias literales como `\uXXXX`, y terminan con las dos líneas de atribución que indique la sesión (`Co-Authored-By` y `Claude-Session`).
 - Los archivos pueden estar en subcarpetas inesperadas (por ejemplo `components/licencias/Pestanias.tsx`): listar el directorio antes de asumir la ruta.
 - Los binarios (logos, fuentes) no se pueden subir por el conector: los copia Daniel.
+- `WebFetch` solo abre URLs que ya salieron en una búsqueda o que dio Daniel: para leer documentación hay que buscar primero y abrir el resultado.
 
 ## 8. Mapa de documentos
 
@@ -98,6 +98,7 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 | `docs/ESTADO.md` | Este archivo: estado y qué hacer al retomar |
 | `docs/DECISIONES.md` | Decisiones numeradas (1 a 86) |
 | `docs/PENDIENTES.md` | Decisiones abiertas, tareas externas y puntos por verificar |
+| `docs/VERIFICACIONES.md` | Lo contrastado con documentación oficial, con su fuente |
 | `docs/SETUP-NATIVO.md` | Checklist de lo que hace Daniel con la PC |
 | `docs/STACK.md` | Librerías y versiones aprobadas |
 | `docs/ERRORES.md` | Errores cometidos y reglas para no repetirlos |
