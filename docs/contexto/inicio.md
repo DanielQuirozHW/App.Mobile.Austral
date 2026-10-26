@@ -1,6 +1,6 @@
 # Tablero de Inicio
 
-Fuente: `HW-Austral/Portal-Austral-Dev`, leído el 2026-10-26. Construido en la app el mismo día (decisión 89 de `DECISIONES.md`, que se agrega junto con la del módulo siguiente). Todo escrito sin probar.
+Fuente: `HW-Austral/Portal-Austral-Dev`, leído el 2026-10-26. Construido en la app el mismo día (decisión 89 de `DECISIONES_89_en_adelante.md`). Todo escrito sin probar.
 
 ## Qué muestra el portal (verificado)
 
@@ -29,11 +29,11 @@ La unidad se lee de `_new_unidadorganizativa_value@OData.Community.Display.V1.Fo
 - `domain/inicio/tablero.ts`: reglas puras (feriados, cumpleaños, frase, saludo).
 - `domain/inicio/frasesMensuales.ts`: número, libro y autor de las 18 frases. **El texto de cada una está vacío a propósito**: son pasajes de libros publicados y no se copian al repo. **Tarea de Daniel**: pegar cada `texto` desde `src/@core/data/frases-mensuales.ts` del portal, en el mismo orden. Hasta entonces la tarjeta no se muestra.
 - `infrastructure/inicio/tableroApi.ts`: las dos lecturas (reusan `leerCatalogoFetchXml`) y la caché diaria.
-- `presentation/hooks/useTablero.ts` (TanStack Query), `presentation/components/inicio/*` y `presentation/screens/InicioScreen.tsx` (debajo del tablero quedan los accesos a los módulos y el cierre de sesión).
+- `presentation/hooks/useTablero.ts` (TanStack Query), `presentation/components/inicio/*` y `presentation/screens/InicioScreen.tsx` (debajo del tablero quedan los accesos a los módulos, con "Notificaciones (N)" en primer lugar, y el cierre de sesión).
 
 ## Diferencias con el portal (conscientes)
 
-- **Fecha de hoy en Argentina**: el portal usa `Intl.DateTimeFormat` con `America/Argentina/Buenos_Aires`; la app resta 3 horas fijas (Argentina no tiene horario de verano desde 2009), para no depender de `Intl` en el celular. El rotulo de la fecha usa meses cortos propios ("SEPT" para septiembre, como `es-AR`; inferido).
+- **Fecha de hoy en Argentina**: el portal usa `Intl.DateTimeFormat` con `America/Argentina/Buenos_Aires`; la app resta 3 horas fijas (Argentina no tiene horario de verano desde 2009), para no depender de `Intl` en el celular. El rótulo de la fecha usa meses cortos propios ("SEPT" para septiembre, como `es-AR`; inferido).
 - **Spinner de feriados**: en el portal `loadingFeriados` nunca llega a ser `true` (se inicializa en `false`), así que no se ve; la app muestra el indicador de carga mientras se leen.
 - **Cumpleaños sin indicador de carga ni error visible**, como el portal.
 - **Mes del feriado**: abreviatura de `date-fns` en español ("dic", "sep"); el portal usa la de `dayjs` (misma salida esperada, inferido).
