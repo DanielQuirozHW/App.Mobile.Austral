@@ -14,6 +14,8 @@ export const lightColors = {
   primary: '#2E3092',
   primaryLight: '#E8E9F6',
   primaryDark: '#1E2270',
+  // palette.primary.light del portal (customColors.azulMid en claro, #9FE6F0 en oscuro). Lo usa la barra de vacaciones.
+  primaryMid: '#B0B3E0',
 
   // Secundario: cian de acento (palette.secondary, customColors.cianAcento / cianLight)
   secondary: '#4FC3D7',
@@ -77,6 +79,7 @@ export const darkColors: ColorTokens = {
   primary: '#4FC3D7',
   primaryLight: 'rgba(79, 195, 215, 0.14)',
   primaryDark: '#3AABBF',
+  primaryMid: '#9FE6F0',
 
   secondary: '#4FC3D7',
   secondaryLight: 'rgba(79, 195, 215, 0.12)',
