@@ -3,12 +3,14 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Notificaciones + Licencias y vacaciones + Perfil
-//                                                           (Formación, Trayectoria, Extensión, Gestión académica,
-//                                                           Docencia e Investigación)
+//   - resto                                              -> Inicio + Notificaciones + Documentación + Licencias y
+//                                                           vacaciones + Perfil (Formación, Trayectoria, Extensión,
+//                                                           Gestión académica, Docencia e Investigación)
 //                                                           (+ Datos personales para docente / codocente)
 //                                                           (+ Plan de trabajo solo para docente: allowedRoles
 //                                                           ["docente"] de planes-de-trabajo/page.tsx)
+// Documentación: el menú del portal (navigation/vertical/index.tsx) la muestra a todos los roles. Falta leer el guard
+// del layout del dashboard por si restringe algo más (ver docs/PENDIENTES.md).
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
@@ -17,6 +19,7 @@ import { InicioScreen } from '../screens/InicioScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
+import { DocumentacionScreen } from '../screens/legajo/DocumentacionScreen';
 import { LicenciasScreen } from '../screens/licencias/LicenciasScreen';
 import { NotificacionesScreen } from '../screens/notificaciones/NotificacionesScreen';
 import { DocenciaScreen } from '../screens/perfil/DocenciaScreen';
@@ -79,6 +82,11 @@ export const RootNavigator: React.FC = () => {
               options={{ headerShown: true, title: 'Datos personales', animation: 'slide_from_right' }}
             />
           ) : null}
+          <Stack.Screen
+            name="Documentacion"
+            component={DocumentacionScreen}
+            options={{ headerShown: true, title: 'Documentación', animation: 'slide_from_right' }}
+          />
           <Stack.Screen
             name="Licencias"
             component={LicenciasScreen}

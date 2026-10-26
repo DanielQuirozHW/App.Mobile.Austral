@@ -1,7 +1,6 @@
 // Inicio. Port de Portal-Austral-Dev -> src/app/(dashboard)/page.tsx: bienvenida, mensaje del mes, cumpleaños del día y
 // próximos feriados (decisión 89). Debajo van los accesos a los módulos construidos (en el portal están en el menú
-// lateral, que en el celular no existe) y el cierre de sesión. "Notificaciones" lleva la cantidad de pendientes (en el
-// portal es la campana del encabezado).
+// lateral, que en el celular no existe) y el cierre de sesión.
 import React, { useMemo } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -19,7 +18,6 @@ import { FraseDelMes } from '../components/inicio/FraseDelMes';
 import { ProximosFeriadosCard } from '../components/inicio/ProximosFeriadosCard';
 import { SaludoInicio } from '../components/inicio/SaludoInicio';
 import { Screen } from '../components/Screen';
-import { useNotificaciones } from '../hooks/useNotificaciones';
 import { useTablero } from '../hooks/useTablero';
 import type { RootStackParams } from '../navigation/tipos';
 import { useAuthStore } from '../stores/authStore';
@@ -31,7 +29,6 @@ export const InicioScreen: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
   const { proximosFeriados, cargandoFeriados, cumpleaniosHoy, fechaDeHoy } = useTablero();
-  const { pendientes } = useNotificaciones();
 
   const frase = useMemo(() => fraseDelMesActual(new Date()), []);
   const periodo = useMemo(() => periodoDelMes(new Date()), []);
@@ -57,14 +54,14 @@ export const InicioScreen: React.FC = () => {
         <AppText variant="overline" tone="secondary">
           Accesos
         </AppText>
-        <AppButton
-          title={pendientes.length > 0 ? `Notificaciones (${pendientes.length})` : 'Notificaciones'}
-          icon="notifications-outline"
-          onPress={() => navigation.navigate('Notificaciones')}
-        />
         {puedeVerLegajo(role) ? (
           <AppButton title="Datos personales" icon="person-outline" onPress={() => navigation.navigate('DatosPersonales')} />
         ) : null}
+        <AppButton
+          title="Documentación"
+          icon="document-text-outline"
+          onPress={() => navigation.navigate('Documentacion')}
+        />
         <AppButton
           title="Licencias y vacaciones"
           icon="calendar-outline"
