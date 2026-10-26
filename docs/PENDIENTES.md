@@ -2,10 +2,18 @@
 
 Se actualiza. Tres tipos: decisiones de Daniel, tareas externas al código y cosas que faltan leer o verificar.
 
+## ALCANCE REAL: MVP DE DEMOSTRACIÓN (leer primero)
+
+**La idea NO es migrar todos los módulos del portal.** La app es un MVP chico y prolijo, con 1 o 2 módulos de prueba, para que Austral la vea y decida si le gusta y si quiere seguir. Lo que tiene que estar muy bien es lo general: estructura, configuración, navegación y menús, modo de color, notificaciones y aspecto.
+
+- Los módulos que figuran abajo como "pendientes" **no se construyen** salvo pedido expreso de Daniel.
+- Si Daniel pide un listado para elegir, se le da el listado con una recomendación y se espera su respuesta. No se programa.
+- Reporte de lo terminado y opciones para seguir: [`ALCANCE-MVP.md`](ALCANCE-MVP.md).
+
 ## Decisiones de Daniel
 
-- **Orden de trabajo acordado (2026-10-26)**: primero configuración y estructura (revisada, ver [`VERIFICACIONES.md`](VERIFICACIONES.md)); después cerrar los puntos inferidos leyendo el portal; después UI (ajustar contra el tema del portal, iniciales del avatar y cabecera, foto de portada); después los módulos nuevos: Tablero de Inicio real (**hecho**), notificaciones (**hecho**) y Documentación (**hecho**), junto con mejoras de lo ya hecho (Plan de Trabajo, Licencias, Vacaciones: **siguen**). **Nombramientos y Promoción va al final.**
-- Módulos que quedan pendientes sin pedido: GDD, Indicadores, funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
+- **Alcance (2026-10-26)**: MVP de demostración con 1 o 2 módulos de prueba y lo general muy bien hecho (ver arriba). Ya están escritos el Tablero de Inicio real, Notificaciones y Documentación, además de Datos personales, Licencias y vacaciones, Perfil y Plan de Trabajo. **No se siguen sumando módulos ni mejoras** de Plan de Trabajo, Licencias y Vacaciones, y **Nombramientos y Promoción no se hace**, salvo que Daniel lo pida de forma expresa. Lo que sí queda por elegir es lo general: menú de navegación, selector de modo de color, pantalla de ajustes, ajuste del aspecto contra el tema del portal y revisión estática de `src/`.
+- Módulos que quedan sin construir (sin pedido): GDD, Indicadores, funciones SA / VRAA, Referente MATHU y Promoción > Postulación.
 - Si revierte alguno de los reemplazos de la decisión 20 (fs, file-viewer, íconos, native-stack, teclado).
 - Nombre visible de la app (`displayName` en `app.json` está como "Austral", provisorio; el portal se llama "Portal Universidad Austral" en `themeConfig.ts`) y nombre del proyecto nativo (`AustralMobile`).
 - Modo claro/oscuro: la app sigue el sistema; el portal arranca en claro y tiene un selector (su `settingsContext` no se leyó). Ver decisión 27.
@@ -105,14 +113,16 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 
 ## Plan de etapas
 
+**Alcance: MVP de demostración.** Las etapas de abajo describen lo que ya está escrito; no se agregan etapas de módulos nuevos salvo pedido expreso de Daniel (ver `ALCANCE-MVP.md`).
+
 1. Base del proyecto. (**hecha**, sin probar; tema con los valores del portal)
 2. Cliente HTTP, token y endpoints (**escritos**, `config/api/endpoints.ts`, `endpointsNotificaciones.ts` y `endpointsDocumentacion.ts`). Falta la lectura de `UnidadDeNegocio`.
 3. Autenticación: servicio, roles, errores, store y consultas, más pantallas de ingreso y selección de puesto (**escritos**, sin probar). Sin registro ni recuperación (decisión 36).
 4. Navegación raíz por estado y overlay de cierre de sesión (**escritos**, sin probar). `escucharSesion()` se conecta en `RootNavigator`.
 5. Foto de perfil, foto de portada y cabecera del legajo (**escritas**, sin probar; decisiones 45, 47 y 88).
-6. Datos personales (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia), con confirmación al salir con cambios sin guardar (**escrito**, sin probar; ver decisiones 37 a 44).
-7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **Va al final, por pedido de Daniel.**
-8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito** y alineado con el portal, sin probar; decisiones 48 a 56; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`.
+6. Datos personales (Identidad, Contacto, Domicilio real, Familia con documentación, Contacto de emergencia), con confirmación al salir con cambios sin guardar (**escrito**, sin probar; ver decisiones 37 a 44). Candidato 1 para la demo.
+7. Funciones de Nombramientos y Promoción (la resolución de funciones ya está en `domain/roles`; falta el uso en navegación y guardas). **No se hace**, salvo pedido expreso de Daniel.
+8. Licencias y vacaciones: licencias propias, vacaciones, calendario y gestión del equipo (**escrito** y alineado con el portal, sin probar; decisiones 48 a 56; ver `contexto/licencias-y-vacaciones.md`). Acceso desde `Inicio`. Candidato 2 para la demo.
 9. Perfil: Formación y Trayectoria profesional (**escritos**, sin probar; decisiones 57 a 63).
 10. Perfil: Extensión y Gestión académica (**escritas**, sin probar; decisión 64).
 11. Perfil: Docencia (**escrita**, sin probar; decisiones 64 y 66).
@@ -121,4 +131,4 @@ Ya leído y migrado en la etapa 6: tipos y tamaño de archivos (JPG, JPEG, PNG, 
 14. Tablero de Inicio real (**escrito**, sin probar; decisión 89; ver `contexto/inicio.md`). Faltan los textos del mensaje del mes.
 15. Notificaciones (**escritas**, sin probar; decisión 90; ver `contexto/notificaciones.md`). Acceso desde `Inicio`.
 16. Documentación del legajo (**escrita**, sin probar; decisión 91; ver `contexto/documentacion.md`). Acceso desde `Inicio`.
-17. Mejoras de Plan de Trabajo, Licencias y Vacaciones (**siguen**).
+17. Mejoras de Plan de Trabajo, Licencias y Vacaciones (**cancelado**: el objetivo es un MVP de demostración).
