@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ColorTokens } from '../theme/colors';
 import { useThemeColors } from '../theme/theme';
 import { borderRadius, iconSizes, spacing } from '../utils/responsive';
 import { AppIcon } from './AppIcon';

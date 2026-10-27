@@ -1,8 +1,8 @@
 # Auditoría de paridad con el portal (2026-10-26)
 
-Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `edd1de0`).
+Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `efac2e5`).
 
-Decisiones asociadas: **94**, **95** y **97** (`DECISIONES_89_en_adelante.md`).
+Decisiones asociadas: **94**, **95**, **97** y **98** (`DECISIONES_89_en_adelante.md`).
 
 ## 1. Resultado por módulo
 
@@ -19,6 +19,7 @@ Decisiones asociadas: **94**, **95** y **97** (`DECISIONES_89_en_adelante.md`).
 | Investigación (jurados, pertenencia, categorización externa, Prinuar) | stores y modales | Divergencias corregidas | `8b957b1`, `2b2b06a` |
 | Aspecto general de las pantallas | tema del portal | Pasada de UI | `1cfe34e` |
 | Aspecto contra los overrides del tema (campos, tarjetas, diálogos, pestañas, chips) y márgenes de Notificaciones / Plan de Trabajo | `src/@core/theme/palette` y `overrides` | Corregido (ver 2c) | `edd1de0` |
+| Revisión estática de colores escritos a mano, pull-to-refresh, reintentos, Plan de trabajo habilitado | componentes y pantallas de la app | Corregido (ver 2d) | `efac2e5` |
 | Licencias (propias y del equipo) | ver 3 | **Sin divergencias encontradas** | (sin cambios) |
 | Vacaciones: panel, solicitud, aprobación, detalle, consultas, cancelación | ver 3 | Divergencia corregida en el panel (ver 2b) | `43ec0af` |
 | Calendario y pestañas de Licencias y vacaciones | `licencias/page.tsx`, `CalendarioWrapper.tsx`, `Calendar.tsx` | Dos divergencias corregidas (ver 2b) | `8faedbc` |
@@ -51,6 +52,18 @@ Pedido de Daniel (2026-10-27): "más importante que se vea bien a que siga la UI
 - **Leídos sin cambios necesarios**: `AppButton`, `SeccionCard`, `SeccionRegistros`, `TarjetaSolicitud`, `Screen`, `DocenciaScreen`, `ExtensionScreen`, `FormacionScreen`, `GestionAcademicaScreen`, `MiPerfilScreen`, `TrayectoriaScreen`, `DocumentacionScreen`, `InicioScreen`, `ModuloVacioScreen`, `AjustesScreen`, `LicenciasScreen`, `DatosPersonalesScreen`.
 - **Diferencias conscientes de aspecto** (pensadas para celular): área táctil mínima de 48 (Android) / 44 (iOS) px en lugar de los 36 px de los campos del portal; sin el anillo de foco con sombra (el foco se marca con el borde primario); sombra negra en lugar de la azul; sin efectos de hover.
 
+## 2d. Revisión estática, pull-to-refresh, reintentos y Plan de trabajo (commit `efac2e5`)
+
+Pedido de Daniel (2026-10-27): "hace todos esos puntos, debían estar ya". **Leído, no ejecutado.**
+
+- **Colores escritos a mano → tokens.** `legajo/TarjetaDocumento.tsx`: `VERIFICADO` el verde `#4caf50` del check pasó a `success` y el punto de "temporal" a `warning`. `licencias/SelectorArchivos.tsx`: el borde de la zona de carga usa `inputBorder` (es un campo, no un divisor). Resto de lo leído: ya usaba tokens. `SeccionRegistros` conserva el borde punteado del estado vacío en `border` (divisor), a propósito.
+- **Pull-to-refresh** (`components/Screen.tsx`, prop `onRefresh`): `RefreshControl` con `tintColor` / `colors` en `accentPrimary` y fondo `card`. Conectado en Inicio, Notificaciones, Documentación, Formación, Trayectoria, Extensión y Plan de trabajo (lista). Propio de la app (el portal es web). Licencias ya lo tenía.
+- **Reintentar en errores**: `licencias/ListaPaginada.tsx` (prop `onReintentar`, usada por `MisLicenciasSeccion`, `VacacionesSeccion` y `GestionSeccion`) y `NotificacionesScreen`.
+- **Notificaciones**: el spinner solo aparece sin datos cargados, para no desmontar el scroll durante el pull-to-refresh.
+- **Plan de trabajo habilitado** (`navigation/modulosMenu.ts`, `enDemo: true`). La lógica ya estaba contrastada con el portal en las decisiones 75 a 87.
+- **Leídos sin cambios necesarios**: `components/perfil/*` (`SeccionRegistros`, `SeccionProyectos`, `SeccionProducciones`, `AutoresDeProduccion`, `ParticipantesDelProyecto`, `ResultadosDelProyecto`, `SeccionesFormacion`, `SeccionesTrayectoria`, `CamposComunes`), `legajo/BloqueFamilia`, `legajo/ModalVerAdjuntos`, `navigation/RootNavigator`, `AccionIcono`, `ConfirmDialog`, `InfoAlert` (solo se quitó un import sin usar), `ToastHost`, `LoadingScreen`, `OverlayCerrandoSesion`, `ErrorBoundary`, `AuthLayout`, `AppCheckbox`, `theme/estadoColores.ts` y `components/pta/CajaPta`, `ActividadPta`, `ResumenPta`, `TotalesPta`, `SeccionPta`.
+- **`estadoColores.ts`**: la paleta de insignias del portal (`status-badge`) tiene versión clara y oscura; los colores de texto y fondo están definidos en ambos modos.
+
 ## 3. Licencias y vacaciones: qué se contrastó y qué no
 
 **Contrastado (portal vs app):**
@@ -68,7 +81,7 @@ Pedido de Daniel (2026-10-27): "más importante que se vea bien a que siga la UI
 
 **Sin contrastar (queda para revisar):**
 
-- `RespuestaLider` de la app (compartido entre licencias y vacaciones): no se releó en esta tanda el diálogo de confirmación del portal ("¿Desea aprobar esta licencia?" / "¿Desea rechazar esta licencia?", botones Si / No).
+- `RespuestaLider` de la app (compartido entre licencias y vacaciones): no se releyó en esta tanda el diálogo de confirmación del portal ("¿Desea aprobar esta licencia?" / "¿Desea rechazar esta licencia?", botones Si / No).
 - `ModalCalendario.tsx` (detalle del evento) y `GestionSolicitudes` (grilla de gestión, filtros y el parámetro `?tipo=`), `columnsVacaciones.tsx` (acciones de la grilla, incluida la cancelación) y los hooks `useVacaciones`, `useLicenciasCalendario`, `useEsLiderEquipo`.
 - `getSubperiodovacacional` del store del portal (subperíodos por unidad organizativa): la app no lo tiene; no se buscó dónde se usa en el portal.
 - Si el portal tiene un flujo de "requiere más información" para licencias (la consulta trae `new_requieremasinformacion`): en los tres modales leídos no aparece; **no se buscó en el store ni en la página** si hay otro punto de entrada. Sin confirmar.
@@ -77,7 +90,7 @@ Pedido de Daniel (2026-10-27): "más importante que se vea bien a que siga la UI
 
 Las decisiones de diseño de la app que no copian el portal a la letra. Todas están pensadas para celular o para evitar un defecto del portal.
 
-**Aspecto general** (decisión 97): área táctil mínima 48 / 44 px en vez de 36; sin anillo de foco con sombra; sombra negra en vez de azul; sin efectos de hover; pestañas de dos niveles con el de arriba subrayado y el de abajo en chips.
+**Aspecto general** (decisiones 97 y 98): área táctil mínima 48 / 44 px en vez de 36; sin anillo de foco con sombra; sombra negra en vez de azul; sin efectos de hover; pestañas de dos niveles con el de arriba subrayado y el de abajo en chips; pull-to-refresh y botón "Reintentar" en errores de lista (propios de la app, el portal es web).
 
 **Licencias y vacaciones**
 
@@ -126,7 +139,8 @@ Las decisiones de diseño de la app que no copian el portal a la letra. Todas es
 - La escritura de `new_lugardetrabajouniv` del portal (ver Categorización externa): no se encontró dónde se persiste.
 - Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` y, del panel de vacaciones, `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline` (más los que ya figuran en `PENDIENTES.md`). `AppIconName` es el tipo de nombres de Ionicons: si alguno no existe, el compilador lo marca.
 - `FormacionScreen` conserva `any` en el formulario (el valor del selector es una opción de lista).
-- **Revisión estática de colores escritos a mano y márgenes, pendiente en**: `components/inicio`, `components/legajo`, `components/licencias` (salvo `Pestanias`, `TarjetaSolicitud`), `components/notificaciones`, `components/pta`, `components/menu` y los componentes de `components/perfil/*` no mencionados en 2c. Las pantallas y los campos de formulario sí se leyeron (2c).
+- **Revisión estática de colores escritos a mano y márgenes: lo que sigue sin leer** (la decisión 98 cerró el resto): los modales de formulario (`Modal*`, `FormInv*`) y los demás componentes de `components/pta/` (`ModalSeccionPta`, `DatosDocenciaPta`, `DatosInvestigacionPta`, `ejecutarPta`), `PlanTrabajoDetalleScreen`, `components/inicio`, `components/notificaciones` y `components/menu` (no se releyeron en esta tanda; las pantallas que los usan sí).
+- **Pull-to-refresh sin conectar** en DatosPersonales (formulario: refrescar podría pisar lo que se edita), MiPerfil, GestionAcademica, Docencia, Investigación y Ajustes. Inicio refresca solo las notificaciones. No se verificó si las funciones `cargar*` devuelven una promesa (si no, el indicador se apaga enseguida; no rompe nada).
 - El aspecto de los demás overrides del tema del portal (`table`, `menu`, `alert`, `tooltip`, etc.) no se contrastó; la app no tiene equivalentes directos.
 - Lo que figura en "Sin contrastar" de la sección 3 (`RespuestaLider`, `ModalCalendario`, gestión, `columnsVacaciones`, hooks de lectura, subperíodos, "requiere más información").
 
