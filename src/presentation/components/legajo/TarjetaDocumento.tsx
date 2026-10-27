@@ -11,9 +11,6 @@ import { AccionIcono } from '../AccionIcono';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
 
-// Verde del check "Documento importado" (#4caf50 en el portal).
-const VERDE_IMPORTADO = '#4caf50';
-
 interface TarjetaDocumentoProps {
   documento: DocumentoEmpleado;
   /** Carga reciente que el CRM todavía no refleja (check y fecha temporales del portal). */
@@ -53,7 +50,7 @@ export const TarjetaDocumento: React.FC<TarjetaDocumentoProps> = ({
           <AppIcon
             name={tieneDocumento ? 'checkmark-circle' : 'cloud-offline-outline'}
             size={iconSizes.lg}
-            color={tieneDocumento ? VERDE_IMPORTADO : globalColors.textSecondary}
+            color={tieneDocumento ? globalColors.success : globalColors.textSecondary}
           />
           {soloTemporal ? <View style={styles.puntoTemporal} /> : null}
         </View>
@@ -83,7 +80,7 @@ const createStyles = (c: ColorTokens) =>
     titulo: { flex: 1 },
     acciones: { flexDirection: 'row', alignItems: 'center' },
     fila: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    // Punto naranja del portal: la carga todavía no figura en el CRM.
+    // Punto del portal: la carga todavía no figura en el CRM (color de advertencia del tema).
     puntoTemporal: {
       position: 'absolute',
       top: -2,
@@ -91,7 +88,7 @@ const createStyles = (c: ColorTokens) =>
       width: scale(8),
       height: scale(8),
       borderRadius: scale(4),
-      backgroundColor: 'orange',
+      backgroundColor: c.warning,
       opacity: 0.8,
     },
   });

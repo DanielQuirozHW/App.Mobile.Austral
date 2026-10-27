@@ -42,7 +42,7 @@ export const SelectorArchivos: React.FC<SelectorArchivosProps> = ({ archivos, on
 
   return (
     <View style={styles.contenedor}>
-      <View style={[styles.zona, { borderColor: globalColors.border, backgroundColor: globalColors.inputBackground }]}>
+      <View style={[styles.zona, { borderColor: globalColors.inputBorder, backgroundColor: globalColors.inputBackground }]}>
         <AppIcon name="cloud-upload-outline" size={iconSizes.xl} color={globalColors.accentPrimary} />
         <AppText variant="body2" style={styles.centrado}>
           Seleccioná los archivos desde tu dispositivo

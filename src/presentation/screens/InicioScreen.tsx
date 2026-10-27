@@ -3,6 +3,7 @@
 // pendientes, como la campana del encabezado del portal) y el menú lateral (en el portal el menú es la barra lateral,
 // que en el celular no existe). Debajo van los accesos a los módulos de la demostración (navigation/modulosMenu.ts:
 // Mi perfil y Licencias y vacaciones); el cierre de sesión está en el menú y en Ajustes.
+// Tirar para actualizar vuelve a leer las notificaciones (decisión 98).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import {
@@ -35,7 +36,7 @@ export const InicioScreen: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
   const { proximosFeriados, cargandoFeriados, cumpleaniosHoy, fechaDeHoy } = useTablero();
-  const { pendientes } = useNotificaciones();
+  const { pendientes, refrescar } = useNotificaciones();
   const cantidadPendientes = pendientes.length;
 
   const frase = useMemo(() => fraseDelMesActual(new Date()), []);
@@ -43,7 +44,7 @@ export const InicioScreen: React.FC = () => {
   const accesos = useMemo(() => ACCESOS_DE_INICIO.filter((item) => item.visiblePara(role)), [role]);
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => refrescar()} contentContainerStyle={styles.contenido}>
       <View style={styles.barra}>
         <AppText variant="h6">Inicio</AppText>
         <View style={styles.barraAcciones}>

@@ -1,5 +1,6 @@
 // Perfil > Formación. Port de Portal-Austral-Dev -> src/app/(dashboard)/perfil/formacion/page.tsx.
 // Tarjeta superior (máximo nivel de formación y título de educación básica) y las siete secciones con alta, edición y baja.
+// Tirar para actualizar vuelve a leer la formación (decisión 98).
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -88,7 +89,7 @@ export const FormacionScreen: React.FC = () => {
   }
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => cargarFormacion()} contentContainerStyle={styles.contenido}>
       {/* El título lo muestra el encabezado de la navegación: acá solo la bajada del portal. */}
       <AppText variant="body2" tone="secondary">
         Aquí podrá cargar y actualizar su formación académica.

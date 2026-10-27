@@ -18,6 +18,8 @@ interface ListaPaginadaProps<T> {
   renderItem: (item: T) => React.ReactNode;
   textoVacio?: string;
   porPagina?: number;
+  /** Si se pasa, el estado de error muestra el botón "Reintentar". */
+  onReintentar?: () => void;
 }
 
 /**
@@ -32,6 +34,7 @@ export function ListaPaginada<T>({
   renderItem,
   textoVacio = MSG_SIN_REGISTROS,
   porPagina = 10,
+  onReintentar,
 }: ListaPaginadaProps<T>) {
   const { globalColors } = useThemeColors();
   const [visibles, setVisibles] = useState(porPagina);
@@ -49,7 +52,16 @@ export function ListaPaginada<T>({
         </View>
       );
     }
-    if (error) return <InfoAlert tipo="error">{MSG_ERROR_DE_LECTURA}</InfoAlert>;
+    if (error) {
+      return (
+        <View style={styles.error}>
+          <InfoAlert tipo="error">{MSG_ERROR_DE_LECTURA}</InfoAlert>
+          {onReintentar ? (
+            <AppButton title="Reintentar" variant="secondary" icon="refresh-outline" onPress={onReintentar} />
+          ) : null}
+        </View>
+      );
+    }
     return (
       <View style={styles.centro}>
         <AppText variant="body2" tone="secondary">
@@ -78,5 +90,6 @@ export function ListaPaginada<T>({
 
 const styles = StyleSheet.create({
   lista: { gap: spacing.md },
+  error: { gap: spacing.sm },
   centro: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
 });

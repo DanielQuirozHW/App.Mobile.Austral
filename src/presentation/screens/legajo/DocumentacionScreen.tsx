@@ -1,6 +1,6 @@
 // Legajo > Documentación. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/documentacion/page.tsx:
 // cabecera compacta del legajo, aviso informativo y la lista de documentos requeridos del empleado con sus
-// acciones "Ver adjuntos" y "Cargar archivo".
+// acciones "Ver adjuntos" y "Cargar archivo". Tirar para actualizar vuelve a leer la lista (decisión 98).
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { cargarDocumentacion, subirAdjuntosDeEmpleado } from '../../../application/documentacion/documentacionService';
@@ -30,7 +30,7 @@ export const DocumentacionScreen: React.FC = () => {
   }, []);
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => cargarDocumentacion()} contentContainerStyle={styles.contenido}>
       <PerfilLegajoBanner compacto />
 
       <InfoAlert tipo="info">Aquí deberás cargar los documentos asociados a tu legajo.</InfoAlert>

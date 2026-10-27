@@ -1,5 +1,6 @@
 // Plan de Trabajo Anual: lista de planes del docente. Port de Portal-Austral-Dev ->
 // src/app/(dashboard)/planes-de-trabajo/page.tsx (solo rol docente).
+// Tirar para actualizar vuelve a leer la lista de planes (decisión 98).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -52,7 +53,7 @@ export const PlanTrabajoScreen: React.FC = () => {
   }
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => cargarListaDePlanes()} contentContainerStyle={styles.contenido}>
       <View style={styles.titulos}>
         <AppText variant="h5">Plan de Trabajo Anual</AppText>
         <InfoAlert tipo="info">{TEXTO_AYUDA_LISTA}</InfoAlert>

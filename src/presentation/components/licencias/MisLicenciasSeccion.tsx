@@ -2,7 +2,7 @@
 // Canceladas, ver detalle, cancelar y solicitar una licencia nueva.
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { cancelarLicencia } from '../../../application/licencias/licenciasService';
+import { cancelarLicencia, cargarModulo } from '../../../application/licencias/licenciasService';
 import {
   ESTADOS_LICENCIAS_POR_PESTANIA,
   etiquetaEstadoLicencia,
@@ -70,6 +70,7 @@ export const MisLicenciasSeccion: React.FC = () => {
         datos={filtradas}
         cargando={bloque.cargando}
         error={bloque.error}
+        onReintentar={() => void cargarModulo()}
         keyDe={(l) => l.id}
         renderItem={(l) => (
           <TarjetaSolicitud

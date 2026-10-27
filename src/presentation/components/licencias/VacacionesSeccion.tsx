@@ -2,7 +2,7 @@
 // pestañas de solicitudes propias, ver y cancelar.
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { cancelarVacacion } from '../../../application/licencias/licenciasService';
+import { cancelarVacacion, cargarModulo } from '../../../application/licencias/licenciasService';
 import {
   ESTADOS_VACACIONES_POR_PESTANIA,
   etiquetaEstadoVacacion,
@@ -86,6 +86,7 @@ export const VacacionesSeccion: React.FC = () => {
         datos={filtradas}
         cargando={bloque.cargando}
         error={bloque.error}
+        onReintentar={() => void cargarModulo()}
         keyDe={(v) => v.id}
         renderItem={(v) => (
           <TarjetaSolicitud

@@ -6,6 +6,7 @@
 //
 // Módulo 1 de la demo: MI PERFIL = Datos personales + Documentación + todo el Perfil (Formación, Trayectoria,
 // Extensión, Gestión académica, Docencia, Investigación). Módulo 2: Licencias y vacaciones (decisión 93).
+// Plan de trabajo (solo docente) se habilitó en la decisión 98.
 import type { AppIconName } from '../components/AppIcon';
 import { puedeVerLegajo } from '../stores/rolStore';
 import type { RootStackParams } from './tipos';
@@ -142,7 +143,7 @@ export const ITEMS_DE_MENU: ItemDeMenu[] = [
     titulo: 'Plan de trabajo',
     icono: 'clipboard-outline',
     grupo: 'Gestión',
-    enDemo: false,
+    enDemo: true,
     visiblePara: soloDocente,
   },
   { ruta: 'Ajustes', titulo: 'Ajustes', icono: 'settings-outline', grupo: 'Cuenta', enDemo: true, visiblePara: paraTodos },

@@ -2,6 +2,7 @@
 // Licencias y vacaciones del equipo en una sola lista, con filtros por tipo y colaborador, y la pestaña de días pendientes.
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { cargarGestionDelLider } from '../../../application/licencias/licenciasService';
 import {
   ESTADOS_GESTION,
   ESTADOS_LICENCIA_A_RESPONDER,
@@ -150,6 +151,8 @@ export const GestionSeccion: React.FC = () => {
     }
   };
 
+  const reintentar = () => void cargarGestionDelLider();
+
   return (
     <View style={styles.seccion}>
       <View>
@@ -174,6 +177,7 @@ export const GestionSeccion: React.FC = () => {
           datos={pendientesVisibles}
           cargando={pendientes.cargando}
           error={pendientes.error}
+          onReintentar={reintentar}
           keyDe={(p) => p.id}
           renderItem={(p) => (
             <TarjetaSolicitud
@@ -192,6 +196,7 @@ export const GestionSeccion: React.FC = () => {
           datos={visibles}
           cargando={licencias.cargando || vacaciones.cargando}
           error={licencias.error || vacaciones.error}
+          onReintentar={reintentar}
           keyDe={(f) => f.key}
           renderItem={(f) => (
             <TarjetaSolicitud

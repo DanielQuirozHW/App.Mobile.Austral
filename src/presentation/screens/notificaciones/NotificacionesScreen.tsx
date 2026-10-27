@@ -132,7 +132,9 @@ export const NotificacionesScreen: React.FC = () => {
     }
   };
 
-  if (cargando) {
+  // Spinner de pantalla completa solo mientras no hay nada que mostrar: si se desmontara el scroll durante una
+  // actualización (tirar para actualizar o el botón), se cortaría el gesto.
+  if (cargando && todas.length === 0) {
     return (
       <View style={styles.centro}>
         <ActivityIndicator size="large" color={globalColors.accentPrimary} />
@@ -141,7 +143,7 @@ export const NotificacionesScreen: React.FC = () => {
   }
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => refrescar()} contentContainerStyle={styles.contenido}>
       <View style={styles.titulos}>
         <AppText variant="h5">Notificaciones</AppText>
         <AppText variant="body2" tone="secondary">
@@ -149,7 +151,12 @@ export const NotificacionesScreen: React.FC = () => {
         </AppText>
       </View>
 
-      {error ? <InfoAlert tipo="error">No se pudieron cargar las notificaciones. Intentá nuevamente.</InfoAlert> : null}
+      {error ? (
+        <View style={styles.aviso}>
+          <InfoAlert tipo="error">No se pudieron cargar las notificaciones. Intentá nuevamente.</InfoAlert>
+          <AppButton title="Reintentar" variant="secondary" onPress={actualizar} loading={actualizando} />
+        </View>
+      ) : null}
 
       <View style={styles.botones}>
         {pendientes.length > 0 ? (
@@ -225,6 +232,7 @@ const createStyles = (c: ColorTokens) =>
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
     contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     titulos: { gap: spacing.xs },
+    aviso: { gap: spacing.sm },
     botones: { gap: spacing.sm },
     filtros: { gap: spacing.sm },
     lista: { gap: spacing.md },

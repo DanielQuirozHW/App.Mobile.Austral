@@ -1,4 +1,5 @@
 // Perfil > Extensión. Port de Portal-Austral-Dev -> src/app/(dashboard)/perfil/extension/page.tsx.
+// Tirar para actualizar vuelve a leer las actividades (decisión 98).
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { cargarExtension, eliminarActividadExtension, MSG_ERROR_CARGA_EXTENSION } from '../../../application/perfil/extensionService';
@@ -39,7 +40,7 @@ export const ExtensionScreen: React.FC = () => {
   }
 
   return (
-    <Screen scroll contentContainerStyle={styles.contenido}>
+    <Screen scroll onRefresh={() => cargarExtension()} contentContainerStyle={styles.contenido}>
       {/* El título lo muestra el encabezado de la navegación: acá solo la bajada del portal. */}
       <AppText variant="body2" tone="secondary">
         Aquí podrá cargar y actualizar la información relacionada a sus actividades de extensión.
