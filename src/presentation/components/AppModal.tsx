@@ -138,12 +138,18 @@ export const AppModal: React.FC<AppModalProps> = ({
 };
 
 // El fondo oscuro ya separa el panel del resto: no lleva sombra (junto a overflow 'hidden' se recortaría en Android).
+// Dialog del portal (overrides/dialog.ts): radio 16, borde fino del divisor y líneas del divisor entre título, contenido y acciones.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     fondo: { flex: 1, backgroundColor: c.overlay },
     fondoHoja: { justifyContent: 'flex-end' },
     fondoCentrado: { justifyContent: 'center', paddingHorizontal: spacing.lg },
-    panel: { backgroundColor: c.card, overflow: 'hidden' },
+    panel: {
+      backgroundColor: c.card,
+      overflow: 'hidden',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: c.border,
+    },
     panelHoja: {
       maxHeight: '90%',
       borderTopLeftRadius: borderRadius.xl,
@@ -152,7 +158,7 @@ const createStyles = (c: ColorTokens) =>
     panelAlto: { height: '90%' },
     panelCentrado: {
       maxHeight: '85%',
-      borderRadius: borderRadius.lg,
+      borderRadius: borderRadius.xl,
     },
     encabezado: {
       flexDirection: 'row',

@@ -116,7 +116,7 @@ const createStyles = (c: ColorTokens, hayError: boolean, deshabilitado: boolean)
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 1.5,
-      borderColor: hayError ? c.danger : c.border,
+      borderColor: hayError ? c.danger : c.inputBorder,
       borderRadius: borderRadius.input,
       backgroundColor: deshabilitado ? c.inputDisabled : c.inputBackground,
     },

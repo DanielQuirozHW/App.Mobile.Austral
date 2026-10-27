@@ -219,10 +219,11 @@ export const NotificacionesScreen: React.FC = () => {
   );
 };
 
+// El margen de la pantalla ya lo pone Screen: acá solo el espacio entre bloques.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
+    contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     titulos: { gap: spacing.xs },
     botones: { gap: spacing.sm },
     filtros: { gap: spacing.sm },

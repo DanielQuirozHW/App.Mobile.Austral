@@ -116,7 +116,8 @@ export const PlanTrabajoDetalleScreen: React.FC = () => {
         </View>
       ) : null}
 
-      <Pestanias items={itemsPrincipales} activa={activa} onCambiar={cambiarPrincipal} />
+      {/* Dos niveles de pestañas: el de arriba subrayado y el de la actividad en chips. */}
+      <Pestanias items={itemsPrincipales} activa={activa} onCambiar={cambiarPrincipal} estilo="subrayado" />
 
       {activa === 'datos' ? (
         <View style={styles.bloque}>
@@ -172,10 +173,11 @@ export const PlanTrabajoDetalleScreen: React.FC = () => {
   );
 };
 
+// El margen de la pantalla ya lo pone Screen: acá solo el espacio entre bloques.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
+    contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     titulos: { gap: spacing.xs },
     aviso: { gap: spacing.sm },
     bloque: { gap: spacing.lg },

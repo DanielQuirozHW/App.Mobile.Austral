@@ -14,6 +14,7 @@ interface EtiquetaProps {
 export const Etiqueta: React.FC<EtiquetaProps> = ({ texto, tipo = 'neutro' }) => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
+  // El neutro usa surfaceSecondary: con surface (igual al fondo de la tarjeta) la insignia no se veía en ningún modo.
   const fondo =
     tipo === 'info'
       ? globalColors.infoLight
@@ -21,7 +22,7 @@ export const Etiqueta: React.FC<EtiquetaProps> = ({ texto, tipo = 'neutro' }) =>
         ? globalColors.successLight
         : tipo === 'advertencia'
           ? globalColors.warningLight
-          : globalColors.surface;
+          : globalColors.surfaceSecondary;
   const tono = tipo === 'exito' ? 'success' : tipo === 'advertencia' ? 'warning' : tipo === 'info' ? 'primary' : 'secondary';
 
   return (
@@ -33,12 +34,13 @@ export const Etiqueta: React.FC<EtiquetaProps> = ({ texto, tipo = 'neutro' }) =>
   );
 };
 
+// Chip del portal (overrides/chip.ts): radio 6.
 const createStyles = (_c: ColorTokens) =>
   StyleSheet.create({
     caja: {
       alignSelf: 'flex-start',
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xxs,
-      borderRadius: borderRadius.xs,
+      borderRadius: borderRadius.sm,
     },
   });

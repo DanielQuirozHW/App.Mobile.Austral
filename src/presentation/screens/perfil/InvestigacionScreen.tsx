@@ -24,7 +24,8 @@ export const InvestigacionScreen: React.FC = () => {
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
-      <Pestanias items={SECCIONES} activa={seccion} onCambiar={setSeccion} />
+      {/* Nivel de arriba subrayado (Tabs del portal) y subpáginas de cada sección en chips: así no se apilan dos filas iguales. */}
+      <Pestanias items={SECCIONES} activa={seccion} onCambiar={setSeccion} estilo="subrayado" />
       {seccion === 'afiliaciones' ? <InvestigacionAfiliaciones /> : null}
       {seccion === 'actividad' ? <InvestigacionActividad /> : null}
       {seccion === 'resultados' ? <InvestigacionResultados /> : null}

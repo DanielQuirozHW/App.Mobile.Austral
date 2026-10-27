@@ -36,7 +36,7 @@ interface EstadoVisual {
 // Campo del portal (overrides/input.ts): etiqueta arriba (no flotante), borde de 1.5 px, radio 6,
 // borde azul al enfocar, borde rojo con error. Deshabilitado: el texto conserva su color.
 const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual) => {
-  const borde = estado.hasError ? c.danger : estado.focused ? c.accentPrimary : c.border;
+  const borde = estado.hasError ? c.danger : estado.focused ? c.accentPrimary : c.inputBorder;
 
   return StyleSheet.create({
     wrapper: { gap: spacing.xs },

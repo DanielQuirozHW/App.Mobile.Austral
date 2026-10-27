@@ -113,10 +113,11 @@ export const PlanTrabajoScreen: React.FC = () => {
   );
 };
 
+// El margen de la pantalla ya lo pone Screen: acá solo el espacio entre bloques.
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
+    contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
     titulos: { gap: spacing.sm },
     aviso: { gap: spacing.sm },
     lista: { gap: spacing.md },

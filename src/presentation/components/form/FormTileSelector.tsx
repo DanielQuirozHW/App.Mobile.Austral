@@ -98,7 +98,7 @@ export const FormTileSelector: React.FC<FormTileSelectorProps> = ({
 const estiloTile = (c: ColorTokens, activa: boolean, hayError: boolean, deshabilitado: boolean) => ({
   borderWidth: 1.5,
   borderRadius: borderRadius.input,
-  borderColor: activa ? c.accentPrimary : hayError ? c.danger : c.border,
+  borderColor: activa ? c.accentPrimary : hayError ? c.danger : c.inputBorder,
   backgroundColor: activa ? c.primaryLight : deshabilitado ? c.inputDisabled : c.inputBackground,
   padding: spacing.md,
   minHeight: platformSpecific.minTouchTarget,

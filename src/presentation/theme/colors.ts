@@ -37,10 +37,12 @@ export const lightColors = {
   textTertiary: '#9496B8',
   textInverse: '#FFFFFF',
 
-  // Bordes: borde de campo (overrides/input.ts) y divisor (palette.divider)
-  border: 'rgba(46, 48, 146, 0.25)',
+  // Bordes. `border` es el divisor del portal (palette.divider): borde de tarjetas, diálogos, tablas y líneas.
+  // `inputBorder` es el borde de los campos (overrides/input.ts, notchedOutline): un poco más marcado.
+  border: 'rgba(46, 48, 146, 0.15)',
   borderLight: 'rgba(46, 48, 146, 0.15)',
   hairline: 'rgba(46, 48, 146, 0.15)',
+  inputBorder: 'rgba(46, 48, 146, 0.25)',
 
   // Estados (palette.success / warning / error / info). Las variantes "Light" son derivadas.
   success: '#43A047',
@@ -98,9 +100,10 @@ export const darkColors: ColorTokens = {
   textTertiary: '#5A6080',
   textInverse: '#0E1014',
 
-  border: 'rgba(79, 195, 215, 0.12)',
+  border: 'rgba(255, 255, 255, 0.08)',
   borderLight: 'rgba(255, 255, 255, 0.08)',
   hairline: 'rgba(255, 255, 255, 0.08)',
+  inputBorder: 'rgba(79, 195, 215, 0.12)',
 
   success: '#66BB6A',
   successLight: 'rgba(102, 187, 106, 0.18)',
