@@ -1,6 +1,6 @@
 # ESTADO — dónde estamos y qué hacer al retomar
 
-Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-26 (auditoría de paridad con el portal de todos los módulos del MVP, incluidas Vacaciones y el calendario; decisiones 94 y 95; ver `AUDITORIA-PARIDAD.md`).
+Este archivo es el punto de entrada para una sesión nueva. Se actualiza al final de cada etapa. Última actualización: 2026-10-27 (aspecto contra los overrides del tema del portal, márgenes y sin notificaciones en tiempo real; decisiones 96 y 97; ver `AUDITORIA-PARIDAD.md`, sección 2c).
 
 ## 0. ALCANCE REAL (leer primero)
 
@@ -14,7 +14,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 2. Los repos se leen y escriben **solo por el conector MCP de GitHub** (herramientas `get_file_contents` y `push_files`; si aparecen diferidas, cargarlas con ToolSearch). No se clona nada, no se usa `git`, no se usa `add_repo`.
 3. **Escritura solo en `DanielQuirozHW/App.Mobile.Austral`, rama `main`.** Verificar owner/repo en cada `push_files`. Los otros tres repos son solo lectura.
 4. **No se construye nada nuevo sin que Daniel lo elija** (sección 0). Lo que sí vale: pulir lo general y los módulos de la demo.
-5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **96**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
+5. Si Daniel pide algo concreto: leer primero el código del portal, construir por capas (`domain` → `infrastructure` → `application` → `presentation`), documentar decisiones numeradas en `docs/DECISIONES_89_en_adelante.md` (la próxima es la **98**) y actualizar este archivo, `PENDIENTES.md` y el mapa de `CLAUDE.md`.
 
 ## 2. Qué está hecho (todo escrito, nada probado)
 
@@ -30,11 +30,12 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 | 9 a 12 | Perfil completo: Formación, Trayectoria, Extensión, Gestión académica, Docencia, Investigación (Afiliaciones, Actividad I+D, Resultados / Impacto I+D). Sin Promoción > Postulación | 57 a 74, 87, 93 | `contexto/perfil.md` |
 | 13 | Plan de Trabajo (solo docente): lista, detalle, 18 secciones de registros, resumen con adjuntos y envío | 75 a 87 | `contexto/plan-de-trabajo.md` |
 | 14 | Tablero de Inicio real: bienvenida, mensaje del mes (textos por cargar), cumpleaños del día, próximos feriados y accesos | 89, 92, 93 | `contexto/inicio.md` |
-| 15 | Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas | 90 | `contexto/notificaciones.md` |
+| 15 | Notificaciones: pendientes / completadas / todas, filtros por módulo y fecha, "Ir", marcar como leída y marcar todas | 90, 96 | `contexto/notificaciones.md` |
 | 16 | Documentación del legajo: documentos requeridos del empleado, "Ver adjuntos" y "Cargar archivo" | 91 | `contexto/documentacion.md` |
 | 17 | MVP de demostración: menú lateral, selector de modo de color (Sistema / Claro / Oscuro), pantalla Ajustes, módulos fuera de la demo vacíos, corrección de la zona segura bajo el encabezado | 92 | `docs/DECISIONES_89_en_adelante.md` (propio de la app; el portal no tiene estas pantallas) |
 | 18 | Módulo 1 = Mi perfil completo: pantalla `MiPerfil`, menú reagrupado, campana con pendientes, pantalla de error general, márgenes y títulos de Perfil corregidos | 93 | `docs/DECISIONES_89_en_adelante.md` (propio de la app) |
-| 19 | **Auditoría de paridad con el portal de todos los módulos del MVP (leyendo el código): divergencias corregidas en Perfil, Datos personales, Documentación, panel de Vacaciones, calendario y pestañas; Licencias, Inicio y Notificaciones sin divergencias encontradas** | 94, 95 | `docs/AUDITORIA-PARIDAD.md` |
+| 19 | Auditoría de paridad con el portal de todos los módulos del MVP (leyendo el código): divergencias corregidas en Perfil, Datos personales, Documentación, panel de Vacaciones, calendario y pestañas; Licencias, Inicio y Notificaciones sin divergencias encontradas | 94, 95 | `docs/AUDITORIA-PARIDAD.md` |
+| 20 | **Aspecto contra los overrides del tema del portal: bordes en dos tokens (`border` divisor, `inputBorder` campos), pestañas subrayadas, `Etiqueta` neutra visible, diálogo con radio 16 y borde, márgenes duplicados quitados en Notificaciones y Plan de Trabajo** | 96, 97 | `docs/AUDITORIA-PARIDAD.md`, sección 2c |
 
 **Navegación actual:** menú lateral (botón de hamburguesa en el encabezado de cada pantalla y en la barra de Inicio) con los módulos en cuatro grupos: Principal (Inicio, Notificaciones), Mi perfil (Mi perfil, Datos personales para docente / codocente, Documentación, Formación, Trayectoria profesional, Extensión, Gestión académica, Docencia, Investigación), Gestión (Licencias y vacaciones; Plan de trabajo solo docente, **vacío**) y Cuenta (Ajustes). Inicio tiene accesos a Mi perfil y a Licencias y vacaciones. El catálogo está en `src/presentation/navigation/modulosMenu.ts` (`enDemo`, `accesoInicio`).
 
@@ -42,7 +43,9 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 
 **Módulos: no se hacen** (aclarado el 2026-10-26; ver sección 0). Ni las mejoras de Plan de Trabajo, Licencias y Vacaciones, ni Nombramientos y Promoción (etapa 7), ni GDD, Indicadores, Funciones SA / VRAA, Referente MATHU, Promoción > Postulación. Las notificaciones de esos módulos se muestran, pero "Ir" avisa que la sección no está disponible.
 
-**Lo general que se puede pulir (a elección de Daniel; detalle en `ALCANCE-MVP.md`):** contrastar el aspecto con los overrides del tema del portal (campos, diálogos, pestañas), tiempo real de notificaciones (dependencia nueva). La **lógica** de los componentes internos de Investigación y de `components/perfil/*` ya se auditó contra el portal (decisión 94); las líneas de `ALCANCE-MVP.md`, `CLAUDE.md` y de la decisión 93 que dicen "sin revisar" quedaron superadas por esa auditoría.
+**Notificaciones en tiempo real: no se hacen** (Daniel, 2026-10-27; decisión 96). No volver a proponerlo.
+
+**Lo general que se puede pulir (a elección de Daniel; detalle en `ALCANCE-MVP.md`):** la revisión estática de colores escritos a mano y márgenes en los componentes que faltan (`components/inicio`, `legajo`, `licencias`, `notificaciones`, `pta`, `menu` y parte de `perfil`; ver `AUDITORIA-PARIDAD.md`, sección 5). La **lógica** de los componentes internos de Investigación y de `components/perfil/*` ya se auditó contra el portal (decisión 94) y su **margen** se revisó en la decisión 97; las líneas de `ALCANCE-MVP.md` y `CLAUDE.md` que dicen "sin revisar" quedaron superadas.
 
 **Pendiente de la auditoría (ver `AUDITORIA-PARIDAD.md`, secciones 3 y 5):** el diálogo de confirmación de `RespuestaLider`, `ModalCalendario`, la grilla de gestión (`GestionSolicitudes`, `?tipo=`) y `columnsVacaciones`; confirmar si el portal tiene un flujo de "requiere más información" para licencias; íconos sin verificar; `new_lugardetrabajouniv`.
 
@@ -52,7 +55,7 @@ Este archivo es el punto de entrada para una sesión nueva. Se actualiza al fina
 - Lectura de `UnidadDeNegocio` (`NEXT_PUBLIC_UNIDAD_NEGOCIO`) del portal, por si hace falta otra variable de entorno.
 - Leer el guard del layout del dashboard del portal (`src/app/(dashboard)/layout.tsx` o equivalente) para confirmar qué rutas ve cada rol (afecta a Documentación y Notificaciones, hoy abiertas a todos los roles por inferencia).
 - Lo que figura como inferido o sin verificar está en `docs/PENDIENTES.md` (tabla "Falta verificar"). Cada punto dice en qué archivo del código está.
-- Revisión estática archivo por archivo del resto de `src/` (solo se revisaron la configuración, el Plan de Trabajo y lo escrito para el menú, Ajustes y Mi perfil; ver `docs/VERIFICACIONES.md`).
+- Revisión estática archivo por archivo del resto de `src/`: hecha para configuración, pantallas, campos de formulario y los componentes de la decisión 97; falta lo listado arriba (ver `docs/VERIFICACIONES.md`).
 
 ## 4. Orden de trabajo acordado con Daniel (2026-10-26)
 
@@ -60,12 +63,13 @@ Daniel no tiene la PC, así que se avanza solo con lo que se puede hacer leyendo
 
 1. **Configuración y estructura** — hecho: archivos de configuración revisados, librerías contrastadas con documentación oficial (`docs/VERIFICACIONES.md`), README actualizado. Queda la revisión estática del resto de `src/`.
 2. **Cerrar los puntos inferidos leyendo el portal** — hecho (decisión 87). Lo que sigue inferido está en `PENDIENTES.md`.
-3. **UI**: iniciales del avatar y foto de portada — hechas (decisión 88); borde del avatar de la cabecera (3 px azulLight) — hecho (decisión 92); márgenes y títulos de Perfil — hechos (decisión 93). **Falta**: contrastar el aspecto con los overrides del tema del portal (`src/@core/theme/overrides`) y el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`, hoy módulo vacío en la demo).
+3. **UI**: iniciales del avatar y foto de portada — hechas (decisión 88); borde del avatar de la cabecera (3 px azulLight) — hecho (decisión 92); márgenes y títulos de Perfil — hechos (decisión 93); aspecto contra los overrides del tema del portal — hecho (decisión 97). **Falta**: el encabezado del Plan de Trabajo (`PlanTrabajoPageHeader`, hoy módulo vacío en la demo).
 4. **Módulos nuevos**: Tablero de Inicio (hecho, decisión 89), notificaciones (hecho, decisión 90) y Documentación (hecho, decisión 91). **Aclaración posterior de Daniel (2026-10-26): no se siguen sumando módulos ni mejoras. El objetivo es un MVP de demostración (sección 0).**
 5. **Base general de la demo** (menú, modo de color, Ajustes, módulos vacíos) — hecha por pedido de Daniel (decisión 92).
 6. **Módulo 1 = todo el perfil, campana con pendientes, pantalla de error** — hecho por pedido de Daniel (decisión 93).
 7. **Auditoría de paridad de todos los módulos del MVP** — hecha por pedido de Daniel (decisiones 94 y 95); quedan los puntos listados en la sección 3.
-8. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
+8. **Aspecto contra el tema del portal y márgenes** — hecho por pedido de Daniel (decisión 97).
+9. Nombramientos y Promoción: **ya no se hace** salvo pedido expreso.
 
 Si Daniel tiene la PC: pasa primero el checklist de `docs/SETUP-NATIVO.md`, sección 6, y las correcciones que salgan de las pruebas van antes que lo anterior.
 
@@ -90,10 +94,11 @@ No preguntar ni insistir con estos temas: están listados y los hace Daniel cuan
 - **La idea es un MVP chico para que el cliente decida; no se migran todos los módulos** (sección 0). Los que no son de la demo quedan en el menú, vacíos.
 - Entregar todo **completo**, nunca fragmentos (`push_files` reemplaza el archivo entero: para cambiar un archivo se reenvía completo).
 - Separar siempre lo verificado en el código de lo supuesto. Citar repo + ruta.
-- La app es la versión mobile del **portal de Austral**: colores, textos y lógica salen del portal, no del prototipo.
+- La app es la versión mobile del **portal de Austral**: colores, textos y lógica salen del portal, no del prototipo. **Entre verse bien y seguir la UI del portal, importa más verse bien; los colores sí deben seguir al portal en claro y oscuro** (2026-10-27).
 - No probar nada y no usar credenciales, nunca.
 - No justificar una recomendación técnica con "no se puede probar".
 - No volver a plantear la seguridad del usuario de servicio del portal, ni preguntar por la publicación de las apps o el registro en Firebase.
+- No proponer notificaciones en tiempo real (decisión 96).
 - Avanzar sin pedir aprobación por etapa **dentro de lo que pide**; frenar solo ante una decisión irreversible o una duda real.
 - No copiar datos de personas ni de ejemplo del código del portal (decisión 67). Tampoco pasajes de libros (decisión 89).
 

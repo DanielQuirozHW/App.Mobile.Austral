@@ -1,8 +1,8 @@
 # Auditoría de paridad con el portal (2026-10-26)
 
-Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `8faedbc`).
+Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `edd1de0`).
 
-Decisiones asociadas: **94** y **95** (`DECISIONES_89_en_adelante.md`).
+Decisiones asociadas: **94**, **95** y **97** (`DECISIONES_89_en_adelante.md`).
 
 ## 1. Resultado por módulo
 
@@ -18,6 +18,7 @@ Decisiones asociadas: **94** y **95** (`DECISIONES_89_en_adelante.md`).
 | Investigación (financiamientos y formación de RR. HH.) | stores y modales | Divergencias corregidas | `c9994925` |
 | Investigación (jurados, pertenencia, categorización externa, Prinuar) | stores y modales | Divergencias corregidas | `8b957b1`, `2b2b06a` |
 | Aspecto general de las pantallas | tema del portal | Pasada de UI | `1cfe34e` |
+| Aspecto contra los overrides del tema (campos, tarjetas, diálogos, pestañas, chips) y márgenes de Notificaciones / Plan de Trabajo | `src/@core/theme/palette` y `overrides` | Corregido (ver 2c) | `edd1de0` |
 | Licencias (propias y del equipo) | ver 3 | **Sin divergencias encontradas** | (sin cambios) |
 | Vacaciones: panel, solicitud, aprobación, detalle, consultas, cancelación | ver 3 | Divergencia corregida en el panel (ver 2b) | `43ec0af` |
 | Calendario y pestañas de Licencias y vacaciones | `licencias/page.tsx`, `CalendarioWrapper.tsx`, `Calendar.tsx` | Dos divergencias corregidas (ver 2b) | `8faedbc` |
@@ -37,6 +38,18 @@ Decisiones asociadas: **94** y **95** (`DECISIONES_89_en_adelante.md`).
   - Colores de la barra: el portal usa `success.main` (gozados), `primary.main` (solicitados) y `primary.light` (pendientes). La app usaba warning / info. `primary.light` del portal es `#B0B3E0` en claro y `#9FE6F0` en oscuro (`src/@core/theme/palette/index.ts`); se agregó el token `primaryMid` a `theme/colors.ts` con esos valores.
 - **Color por persona del calendario** (`src/domain/licencias/calendario.ts`, commit `8faedbc`). Portal: `calendar/Calendar.tsx`, `colorFromName`: `hash = char + ((hash << 5) - hash)` y `hue = Math.abs(hash) % 360`. La app usaba `(hash * 31 + char) % 360`, que da otro tono (el desplazamiento del portal trabaja en 32 bits con signo). Ahora es la misma cuenta.
 - **Nombre de la pestaña de líderes** (`LicenciasScreen.tsx`, commit `8faedbc`): en el portal se llama "Gestión" (`licencias/page.tsx`); la app decía "Equipo". La clave interna sigue siendo `equipo`.
+
+## 2c. Aspecto contra el tema del portal y márgenes (commit `edd1de0`)
+
+Pedido de Daniel (2026-10-27): "más importante que se vea bien a que siga la UI del portal, colores sí debe seguirlos en ambos modos". Se leyó `src/@core/theme/palette` y `src/@core/theme/overrides` (`input`, `card`, `dialog`, `tabs`, `button`, `chip`) y se contrastó con los componentes de la app. **Leído, no ejecutado: no se vio ninguna pantalla.**
+
+- **Bordes** (`src/presentation/theme/colors.ts`). El token `border` mezclaba el borde de los campos con el divisor del portal. Ahora `border` es el divisor (`palette.divider`: `rgba(46,48,146,0.15)` claro, `rgba(255,255,255,0.08)` oscuro) y el nuevo `inputBorder` es el de los campos (`overrides/input.ts`: `rgba(46,48,146,0.25)` claro, `rgba(79,195,215,0.12)` oscuro). Usan `inputBorder`: `AppTextField`, `SelectField` (caja y buscador), `DateField`, `MultiSelectField`, `FormTileSelector` y los chips de `Pestanias`. Tarjetas, diálogos y líneas toman el divisor sin tocar su código.
+- **Pestañas** (`components/licencias/Pestanias.tsx`): variante `estilo="subrayado"` (`overrides/tabs.ts`: línea inferior, 2 px primario en la activa, texto primario). Se usa en el nivel de arriba de `InvestigacionScreen` y de `PlanTrabajoDetalleScreen`, que apilaban dos filas de chips iguales. Los chips de abajo no cambian.
+- **`Etiqueta`**: el tipo neutro usaba el mismo fondo que la tarjeta y no se veía; ahora `surfaceSecondary`, con radio 6 (`overrides/chip.ts`).
+- **`AppModal`**: el diálogo centrado usa radio 16 y todos los paneles llevan borde fino del divisor (`overrides/dialog.ts`).
+- **Márgenes**: `NotificacionesScreen`, `PlanTrabajoScreen` y `PlanTrabajoDetalleScreen` repetían `padding: spacing.lg` encima del que ya pone `Screen` (redundante y distinto al resto); ahora solo `gap` y `paddingBottom`. Se leyó `InvestigacionActividad`, `InvestigacionAfiliaciones`, `InvestigacionResultados`, `InvestigacionScreen` y las pantallas de Perfil: solo usan `gap`, sin cambios.
+- **Leídos sin cambios necesarios**: `AppButton`, `SeccionCard`, `SeccionRegistros`, `TarjetaSolicitud`, `Screen`, `DocenciaScreen`, `ExtensionScreen`, `FormacionScreen`, `GestionAcademicaScreen`, `MiPerfilScreen`, `TrayectoriaScreen`, `DocumentacionScreen`, `InicioScreen`, `ModuloVacioScreen`, `AjustesScreen`, `LicenciasScreen`, `DatosPersonalesScreen`.
+- **Diferencias conscientes de aspecto** (pensadas para celular): área táctil mínima de 48 (Android) / 44 (iOS) px en lugar de los 36 px de los campos del portal; sin el anillo de foco con sombra (el foco se marca con el borde primario); sombra negra en lugar de la azul; sin efectos de hover.
 
 ## 3. Licencias y vacaciones: qué se contrastó y qué no
 
@@ -63,6 +76,8 @@ Decisiones asociadas: **94** y **95** (`DECISIONES_89_en_adelante.md`).
 ## 4. Diferencias conscientes con el portal (acumuladas)
 
 Las decisiones de diseño de la app que no copian el portal a la letra. Todas están pensadas para celular o para evitar un defecto del portal.
+
+**Aspecto general** (decisión 97): área táctil mínima 48 / 44 px en vez de 36; sin anillo de foco con sombra; sombra negra en vez de azul; sin efectos de hover; pestañas de dos niveles con el de arriba subrayado y el de abajo en chips.
 
 **Licencias y vacaciones**
 
@@ -111,7 +126,8 @@ Las decisiones de diseño de la app que no copian el portal a la letra. Todas es
 - La escritura de `new_lugardetrabajouniv` del portal (ver Categorización externa): no se encontró dónde se persiste.
 - Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` y, del panel de vacaciones, `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline` (más los que ya figuran en `PENDIENTES.md`). `AppIconName` es el tipo de nombres de Ionicons: si alguno no existe, el compilador lo marca.
 - `FormacionScreen` conserva `any` en el formulario (el valor del selector es una opción de lista).
-- El aspecto de campos y diálogos contra los overrides del tema del portal (`input`, `dialog`, pestañas): no se contrastó campo por campo.
+- **Revisión estática de colores escritos a mano y márgenes, pendiente en**: `components/inicio`, `components/legajo`, `components/licencias` (salvo `Pestanias`, `TarjetaSolicitud`), `components/notificaciones`, `components/pta`, `components/menu` y los componentes de `components/perfil/*` no mencionados en 2c. Las pantallas y los campos de formulario sí se leyeron (2c).
+- El aspecto de los demás overrides del tema del portal (`table`, `menu`, `alert`, `tooltip`, etc.) no se contrastó; la app no tiene equivalentes directos.
 - Lo que figura en "Sin contrastar" de la sección 3 (`RespuestaLider`, `ModalCalendario`, gestión, `columnsVacaciones`, hooks de lectura, subperíodos, "requiere más información").
 
 ## 6. Cómo leer esto

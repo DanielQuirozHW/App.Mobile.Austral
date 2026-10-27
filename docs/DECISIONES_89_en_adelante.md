@@ -1,6 +1,6 @@
 # Decisiones 89 en adelante
 
-Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **96**.
+Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separó porque el archivo original ya es muy largo y cada cambio obliga a reenviarlo entero. La numeración sigue corrida: la próxima es la **98**.
 
 ## 2026-10-26 (Tablero de Inicio y Notificaciones)
 
@@ -14,7 +14,7 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
 
 90. **Notificaciones** (`NotificacionesScreen`, ruta `Notificaciones`). Fuente: `Portal-Austral-Dev` -> `src/app/(dashboard)/notificaciones/page.tsx`, `src/hooks/useGetNotificaciones.ts`, `src/columns/columnsNotificaciones.tsx`, `src/@core/utils/rutaNotificacion.ts`, `src/stores/useLegajoStore.ts` (`getNotificacionesEmpleado`) y `src/keys.ts`. Contrato en `docs/contexto/notificaciones.md`.
     - **Lectura, pendientes / leídas, reescritura de descripciones, "Marcar como leída", "Marcar todas como leídas" (tandas de 5), ruteo por módulo, filtros y textos**: los del portal.
-    - **Sin tiempo real por SignalR.** El portal abre una conexión a `hubs/notifications` con `@microsoft/signalr`; la app no agrega esa dependencia. En su lugar la lista se vuelve a pedir cada 5 minutos (el intervalo que el portal dejó comentado como "polling fallback"), al abrir la pantalla y con el botón "Actualizar". Si el equipo quiere tiempo real, se agrega `@microsoft/signalr` y se escucha `NuevaNotificacion`: es una decisión de Daniel (dependencia nueva).
+    - **Sin tiempo real por SignalR.** El portal abre una conexión a `hubs/notifications` con `@microsoft/signalr`; la app no agrega esa dependencia. En su lugar la lista se vuelve a pedir cada 5 minutos (el intervalo que el portal dejó comentado como "polling fallback"), al abrir la pantalla y con el botón "Actualizar". *(Ver decisión 96: Daniel confirmó que no se hace tiempo real.)*
     - **Aviso de error al marcar como leída.** El portal solo escribe en la consola; la app muestra "No se pudo marcar la notificación como leída". Diferencia consciente.
     - **"Ir"** traduce la ruta del portal a una pantalla de la app (`resolverDestino`). Gestión del desempeño, Funciones SA / VRAA y Referente MATHU no existen en la app: el aviso se muestra y "Ir" informa "Esta sección todavía no está disponible en la app.". `seccion=gestion` de Licencias va a la sección `equipo` (inferido).
     - **Portal CAE**: se agrega la variable opcional `PORTAL_CAE_URL` (sin valor en `.env.template`, `config/env.ts` -> `env.portalCaeUrl`). Vacía, la notificación "para revisión" lleva a Docencia, igual que el portal con `NEXT_PUBLIC_PORTAL_CAE_URL` vacía.
@@ -60,7 +60,7 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **Títulos repetidos**: Formación, Trayectoria, Extensión y Gestión académica mostraban el título (h5) igual al del encabezado nativo; se quitó y queda la bajada del portal. En Docencia el título cambia según la pestaña y se mantiene, más chico (h6).
     - **Tipos**: `TrayectoriaScreen` deja de usar `any` en el formulario (`ValoresTrayectoria`). `FormacionScreen` conserva `any` (el valor del selector es una opción de lista).
     - **Red de seguridad**: `components/ErrorBoundary.tsx`, dentro del tema y fuera de React Query en `AppProviders`. Si una pantalla falla al dibujarse, muestra "Algo salió mal" con "Reintentar" en vez de cerrar la app. Propia de la app (el portal usa el manejo de errores de Next.js). No atrapa errores de eventos ni de código asíncrono.
-    - **No revisado todavía** *(superado por la decisión 94: la lógica de estos componentes se auditó contra el portal)*: los componentes internos de Investigación (`InvestigacionAfiliaciones`, `InvestigacionActividad`, `InvestigacionResultados`) y los de `components/perfil/*` por el mismo problema de márgenes y títulos; el aspecto contra los overrides del tema del portal.
+    - **No revisado todavía** *(superado por las decisiones 94 y 97: la lógica de estos componentes se auditó contra el portal y los márgenes y el aspecto se revisaron en la 97)*: los componentes internos de Investigación (`InvestigacionAfiliaciones`, `InvestigacionActividad`, `InvestigacionResultados`) y los de `components/perfil/*`.
     - Sin verificar: los íconos `person-circle-outline`, `alert-circle-outline` y `chevron-forward`; que `AppIconName` los acepte (ver `PENDIENTES.md`).
     - Nada probado ni llamado a la API.
 
@@ -80,4 +80,18 @@ Continuación de [`DECISIONES.md`](DECISIONES.md) (decisiones 1 a 88). Se separ�
     - **Diferencias conscientes nuevas**: panel con encabezado de período y días disponibles; desglose y ayuda en un diálogo; el detalle de una vacación muestra más campos que el del portal; el módulo abre directo en las pestañas (el portal abre con tarjetas de inicio).
     - **Sigue sin contrastar**: el diálogo de confirmación de `RespuestaLider`, `ModalCalendario`, la grilla de gestión y el parámetro `?tipo=`, `columnsVacaciones`, los hooks de lectura, `getSubperiodovacacional` y el flujo "requiere más información".
     - Sin verificar: los íconos `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline`.
+    - Nada probado ni llamado a la API.
+
+## 2026-10-27 (Sin tiempo real y aspecto contra el tema del portal)
+
+96. **Sin notificaciones en tiempo real (SignalR).** Respuesta de Daniel (2026-10-27): "Notificaciones en tiempo real no". Queda como está en la decisión 90: la lista se vuelve a pedir al abrir la pantalla, cada 5 minutos y con el botón "Actualizar". **No se agrega `@microsoft/signalr`** ni se escucha `NuevaNotificacion`. No volver a proponerlo salvo pedido expreso.
+
+97. **Aspecto contra los overrides del tema del portal y márgenes del resto de pantallas.** Pedido de Daniel (2026-10-27): revisar los componentes internos de Investigación y `components/perfil/*` por márgenes, el aspecto contra `src/@core/theme/overrides` y el resto de `src/` de forma estática; "más importante que se vea bien a que siga la UI del portal, colores sí debe seguirlos en ambos modos". Se hizo **leyendo**; nada se ejecutó. Fuente: `Portal-Austral-Dev` -> `src/@core/theme/palette` y `src/@core/theme/overrides` (`input`, `card`, `dialog`, `tabs`, `button`, `chip`). Detalle en `docs/AUDITORIA-PARIDAD.md`, sección 2c.
+    - **Bordes: dos tokens en vez de uno** (`theme/colors.ts`). `border` pasa a ser el divisor del portal (`palette.divider`: `rgba(46,48,146,0.15)` en claro, `rgba(255,255,255,0.08)` en oscuro) y se usa en tarjetas, diálogos y líneas. Nuevo `inputBorder` para los campos (`overrides/input.ts`: `rgba(46,48,146,0.25)` en claro, `rgba(79,195,215,0.12)` en oscuro). Usan `inputBorder`: `AppTextField`, `SelectField`, `DateField`, `MultiSelectField`, `FormTileSelector` y los chips de `Pestanias`. Las tarjetas (`SeccionCard`, `TarjetaSolicitud`, etc.) toman el divisor sin cambios de código.
+    - **Pestañas**: `Pestanias` suma `estilo="subrayado"` (Tabs del portal: línea inferior y 2 px primario en la activa). Se usa en el nivel de arriba de Investigación y del detalle del Plan de Trabajo, que tenían dos filas de chips iguales apiladas.
+    - **`Etiqueta` neutra** con fondo `surfaceSecondary` (antes igual al de la tarjeta: no se veía) y radio 6 (Chip del portal).
+    - **`AppModal`**: diálogo centrado con radio 16 y borde fino del divisor (Dialog del portal).
+    - **Márgenes**: Notificaciones, Plan de Trabajo y su detalle repetían `padding` encima del de `Screen`; se quitó. Los componentes internos de Investigación y las pantallas de Perfil solo usan `gap`: sin cambios.
+    - **Diferencias conscientes de aspecto**: área táctil mínima 48 / 44 en lugar de los 36 px de los campos del portal; sin el anillo de foco con sombra; sombra negra en lugar de la azul; sin efectos de hover.
+    - **Revisión estática del resto de `src/`: incompleta.** No se revisaron todavía `components/inicio`, `legajo`, `licencias`, `notificaciones`, `pta`, `menu` ni todo `components/perfil/*` por colores escritos a mano. Queda anotado en `AUDITORIA-PARIDAD.md`, sección 5.
     - Nada probado ni llamado a la API.
