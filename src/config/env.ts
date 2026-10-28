@@ -1,6 +1,7 @@
 // Las variables se inyectan en la compilación con react-native-dotenv.
 // Acá no hay ningún valor: viven solo en el .env local, que no se commitea.
 // Importante: se lee siempre como process.env.NOMBRE (acceso literal) para que el plugin pueda reemplazarlo.
+// Metro guarda en caché este archivo ya compilado: después de cambiar el .env hay que reiniciar Metro con --reset-cache.
 declare const process: { env: Record<string, string | undefined> };
 
 const limpiar = (valor: string | undefined): string => (valor ?? '').trim();
@@ -27,23 +28,22 @@ export const variablesDeEntornoFaltantes = (): string[] => {
 };
 
 // Diagnóstico (solo en desarrollo): una línea "[ENV]" en el log de la app con DATOS DE FORMA de las variables, nunca
-// sus valores: si están definidas, cuántos caracteres tienen y si traen algo que suele romper la lectura del .env
-// (espacios en los bordes, comillas, #, $, barra invertida). Sirve para distinguir un .env mal leído de credenciales
-// que la API rechaza.
+// sus valores: si están definidas, cuántos caracteres tienen y, de la clave, SÍ/NO por cada tipo de carácter que suele
+// romper la lectura del .env. Sirve para distinguir un .env mal leído de credenciales que la API rechaza.
 if (__DEV__) {
-  const conflictivos = /[#$"'`\\\s]/;
   const correoCrudo = process.env.API_SERVICE_EMAIL ?? '';
   const claveCruda = process.env.API_SERVICE_PASSWORD ?? '';
   const urlCruda = process.env.API_URL ?? '';
+  const clave = env.apiServicePassword;
   console.log(
-    `[ENV] API_URL: definida=${Boolean(env.apiUrl)}, usaHttps=${env.apiUrl.startsWith('https://')}, terminaConBarra=${env.apiUrl.endsWith(
+    `[ENV v2] API_URL: definida=${Boolean(env.apiUrl)}, usaHttps=${env.apiUrl.startsWith('https://')}, terminaConBarra=${env.apiUrl.endsWith(
       '/',
-    )} | CORREO: definido=${Boolean(env.apiServiceEmail)}, longitud=${env.apiServiceEmail.length}, tieneArroba=${env.apiServiceEmail.includes(
+    )}, conEspaciosEnLosBordes=${urlCruda !== env.apiUrl} | CORREO: longitud=${env.apiServiceEmail.length}, tieneArroba=${env.apiServiceEmail.includes(
       '@',
-    )}, espaciosEnLosBordes=${correoCrudo !== env.apiServiceEmail} | CLAVE: definida=${Boolean(
-      env.apiServicePassword,
-    )}, longitud=${env.apiServicePassword.length}, espaciosEnLosBordes=${claveCruda !== env.apiServicePassword}, caracteresConflictivos=${conflictivos.test(
-      env.apiServicePassword,
-    )} | URL con espacios en los bordes=${urlCruda !== env.apiUrl}`,
+    )}, conEspaciosEnLosBordes=${correoCrudo !== env.apiServiceEmail} | CLAVE: longitud=${clave.length}, conEspaciosEnLosBordes=${
+      claveCruda !== clave
+    }, tieneBarraInvertida=${clave.includes('\\')}, tieneDolar=${clave.includes('$')}, tieneNumeral=${clave.includes(
+      '#',
+    )}, tieneComillas=${/["'`]/.test(clave)}, tieneEspacioInterno=${/\s/.test(clave)}`,
   );
 }
