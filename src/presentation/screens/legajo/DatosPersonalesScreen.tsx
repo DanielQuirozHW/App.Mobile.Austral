@@ -4,7 +4,10 @@
 //  - un solo escalonado de campos (una columna) en lugar de la grilla de 12 columnas;
 //  - sin el breadcrumb "Legajo > Datos personales" (LegajoPageHeader): el título de la pantalla ya lo dice;
 //  - las secciones son colapsables (docs/DECISION-UI-MOBILE.md): cerradas muestran un resumen; al intentar guardar con
-//    campos obligatorios vacíos se abre la sección que los tiene. El botón "Guardar cambios" queda fijo abajo.
+//    campos obligatorios vacíos se abre la sección que los tiene. El botón "Guardar cambios" queda fijo abajo;
+//  - mientras llega el legajo y se arma el formulario se muestra la carga: el error "No pudimos cargar tus datos" solo
+//    aparece si la lectura terminó y no hay legajo (antes se vea un instante entre que llegaba el legajo y se armaba el
+//    formulario).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -288,7 +291,10 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   // ---------------------------------------------------------------- Vistas
-  if (!cargaTerminada) {
+  // Entre que termina la lectura y se arma el formulario hay un cuadro en el que `legajo` ya existe pero `formListo`
+  // todavía no: se trata como carga, no como error.
+  const armandoFormulario = cargaTerminada && Boolean(legajo) && !formListo;
+  if (!cargaTerminada || armandoFormulario) {
     return (
       <View style={styles.centrado}>
         <ActivityIndicator size="large" color={globalColors.accentPrimary} />
@@ -317,12 +323,6 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
     <View style={styles.pantalla}>
       <ScrollFormulario ref={scrollRef} contentContainerStyle={styles.contenido}>
         <PerfilLegajoBanner localidadLabel={legajo.localidad?.label || undefined} />
-
-        <InfoAlert>
-          <AppText variant="body2">
-            Revisá y mantené actualizados tus datos. Tocá una sección para editarla y guardá los cambios al final.
-          </AppText>
-        </InfoAlert>
 
         {errorCatalogos ? (
           <InfoAlert tipo="advertencia">
