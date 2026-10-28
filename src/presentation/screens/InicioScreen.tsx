@@ -1,8 +1,9 @@
 // Inicio. Port de Portal-Austral-Dev -> src/app/(dashboard)/page.tsx: bienvenida, mensaje del mes, cumpleaños del día y
-// próximos feriados (decisión 89). Arriba hay una barra con la campana de notificaciones (con la cantidad de
-// pendientes, como la campana del encabezado del portal) y el menú lateral (en el portal el menú es la barra lateral,
-// que en el celular no existe). Debajo van los accesos a los módulos de la demostración (navigation/modulosMenu.ts:
-// Mi perfil y Licencias y vacaciones); el cierre de sesión está en el menú y en Ajustes.
+// próximos feriados (decisión 89). Arriba hay una barra con "Cambiar puesto" (solo con más de un puesto; decisión 99),
+// la campana de notificaciones (con la cantidad de pendientes, como la campana del encabezado del portal) y el menú
+// lateral (en el portal el menú es la barra lateral, que en el celular no existe). Debajo van los accesos a los módulos
+// de la demostración (navigation/modulosMenu.ts: Mi perfil y Licencias y vacaciones); el cierre de sesión está en el
+// menú y en Ajustes.
 // Tirar para actualizar vuelve a leer las notificaciones (decisión 98).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -35,9 +36,12 @@ export const InicioScreen: React.FC = () => {
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
+  const userRoles = useRolStore((s) => s.userRoles);
+  const marcarSeleccionPendiente = useRolStore((s) => s.marcarSeleccionPendiente);
   const { proximosFeriados, cargandoFeriados, cumpleaniosHoy, fechaDeHoy } = useTablero();
   const { pendientes, refrescar } = useNotificaciones();
   const cantidadPendientes = pendientes.length;
+  const puedeCambiarPuesto = userRoles.length > 1;
 
   const frase = useMemo(() => fraseDelMesActual(new Date()), []);
   const periodo = useMemo(() => periodoDelMes(new Date()), []);
@@ -48,6 +52,17 @@ export const InicioScreen: React.FC = () => {
       <View style={styles.barra}>
         <AppText variant="h6">Inicio</AppText>
         <View style={styles.barraAcciones}>
+          {puedeCambiarPuesto ? (
+            <Pressable
+              onPress={marcarSeleccionPendiente}
+              hitSlop={spacing.sm}
+              accessibilityRole="button"
+              accessibilityLabel="Cambiar puesto"
+              style={styles.botonBarra}
+            >
+              <AppIcon name="swap-horizontal-outline" size={iconSizes.lg} color={globalColors.text} />
+            </Pressable>
+          ) : null}
           <Pressable
             onPress={() => irAModulo('Notificaciones')}
             hitSlop={spacing.sm}

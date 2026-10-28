@@ -2,6 +2,7 @@
 // En el celular se abre desde el botón de hamburguesa y se desliza desde la izquierda. Sin librerías nuevas:
 // Modal + Animated de React Native.
 // MVP de demostración: los módulos sin contenido figuran igual y abren una pantalla vacía (navigation/modulosMenu.ts).
+// "Cambiar puesto" (decisión 99): solo con más de un puesto; vuelve a la pantalla de selección de puesto.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,7 +32,9 @@ export const MenuLateral: React.FC = () => {
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
+  const userRoles = useRolStore((s) => s.userRoles);
   const seleccionPendiente = useRolStore((s) => s.seleccionPendiente);
+  const marcarSeleccionPendiente = useRolStore((s) => s.marcarSeleccionPendiente);
   const abierto = useMenuStore((s) => s.abierto);
   const rutaActual = useMenuStore((s) => s.rutaActual);
   const cerrar = useMenuStore((s) => s.cerrar);
@@ -41,6 +44,7 @@ export const MenuLateral: React.FC = () => {
   const opacidadFondo = useRef(new Animated.Value(0)).current;
 
   const autenticado = Boolean(user?.empleadoid) && !seleccionPendiente;
+  const puedeCambiarPuesto = userRoles.length > 1;
 
   // Si se pierde la sesión con el menú abierto, se cierra.
   useEffect(() => {
@@ -80,6 +84,11 @@ export const MenuLateral: React.FC = () => {
   const ir = (ruta: RutaDeMenu) => {
     cerrar();
     irAModulo(ruta);
+  };
+
+  const cambiarPuesto = () => {
+    cerrar();
+    marcarSeleccionPendiente();
   };
 
   const salir = async () => {
@@ -169,6 +178,18 @@ export const MenuLateral: React.FC = () => {
           </ScrollView>
 
           <View style={styles.pie}>
+            {puedeCambiarPuesto ? (
+              <Pressable
+                onPress={cambiarPuesto}
+                accessibilityRole="button"
+                accessibilityLabel="Cambiar puesto"
+                android_ripple={{ color: globalColors.hairline }}
+                style={styles.item}
+              >
+                <AppIcon name="swap-horizontal-outline" size={iconSizes.lg} color={globalColors.textSecondary} />
+                <AppText variant="body2">Cambiar puesto</AppText>
+              </Pressable>
+            ) : null}
             <Pressable
               onPress={salir}
               accessibilityRole="button"
