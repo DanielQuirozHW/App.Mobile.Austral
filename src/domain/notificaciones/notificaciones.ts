@@ -398,34 +398,76 @@ export const moduloNotificacion = (notificacion: DatosParaRuta, portalCaeUrl = '
 
 // ---------- Destino dentro de la app ----------
 
+// Los valores de estos tipos son los mismos de presentation/navigation/tipos.ts (el dominio no importa de la capa de
+// presentación; TypeScript los trata como compatibles porque son uniones de los mismos textos).
 export type SeccionLicencias = 'licencias' | 'vacaciones' | 'calendario' | 'equipo';
+export type TipoGestion = 'Licencia' | 'Vacaciones';
+export type PestaniaDocencia = 'categorizacion' | 'nombramientos' | 'promocion' | 'docencia' | 'asesoramiento';
+export type SeccionInvestigacion = 'afiliaciones' | 'actividad' | 'resultados';
 
 export type DestinoEnApp =
-  | { tipo: 'pantalla'; nombre: 'Inicio' | 'Docencia' | 'Investigacion' | 'PlanesDeTrabajo' }
-  | { tipo: 'pantalla'; nombre: 'Licencias'; seccion?: SeccionLicencias }
+  | { tipo: 'pantalla'; nombre: 'Inicio' | 'PlanesDeTrabajo' }
+  | { tipo: 'pantalla'; nombre: 'Docencia'; pestania?: PestaniaDocencia }
+  | { tipo: 'pantalla'; nombre: 'Investigacion'; seccion?: SeccionInvestigacion }
+  | { tipo: 'pantalla'; nombre: 'Licencias'; seccion?: SeccionLicencias; tipoGestion?: TipoGestion }
   | { tipo: 'url'; url: string }
   | { tipo: 'noDisponible' };
 
+const PESTANIAS_DOCENCIA: PestaniaDocencia[] = ['categorizacion', 'nombramientos', 'promocion', 'docencia', 'asesoramiento'];
+
+/** Valor de un par ?clave=valor de una ruta del portal (undefined si no está). */
+const parametroDeRuta = (ruta: string, clave: string): string | undefined =>
+  (ruta.split('?')[1] ?? '')
+    .split('&')
+    .map((par) => par.split('='))
+    .find(([nombre]) => nombre === clave)?.[1];
+
+/** Subpágina de /perfil/<módulo>/<subpágina> (sin consulta). */
+const subpaginaDeRuta = (ruta: string): string => (ruta.split('?')[0].split('/')[3] ?? '').toLowerCase();
+
 /**
- * Traduce la ruta del portal a una pantalla de la app. Lo que la app todavía no tiene (Gestión del desempeño, Funciones
- * SA / VRAA, Referente MATHU) queda como `noDisponible`. "Plan de trabajo" solo existe para el rol docente.
+ * Traduce la ruta del portal a una pantalla de la app, conservando lo que el portal abre: la pestaña de Docencia, la
+ * sección de Investigación, y en Licencias la sección y el tipo (?seccion= y ?tipo=). Lo que la app todavía no tiene
+ * (Gestión del desempeño, Funciones SA / VRAA, Referente MATHU) queda como `noDisponible`. "Plan de trabajo" solo existe
+ * para el rol docente.
  */
 export const resolverDestino = (ruta: string, opciones: { esDocente: boolean }): DestinoEnApp => {
   if (ruta.startsWith('http')) return { tipo: 'url', url: ruta };
   if (ruta === '/') return { tipo: 'pantalla', nombre: 'Inicio' };
-  if (ruta.startsWith('/perfil/investigacion')) return { tipo: 'pantalla', nombre: 'Investigacion' };
-  if (ruta.startsWith('/perfil/docencia')) return { tipo: 'pantalla', nombre: 'Docencia' };
+
+  if (ruta.startsWith('/perfil/investigacion')) {
+    const subpagina = subpaginaDeRuta(ruta);
+    const seccion: SeccionInvestigacion | undefined = subpagina.startsWith('afiliaci')
+      ? 'afiliaciones'
+      : subpagina.startsWith('actividad')
+        ? 'actividad'
+        : subpagina.startsWith('resultados')
+          ? 'resultados'
+          : undefined;
+    return { tipo: 'pantalla', nombre: 'Investigacion', seccion };
+  }
+
+  if (ruta.startsWith('/perfil/docencia')) {
+    const subpagina = subpaginaDeRuta(ruta);
+    const pestania = PESTANIAS_DOCENCIA.find((p) => p === subpagina);
+    return { tipo: 'pantalla', nombre: 'Docencia', pestania };
+  }
+
   if (ruta.startsWith('/licencias')) {
-    const consulta = ruta.split('?')[1] ?? '';
-    const seccion = consulta
-      .split('&')
-      .map((par) => par.split('='))
-      .find(([clave]) => clave === 'seccion')?.[1];
-    if (seccion === 'licencias' || seccion === 'vacaciones') return { tipo: 'pantalla', nombre: 'Licencias', seccion };
-    // "gestion" es la bandeja de solicitudes del equipo (en la app, la sección "equipo").
-    if (seccion === 'gestion') return { tipo: 'pantalla', nombre: 'Licencias', seccion: 'equipo' };
+    const seccion = parametroDeRuta(ruta, 'seccion');
+    if (seccion === 'licencias' || seccion === 'vacaciones' || seccion === 'calendario') {
+      return { tipo: 'pantalla', nombre: 'Licencias', seccion };
+    }
+    // "gestion" es la bandeja de solicitudes del equipo (en la app, la sección "equipo"); ?tipo= la abre filtrada.
+    if (seccion === 'gestion') {
+      const tipoPedido = parametroDeRuta(ruta, 'tipo');
+      const tipoGestion: TipoGestion | undefined =
+        tipoPedido === 'licencias' ? 'Licencia' : tipoPedido === 'vacaciones' ? 'Vacaciones' : undefined;
+      return { tipo: 'pantalla', nombre: 'Licencias', seccion: 'equipo', tipoGestion };
+    }
     return { tipo: 'pantalla', nombre: 'Licencias' };
   }
+
   if (ruta.startsWith('/planes-de-trabajo')) {
     return opciones.esDocente ? { tipo: 'pantalla', nombre: 'PlanesDeTrabajo' } : { tipo: 'noDisponible' };
   }
