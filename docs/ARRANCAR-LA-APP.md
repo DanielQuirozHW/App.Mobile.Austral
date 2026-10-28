@@ -77,3 +77,8 @@ Se puede seguir el avance en la pestaña Build de Android Studio.
 - El diseño de la app (grilla de íconos, subpantallas, estilo) está explicado en `docs/DECISION-UI-MOBILE.md`.
 - Lo que falta configurar (login con Microsoft, logos, permisos) está en `docs/SETUP-NATIVO.md` y
   `docs/PENDIENTES.md`.
+- Lo que falta configurar (login con Microsoft, fuentes, logos, permisos) está
+  en `docs/SETUP-NATIVO.md` y `docs/PENDIENTES.md`.
+
+
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
