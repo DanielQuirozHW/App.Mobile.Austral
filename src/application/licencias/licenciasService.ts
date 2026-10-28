@@ -271,7 +271,10 @@ export const cancelarVacacion = async (solicitudId: string): Promise<boolean> =>
 // Gestión del líder
 // ---------------------------------------------------------------------------
 
-/** Aprueba o rechaza una licencia del equipo (useLicenciasStore.aprobarRechazarLicencia). */
+/**
+ * Aprueba o rechaza una licencia del equipo (useLicenciasStore.aprobarRechazarLicencia).
+ * El motivo de rechazo viaja con trim; al aprobar viaja vacío.
+ */
 export const responderLicencia = async (
   licencia: Licencia,
   aprobar: boolean,
@@ -284,7 +287,7 @@ export const responderLicencia = async (
   }
   const idAviso = toast.loading('Procesando...');
   try {
-    await apiAprobarRechazarLicencia(licencia.id, licencia.idAprobador1, aprobar, aprobar ? '' : motivoRechazo);
+    await apiAprobarRechazarLicencia(licencia.id, licencia.idAprobador1, aprobar, aprobar ? '' : motivoRechazo.trim());
   } catch (error) {
     toast.dismiss(idAviso);
     toast.error(mensajeDeErrorApi(error, 'No se pudo procesar la licencia'));
