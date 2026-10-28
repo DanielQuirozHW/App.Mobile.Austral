@@ -70,8 +70,9 @@ export const platformSpecific = {
   minTouchTarget: Platform.OS === 'ios' ? scale(44) : scale(48),
 
   /**
-   * Sombra por plataforma. En Android usa elevation: no combinar con overflow: 'hidden' en el mismo View
-   * (separar un contenedor de sombra de otro interno que recorta).
+   * Sombra por plataforma. En Android usa elevation (la mitad del valor pedido, mínimo 1): la sombra de Android es dura y
+   * gris, así que se deja muy leve y el borde de la tarjeta hace el resto. No combinar con overflow: 'hidden' en el
+   * mismo View (separar un contenedor de sombra de otro interno que recorta).
    */
   shadow: (elevation: number = 4): ViewStyle =>
     Platform.select<ViewStyle>({
@@ -81,7 +82,7 @@ export const platformSpecific = {
         shadowOpacity: elevation * 0.03,
         shadowRadius: elevation * 1.5,
       },
-      android: { elevation },
+      android: { elevation: Math.max(1, Math.round(elevation / 2)) },
       default: {},
     }),
 
