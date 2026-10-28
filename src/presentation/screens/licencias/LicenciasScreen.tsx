@@ -1,6 +1,7 @@
 // Pantalla del módulo Licencias y vacaciones. Equivale a las páginas licencias/licencias, licencias/vacaciones,
 // el calendario y la gestión de solicitudes del equipo (solo para líderes) de Portal-Austral-Dev.
 // El portal abre con tarjetas de inicio y después muestra las pestañas; en el celular se va directo a las pestañas.
+// Como el portal, acepta ?seccion= (licencias | vacaciones | calendario | gestión) y ?tipo= (filtro inicial de la Gestión).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
@@ -11,13 +12,11 @@ import { GestionSeccion } from '../../components/licencias/GestionSeccion';
 import { MisLicenciasSeccion } from '../../components/licencias/MisLicenciasSeccion';
 import { Pestanias, type ItemPestania } from '../../components/licencias/Pestanias';
 import { VacacionesSeccion } from '../../components/licencias/VacacionesSeccion';
-import type { RootStackParams } from '../../navigation/tipos';
+import type { RootStackParams, SeccionLicencias } from '../../navigation/tipos';
 import { useEquipoStore } from '../../stores/equipoStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { spacing } from '../../utils/responsive';
-
-type Seccion = 'licencias' | 'vacaciones' | 'calendario' | 'equipo';
 
 export const LicenciasScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
@@ -27,8 +26,16 @@ export const LicenciasScreen: React.FC = () => {
   const esLider = useEquipoStore((s) => s.esLider.datos);
   const liderCargado = useEquipoStore((s) => s.esLider.cargado);
 
-  const [seccion, setSeccion] = useState<Seccion>(route.params?.seccion ?? 'licencias');
+  const seccionPedida = route.params?.seccion;
+  const tipoPedido = route.params?.tipo;
+
+  const [seccion, setSeccion] = useState<SeccionLicencias>(seccionPedida ?? 'licencias');
   const [refrescando, setRefrescando] = useState(false);
+
+  // Si la pantalla ya estaba abierta y llega otro aviso (navigate con otros params), se sigue la sección pedida.
+  useEffect(() => {
+    if (seccionPedida) setSeccion(seccionPedida);
+  }, [seccionPedida, tipoPedido]);
 
   const recargar = useCallback(async () => {
     await Promise.all([cargarModulo(), cargarGestionDelLider()]);
@@ -38,13 +45,14 @@ export const LicenciasScreen: React.FC = () => {
     void recargar();
   }, [recargar]);
 
-  // Si piden la gestión y la persona no es líder (ya consultado), se vuelve a Mis licencias.
+  // Como en licencias/page.tsx: la Gestión solo existe para líderes. Si la piden y ya se consultó que no lo es,
+  // se vuelve a Mis licencias.
   useEffect(() => {
     if (seccion === 'equipo' && liderCargado && !esLider) setSeccion('licencias');
   }, [seccion, liderCargado, esLider]);
 
-  const items = useMemo<ItemPestania<Seccion>[]>(() => {
-    const base: ItemPestania<Seccion>[] = [
+  const items = useMemo<ItemPestania<SeccionLicencias>[]>(() => {
+    const base: ItemPestania<SeccionLicencias>[] = [
       { clave: 'licencias', etiqueta: 'Licencias' },
       { clave: 'vacaciones', etiqueta: 'Vacaciones' },
       { clave: 'calendario', etiqueta: 'Calendario' },
@@ -79,7 +87,7 @@ export const LicenciasScreen: React.FC = () => {
         {seccion === 'licencias' ? <MisLicenciasSeccion /> : null}
         {seccion === 'vacaciones' ? <VacacionesSeccion /> : null}
         {seccion === 'calendario' ? <CalendarioSeccion /> : null}
-        {seccion === 'equipo' && esLider ? <GestionSeccion /> : null}
+        {seccion === 'equipo' && esLider ? <GestionSeccion tipoInicial={tipoPedido} /> : null}
       </ScrollView>
     </View>
   );

@@ -25,6 +25,12 @@ export type PestaniaDocencia = 'categorizacion' | 'nombramientos' | 'promocion' 
 /** Secciones de Perfil > Investigación (subpáginas del portal). */
 export type SeccionInvestigacion = 'afiliaciones' | 'actividad' | 'resultados';
 
+/** Secciones del módulo Licencias y vacaciones (?seccion= del portal; "equipo" es la Gestión de los líderes). */
+export type SeccionLicencias = 'licencias' | 'vacaciones' | 'calendario' | 'equipo';
+
+/** Filtro de tipo con el que abre la Gestión (?tipo= del portal: licencias -> "Licencia", vacaciones -> "Vacaciones"). */
+export type TipoGestion = 'Licencia' | 'Vacaciones';
+
 export type RootStackParams = {
   Cargando: undefined;
   Login: undefined;
@@ -34,7 +40,8 @@ export type RootStackParams = {
   MiPerfil: undefined;
   DatosPersonales: undefined;
   Documentacion: undefined;
-  Licencias: { seccion?: 'licencias' | 'vacaciones' | 'calendario' | 'equipo' } | undefined;
+  /** `seccion`: pestaña con la que abre; `tipo`: filtro inicial de la Gestión (solo con seccion "equipo"). */
+  Licencias: { seccion?: SeccionLicencias; tipo?: TipoGestion } | undefined;
   Formacion: undefined;
   Trayectoria: undefined;
   Extension: undefined;
