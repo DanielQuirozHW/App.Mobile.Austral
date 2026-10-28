@@ -6,7 +6,8 @@
 // Daniel (decisión 88) solo en la variante completa.
 // Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
 //  - en la variante completa el avatar se superpone al borde de la portada (como los perfiles de las apps);
-//  - la portada sin foto usa el mismo color que la tarjeta de saludo de Inicio (tokens `hero*`);
+//  - la portada sin foto usa el mismo color y el mismo motivo decorativo (círculos y anillo) que la tarjeta de saludo de
+//    Inicio (tokens `hero*` y components/FondoDecorativo.tsx);
 //  - las iniciales son dos, como en el avatar del encabezado y del menú del usuario (el portal usa una por palabra);
 //  - el nombre, el puesto y la sede se muestran con mayúsculas solo al principio de cada palabra (el CRM los guarda en
 //    MAYÚSCULAS), y la línea de puesto y sede va en el color de texto principal para que se lea bien.
@@ -26,6 +27,7 @@ import { nombrePropio } from '../../utils/texto';
 import { toast } from '../../utils/toast';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
+import { FondoDecorativo } from '../FondoDecorativo';
 import { inicialesDe } from '../menu/BotonMenu';
 
 interface PerfilLegajoBannerProps {
@@ -161,7 +163,11 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
   return (
     <View style={styles.card}>
       <View style={styles.portada}>
-        {portadaUrl ? <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" /> : null}
+        {portadaUrl ? (
+          <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" />
+        ) : (
+          <FondoDecorativo />
+        )}
         <Pressable
           onPress={() => cambiarFoto('portada')}
           disabled={subiendo !== null}
@@ -194,7 +200,8 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       borderColor: c.border,
       overflow: 'hidden',
     },
-    portada: { height: ALTO_PORTADA, backgroundColor: c.heroBackground },
+    // `overflow: hidden`: el motivo decorativo no puede dibujarse fuera de la portada.
+    portada: { height: ALTO_PORTADA, backgroundColor: c.heroBackground, overflow: 'hidden' },
     portadaImagen: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
     camaraPortada: {
       position: 'absolute',

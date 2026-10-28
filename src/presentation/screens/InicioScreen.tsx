@@ -1,7 +1,8 @@
 // Inicio de la app mobile (docs/DECISION-UI-MOBILE.md). De arriba hacia abajo:
-//  - barra con el nombre de la institución, la campana de notificaciones y el avatar (que abre el menú del usuario);
-//  - tarjeta de saludo con la hora, el nombre y la fecha, y dos pastillas: el puesto y, si hay, las notificaciones
-//    pendientes (que llevan a Notificaciones). Sus colores salen de los tokens `hero*`: azul de la marca en claro, verde
+//  - barra con la fecha de hoy (día de la semana y día del mes), la campana de notificaciones y el avatar (que abre el
+//    menú del usuario);
+//  - tarjeta de saludo con la hora y el nombre, y dos pastillas: el puesto y, si hay, las notificaciones pendientes (que
+//    llevan a Notificaciones). Sus colores salen de los tokens `hero*`: azul de la marca con círculos cian en claro, verde
 //    azulado profundo con borde cian en oscuro (un bloque cian pleno encandila sobre fondo oscuro);
 //  - los módulos en tarjetas de dos columnas, con las MISMAS reglas de visibilidad del menú del portal
 //    (navigation/modulosMenu.ts: puesto elegido y funciones de gestión). Notificaciones y Ajustes NO van acá: ya se
@@ -16,6 +17,7 @@ import { fraseDelMesActual, nombreParaBienvenida, periodoDelMes } from '../../do
 import { Aparece } from '../components/Aparece';
 import { AppIcon } from '../components/AppIcon';
 import { AppText } from '../components/AppText';
+import { FondoDecorativo } from '../components/FondoDecorativo';
 import { CumpleaniosCard } from '../components/inicio/CumpleaniosCard';
 import { FraseDelMes } from '../components/inicio/FraseDelMes';
 import { ModuloTile } from '../components/inicio/ModuloTile';
@@ -32,7 +34,7 @@ import { metaDeRol, useRolStore } from '../stores/rolStore';
 import { ColorTokens } from '../theme/colors';
 import { colorDeModulo } from '../theme/coloresModulos';
 import { useThemeColors } from '../theme/theme';
-import { borderRadius, iconSizes, scale, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, spacing } from '../utils/responsive';
 
 const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 const MESES = [
@@ -57,11 +59,14 @@ const saludoSegunHora = (fecha: Date): string => {
   return 'Buenas noches';
 };
 
-/** "Miércoles 28 de octubre". */
-const fechaLarga = (fecha: Date): string => {
+/** "Miércoles". */
+const diaDeLaSemana = (fecha: Date): string => {
   const dia = DIAS[fecha.getDay()];
-  return `${dia.charAt(0).toUpperCase()}${dia.slice(1)} ${fecha.getDate()} de ${MESES[fecha.getMonth()]}`;
+  return `${dia.charAt(0).toUpperCase()}${dia.slice(1)}`;
 };
+
+/** "28 de octubre". */
+const diaYMes = (fecha: Date): string => `${fecha.getDate()} de ${MESES[fecha.getMonth()]}`;
 
 export const InicioScreen: React.FC = () => {
   const { globalColors, isDark } = useThemeColors();
@@ -75,7 +80,6 @@ export const InicioScreen: React.FC = () => {
   const periodo = useMemo(() => periodoDelMes(new Date()), []);
   const ahora = useMemo(() => new Date(), []);
   const saludo = saludoSegunHora(ahora);
-  const fecha = fechaLarga(ahora);
   const textoPuesto = role ? `Portal ${metaDeRol(role).label}` : '';
 
   // Los módulos que ve este usuario con este puesto, sin Inicio, Notificaciones ni Ajustes (esos van en el encabezado).
@@ -95,24 +99,23 @@ export const InicioScreen: React.FC = () => {
   return (
     <Screen scroll onRefresh={() => refrescar()} contentContainerStyle={styles.contenido}>
       <View style={styles.barra}>
-        <AppText variant="subtitle1" tone="primary">
-          Universidad Austral
-        </AppText>
+        <View accessible accessibilityLabel={`${diaDeLaSemana(ahora)} ${diaYMes(ahora)}`}>
+          <AppText variant="caption" tone="secondary">
+            {diaDeLaSemana(ahora)}
+          </AppText>
+          <AppText variant="subtitle1">{diaYMes(ahora)}</AppText>
+        </View>
         <AccionesDeEncabezado />
       </View>
 
       <Aparece>
         <View style={styles.hero}>
-          <View style={styles.circuloGrande} />
-          <View style={styles.circuloChico} />
+          <FondoDecorativo />
           <AppText variant="body1" style={styles.heroSecundario}>
             {saludo},
           </AppText>
           <AppText variant="h2" numberOfLines={2} style={styles.heroTitulo}>
             {nombreParaBienvenida(user)}
-          </AppText>
-          <AppText variant="body2" style={styles.heroSecundario}>
-            {fecha}
           </AppText>
 
           <View style={styles.pastillas}>
@@ -189,24 +192,6 @@ const createStyles = (c: ColorTokens) =>
       backgroundColor: c.heroBackground,
       borderWidth: 1,
       borderColor: c.heroBorder,
-    },
-    circuloGrande: {
-      position: 'absolute',
-      top: -scale(50),
-      right: -scale(40),
-      width: scale(180),
-      height: scale(180),
-      borderRadius: scale(90),
-      backgroundColor: c.heroCircle,
-    },
-    circuloChico: {
-      position: 'absolute',
-      bottom: -scale(30),
-      right: scale(60),
-      width: scale(90),
-      height: scale(90),
-      borderRadius: scale(45),
-      backgroundColor: c.heroCircle,
     },
     heroTitulo: { color: c.heroText },
     heroSecundario: { color: c.heroTextMuted },

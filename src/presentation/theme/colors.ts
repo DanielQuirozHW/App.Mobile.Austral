@@ -12,8 +12,12 @@
 //    los grises del portal se leían poco en un celular, sobre todo los textos chicos. Contraste cercano a 5:1 o más;
 //  - en modo oscuro, fondo, tarjeta y borde están un poco más separados entre sí, y el borde de los campos es más
 //    visible, para que se distingan las tarjetas y los campos;
+//  - `info` e `infoLight` (avisos informativos) usan el cian de la marca también en modo claro, como en el oscuro: en
+//    claro el aviso era una caja gris lavanda apagada. El cian del texto/ícono es un tono más profundo (#0B7A91)
+//    para que se lea sobre fondo claro;
 //  - los tokens `hero*` son de la tarjeta de saludo de Inicio y de la portada del perfil. En claro es el azul de la
-//    marca; en oscuro es un verde azulado profundo con borde cian (un bloque cian pleno encandila sobre fondo oscuro).
+//    marca con círculos cian; en oscuro es un verde azulado profundo con borde cian (un bloque cian pleno encandila
+//    sobre fondo oscuro).
 //
 // Regla: ningún componente escribe colores a mano. Todo sale de useThemeColors().globalColors.
 
@@ -60,8 +64,8 @@ export const lightColors = {
   danger: '#FF4C51',
   dangerLight: 'rgba(255, 76, 81, 0.14)',
   dangerOn: '#FFFFFF',
-  info: '#2E3092',
-  infoLight: 'rgba(46, 48, 146, 0.08)',
+  info: '#0B7A91',
+  infoLight: 'rgba(79, 195, 215, 0.16)',
 
   overlay: 'rgba(26, 28, 75, 0.5)', // derivado
   shadow: 'rgba(46, 48, 146, 0.20)', // sombra de los botones (overrides/button.ts)
@@ -82,7 +86,7 @@ export const lightColors = {
   heroTextMuted: 'rgba(255, 255, 255, 0.85)',
   heroChip: 'rgba(255, 255, 255, 0.18)',
   heroChipAction: 'rgba(255, 255, 255, 0.28)',
-  heroCircle: 'rgba(255, 255, 255, 0.08)',
+  heroCircle: 'rgba(79, 195, 215, 0.24)',
 
   // Pantalla de ingreso (login-portal/page.tsx)
   authBackground: '#FFF3E9',
