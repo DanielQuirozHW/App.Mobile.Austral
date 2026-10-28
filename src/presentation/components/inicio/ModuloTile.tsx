@@ -1,6 +1,6 @@
 // Tarjeta de un módulo en la grilla de Inicio. Dos por fila. El ícono va sobre un fondo suave del color del módulo (no
 // relleno pleno): se ve más liviano y los colores conviven mejor. Los módulos que todavía no tienen contenido usan un
-// fondo gris y la etiqueta "Próximamente" en el azul de la marca (legible), sin atenuar toda la tarjeta
+// fondo gris y la etiqueta "Próximamente" en el color de acento (legible), sin atenuar toda la tarjeta
 // (docs/DECISION-UI-MOBILE.md). Entra con una animación en cascada (`demora`).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -33,8 +33,10 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
   proximamente = false,
   demora = 0,
 }) => {
-  const { globalColors } = useThemeColors();
+  const { globalColors, isDark } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
+  // Fondo del ícono: el color del módulo con transparencia (algo más marcada en oscuro, donde se pierde más).
+  const fondoIcono = proximamente ? globalColors.surfaceSecondary : `${color}${isDark ? '33' : '1F'}`;
 
   return (
     <Aparece demora={demora} style={styles.celda}>
@@ -45,7 +47,7 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
         android_ripple={{ color: globalColors.hairline }}
         style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
       >
-        <View style={[styles.cuadro, { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${color}1F` }]}>
+        <View style={[styles.cuadro, { backgroundColor: fondoIcono }]}>
           <AppIcon name={icono} size={iconSizes.lg} color={proximamente ? globalColors.textSecondary : color} />
         </View>
         <View style={styles.textos}>

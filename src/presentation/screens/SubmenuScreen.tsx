@@ -28,13 +28,14 @@ const CON_CABECERA_DE_PERFIL = ['legajo', 'perfil'];
 
 export const SubmenuScreen: React.FC<Props> = ({ route }) => {
   const { id, color, ubicacion } = route.params;
-  const { globalColors } = useThemeColors();
+  const { globalColors, isDark } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
 
   const nodo = useMemo(() => buscarNodoPorId(id), [id]);
-  const colorBase = color ?? colorDeModulo(id);
+  const colorBase = color ?? colorDeModulo(id, 0, isDark);
+  const alfaIcono = isDark ? '33' : '1F';
   const caminoActual = [ubicacion, nodo?.titulo].filter(Boolean).join(' › ');
 
   const filas = useMemo(() => {
@@ -75,7 +76,7 @@ export const SubmenuScreen: React.FC<Props> = ({ route }) => {
                   <View
                     style={[
                       styles.icono,
-                      { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${colorBase}1F` },
+                      { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${colorBase}${alfaIcono}` },
                     ]}
                   >
                     <AppIcon

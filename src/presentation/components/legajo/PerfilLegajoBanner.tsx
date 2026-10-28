@@ -6,6 +6,7 @@
 // Daniel (decisión 88) solo en la variante completa.
 // Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
 //  - en la variante completa el avatar se superpone al borde de la portada (como los perfiles de las apps);
+//  - la portada sin foto usa el mismo color que la tarjeta de saludo de Inicio (tokens `hero*`);
 //  - las iniciales son dos, como en el avatar del encabezado y del menú del usuario (el portal usa una por palabra);
 //  - el nombre, el puesto y la sede se muestran con mayúsculas solo al principio de cada palabra (el CRM los guarda en
 //    MAYÚSCULAS), y la línea de puesto y sede va en el color de texto principal para que se lea bien.
@@ -170,9 +171,9 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
           style={styles.camaraPortada}
         >
           {subiendo === 'portada' ? (
-            <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+            <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
+            <AppIcon name="camera-outline" size={scale(16)} color="#FFFFFF" />
           )}
         </Pressable>
       </View>
@@ -193,7 +194,7 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       borderColor: c.border,
       overflow: 'hidden',
     },
-    portada: { height: ALTO_PORTADA, backgroundColor: c.accentPrimary },
+    portada: { height: ALTO_PORTADA, backgroundColor: c.heroBackground },
     portadaImagen: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
     camaraPortada: {
       position: 'absolute',
