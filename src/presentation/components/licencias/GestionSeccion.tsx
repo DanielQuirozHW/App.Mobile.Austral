@@ -1,6 +1,7 @@
 // Port de Portal-Austral-Dev -> GestionSolicitudes (columnasGestionSolicitudes), useSolicitudesEquipo y VacacionesEquipoPendientes.
 // Licencias y vacaciones del equipo en una sola lista, con filtros por tipo y colaborador, y la pestaña de días pendientes.
-import React, { useMemo, useState } from 'react';
+// `tipoInicial` es el ?tipo= del portal (licencias -> "Licencia", vacaciones -> "Vacaciones"): arranca con ese filtro.
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { cargarGestionDelLider } from '../../../application/licencias/licenciasService';
 import {
@@ -10,6 +11,7 @@ import {
   etiquetaEstadoLicencia,
 } from '../../../domain/licencias/estados';
 import type { Licencia, SolicitudDeEquipo } from '../../../domain/licencias/tipos';
+import type { TipoGestion } from '../../navigation/tipos';
 import { useAuthStore } from '../../stores/authStore';
 import { useEquipoStore } from '../../stores/equipoStore';
 import { ColorTokens } from '../../theme/colors';
@@ -28,11 +30,16 @@ import { Pestanias, type ItemPestania } from './Pestanias';
 import { TarjetaSolicitud } from './TarjetaSolicitud';
 
 type PestaniaGestion = 'ingresadas' | 'aprobadas' | 'rechazadas' | 'pendientes';
-type FiltroTipo = 'todos' | 'Licencia' | 'Vacaciones';
+type FiltroTipo = 'todos' | TipoGestion;
+
+interface GestionSeccionProps {
+  /** Filtro de tipo con el que abre (viene de ?tipo= en el portal). */
+  tipoInicial?: TipoGestion;
+}
 
 interface FilaGestion {
   key: string;
-  tipo: 'Licencia' | 'Vacaciones';
+  tipo: TipoGestion;
   colaborador: string;
   concepto: string;
   dias: number;
@@ -56,7 +63,7 @@ const normalizar = (texto: string): string =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '');
 
-export const GestionSeccion: React.FC = () => {
+export const GestionSeccion: React.FC<GestionSeccionProps> = ({ tipoInicial }) => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const empleadoId = useAuthStore((s) => s.user?.empleadoid);
@@ -65,11 +72,16 @@ export const GestionSeccion: React.FC = () => {
   const pendientes = useEquipoStore((s) => s.pendientes);
 
   const [pestania, setPestania] = useState<PestaniaGestion>('ingresadas');
-  const [tipo, setTipo] = useState<FiltroTipo>('todos');
+  const [tipo, setTipo] = useState<FiltroTipo>(tipoInicial ?? 'todos');
   const [colaborador, setColaborador] = useState('');
   const [licenciaAbierta, setLicenciaAbierta] = useState<Licencia | null>(null);
   const [vacacionAResponder, setVacacionAResponder] = useState<SolicitudDeEquipo | null>(null);
   const [vacacionVista, setVacacionVista] = useState<DetalleVacacion | null>(null);
+
+  // Si llega otro aviso con otro tipo con la pantalla ya abierta, se sigue el pedido.
+  useEffect(() => {
+    if (tipoInicial) setTipo(tipoInicial);
+  }, [tipoInicial]);
 
   const filas = useMemo<FilaGestion[]>(() => {
     // useSolicitudesEquipo del portal rotula licencias y vacaciones con etiquetaEstadoLicencia.
@@ -85,10 +97,11 @@ export const GestionSeccion: React.FC = () => {
       estadoLabel: etiquetaEstadoLicencia(l.estado),
       licencia: l,
     }));
+    // Las vacaciones del equipo muestran `name` como colaborador (useSolicitudesEquipo del portal).
     const deVacaciones = vacaciones.datos.map<FilaGestion>((s) => ({
       key: `vacaciones-${s.id}`,
       tipo: 'Vacaciones',
-      colaborador: s.empleadoName,
+      colaborador: s.name,
       concepto: s.tipoDeLicencia.label || 'VACACIONES',
       dias: s.diasSolicitados,
       desde: s.fechaDesde,
