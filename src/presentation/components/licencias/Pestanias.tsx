@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, platformSpecific, spacing } from '../../utils/responsive';
@@ -20,15 +20,49 @@ interface PestaniasProps<T extends string> {
    * 'chips' (por defecto): píldoras con scroll horizontal.
    * 'subrayado': pestañas con línea inferior y la activa marcada con 2 px del color primario (Tabs del portal,
    * overrides/tabs.ts). Se usa en el nivel de arriba cuando hay dos filas de pestañas, para distinguirlas.
+   * 'segmentado': control segmentado a todo el ancho, sin scroll, para pocas pestañas (hasta 4) de texto corto. Es el
+   * estilo de app para el nivel de arriba (docs/DECISION-UI-MOBILE.md).
    */
-  estilo?: 'chips' | 'subrayado';
+  estilo?: 'chips' | 'subrayado' | 'segmentado';
 }
 
-/** Pestañas con scroll horizontal (TabList del portal), en forma de chips o subrayadas. */
+/** Pestañas (TabList del portal), en forma de chips con scroll, subrayadas o como control segmentado. */
 export function Pestanias<T extends string>({ items, activa, onCambiar, estilo = 'chips' }: PestaniasProps<T>) {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const subrayado = estilo === 'subrayado';
+
+  if (estilo === 'segmentado') {
+    return (
+      <View style={styles.segmentos} accessibilityRole="tablist">
+        {items.map((item) => {
+          const seleccionada = item.clave === activa;
+          const texto = item.cantidad !== undefined ? `${item.etiqueta} (${item.cantidad})` : item.etiqueta;
+          return (
+            <Pressable
+              key={item.clave}
+              onPress={() => onCambiar(item.clave)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: seleccionada }}
+              accessibilityLabel={texto}
+              style={[styles.segmento, seleccionada && styles.segmentoActivo]}
+            >
+              <AppText
+                variant="label"
+                locked
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                style={{ color: seleccionada ? globalColors.accentPrimary : globalColors.textSecondary }}
+              >
+                {texto}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -108,4 +142,21 @@ const createStyles = (c: ColorTokens) =>
       borderBottomColor: 'transparent',
     },
     tabActiva: { borderBottomColor: c.accentPrimary },
+    // Control segmentado: fondo gris suave, la pestaña activa es una "píldora" blanca con sombra leve.
+    segmentos: {
+      flexDirection: 'row',
+      padding: spacing.xs,
+      gap: spacing.xs,
+      borderRadius: borderRadius.xl,
+      backgroundColor: c.surfaceSecondary,
+    },
+    segmento: {
+      flex: 1,
+      minHeight: platformSpecific.minTouchTarget,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xs,
+      borderRadius: borderRadius.lg,
+    },
+    segmentoActivo: { backgroundColor: c.card, ...platformSpecific.shadow(2) },
   });

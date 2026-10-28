@@ -2,14 +2,12 @@
 // (y PerfilHeader). Portada con botón para cambiarla, avatar con botón de cámara, nombre completo de la sesión,
 // puesto (Docente / Staff) y sede.
 // `compacto` = la variante `compact` del portal (Documentación): avatar de 56 en vez de 72, menos relleno y nombre
-// en subtitle1. El portal no dibuja portada en ninguna variante; acá la portada se agrega a pedido de Daniel
-// (decisión 88) solo en la variante completa.
-// Iniciales: `getInitials` del portal (@core/utils/get-initials) = primera letra de CADA palabra, sin recortar ni
-// pasar a mayúsculas (verificado).
-// Borde del avatar: 3 px `azulLight` (primaryLight) en la variante completa, como la cabecera de Datos personales del
-// portal (decisión 92). La variante compacta conserva 2 px del color de la tarjeta (sin fuente para ajustarla).
-// Diferencia de la app mobile (docs/DECISION-UI-MOBILE.md): el puesto y la sede se muestran en mayúsculas y minúsculas
-// normales, no en MAYÚSCULAS como en el portal.
+// en subtitle1, sin portada. El portal no dibuja portada en ninguna variante; acá la portada se agrega a pedido de
+// Daniel (decisión 88) solo en la variante completa.
+// Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
+//  - en la variante completa el avatar se superpone al borde de la portada (como los perfiles de las apps);
+//  - las iniciales son dos, como en el avatar del encabezado y del menú del usuario (el portal usa una por palabra);
+//  - el puesto y la sede se muestran con mayúsculas solo al principio, no en MAYÚSCULAS.
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
@@ -25,6 +23,7 @@ import { borderRadius, scale, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
+import { inicialesDe } from '../menu/BotonMenu';
 
 interface PerfilLegajoBannerProps {
   /** Sede / localidad del legajo (el portal la pasa como `localidadLabel`). */
@@ -34,11 +33,7 @@ interface PerfilLegajoBannerProps {
 }
 
 const TAMANIO_CAMARA = scale(28);
-const ALTO_PORTADA = scale(110);
-
-// getInitials del portal.
-const iniciales = (nombreCompleto: string): string =>
-  nombreCompleto.split(/\s/).reduce((respuesta, palabra) => respuesta + palabra.slice(0, 1), '');
+const ALTO_PORTADA = scale(88);
 
 // formatRol del portal, pero con mayúsculas solo al principio.
 const formatearPuesto = (puesto: string): string => {
@@ -57,7 +52,7 @@ type Destino = 'perfil' | 'portada';
 
 export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localidadLabel, compacto = false }) => {
   const { globalColors } = useThemeColors();
-  const tamanioAvatar = scale(compacto ? 56 : 72);
+  const tamanioAvatar = scale(compacto ? 56 : 80);
   const styles = useMemo(() => createStyles(globalColors, tamanioAvatar, compacto), [globalColors, tamanioAvatar, compacto]);
   const user = useAuthStore((s) => s.user);
   const [subiendo, setSubiendo] = useState<Destino | null>(null);
@@ -97,80 +92,95 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
     ]);
   };
 
-  return (
-    <View style={styles.card}>
-      {compacto ? null : (
-        <View style={styles.portada}>
-          {portadaUrl ? (
-            <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" />
-          ) : null}
-          <Pressable
-            onPress={() => cambiarFoto('portada')}
-            disabled={subiendo !== null}
-            hitSlop={spacing.sm}
-            accessibilityRole="button"
-            accessibilityLabel="Cambiar foto de portada"
-            style={styles.camaraPortada}
-          >
-            {subiendo === 'portada' ? (
-              <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
-            ) : (
-              <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
-            )}
-          </Pressable>
+  const avatar = (
+    <View style={styles.avatarContenedor}>
+      {fotoUrl ? (
+        <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={user.fullname} />
+      ) : (
+        <View style={[styles.avatar, styles.avatarIniciales]}>
+          <AppText variant={compacto ? 'h6' : 'h4'} style={{ color: globalColors.accentPrimaryOn }}>
+            {inicialesDe(user.fullname ?? '')}
+          </AppText>
         </View>
       )}
+      <Pressable
+        onPress={() => cambiarFoto('perfil')}
+        disabled={subiendo !== null}
+        hitSlop={spacing.sm}
+        accessibilityRole="button"
+        accessibilityLabel="Cambiar foto de perfil"
+        style={styles.camara}
+      >
+        {subiendo === 'perfil' ? (
+          <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+        ) : (
+          <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
+        )}
+      </Pressable>
+    </View>
+  );
 
-      <View style={styles.cuerpo}>
-        <View style={styles.avatarContenedor}>
-          {fotoUrl ? (
-            <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={user.fullname} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarIniciales]}>
-              <AppText variant={compacto ? 'h6' : 'h5'} style={{ color: globalColors.accentPrimaryOn }}>
-                {iniciales(user.fullname ?? '')}
-              </AppText>
-            </View>
-          )}
-          <Pressable
-            onPress={() => cambiarFoto('perfil')}
-            disabled={subiendo !== null}
-            hitSlop={spacing.sm}
-            accessibilityRole="button"
-            accessibilityLabel="Cambiar foto de perfil"
-            style={styles.camara}
-          >
-            {subiendo === 'perfil' ? (
-              <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
-            ) : (
-              <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
-            )}
-          </Pressable>
-        </View>
-
-        <View style={styles.textos}>
-          <AppText variant={compacto ? 'subtitle1' : 'h5'} numberOfLines={2}>
-            {user.fullname}
-          </AppText>
-          <View style={styles.fila}>
-            {puesto ? (
-              <View style={styles.dato}>
-                <AppIcon name="briefcase-outline" size={scale(16)} color={globalColors.textSecondary} />
-                <AppText variant="body2" tone="secondary" style={styles.datoTexto}>
-                  {formatearPuesto(puesto)}
-                </AppText>
-              </View>
-            ) : null}
-            {localidadLabel ? (
-              <View style={styles.dato}>
-                <AppIcon name="location-outline" size={scale(16)} color={globalColors.textSecondary} />
-                <AppText variant="body2" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
-                  {capitalizar(localidadLabel)}
-                </AppText>
-              </View>
-            ) : null}
+  const datos = (
+    <View style={styles.textos}>
+      <AppText variant={compacto ? 'subtitle1' : 'h5'} numberOfLines={2}>
+        {user.fullname}
+      </AppText>
+      <View style={styles.fila}>
+        {puesto ? (
+          <View style={styles.dato}>
+            <AppIcon name="briefcase-outline" size={scale(16)} color={globalColors.textSecondary} />
+            <AppText variant="body2" tone="secondary" style={styles.datoTexto}>
+              {formatearPuesto(puesto)}
+            </AppText>
           </View>
+        ) : null}
+        {localidadLabel ? (
+          <View style={styles.dato}>
+            <AppIcon name="location-outline" size={scale(16)} color={globalColors.textSecondary} />
+            <AppText variant="body2" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
+              {capitalizar(localidadLabel)}
+            </AppText>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+
+  // Variante compacta: avatar y datos en una fila, sin portada.
+  if (compacto) {
+    return (
+      <View style={styles.card}>
+        <View style={styles.cuerpoCompacto}>
+          {avatar}
+          {datos}
         </View>
+      </View>
+    );
+  }
+
+  // Variante completa: portada arriba y el avatar superpuesto a su borde inferior.
+  return (
+    <View style={styles.card}>
+      <View style={styles.portada}>
+        {portadaUrl ? <Image source={{ uri: portadaUrl }} style={styles.portadaImagen} resizeMode="cover" /> : null}
+        <Pressable
+          onPress={() => cambiarFoto('portada')}
+          disabled={subiendo !== null}
+          hitSlop={spacing.sm}
+          accessibilityRole="button"
+          accessibilityLabel="Cambiar foto de portada"
+          style={styles.camaraPortada}
+        >
+          {subiendo === 'portada' ? (
+            <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+          ) : (
+            <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
+          )}
+        </Pressable>
+      </View>
+      <View style={styles.cuerpoCompleto}>
+        <View style={styles.avatarSuperpuesto}>{avatar}</View>
+        {datos}
       </View>
     </View>
   );
@@ -180,7 +190,7 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
   StyleSheet.create({
     card: {
       backgroundColor: c.card,
-      borderRadius: borderRadius.card,
+      borderRadius: borderRadius.xl,
       borderWidth: 1,
       borderColor: c.border,
       overflow: 'hidden',
@@ -194,27 +204,27 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       width: TAMANIO_CAMARA,
       height: TAMANIO_CAMARA,
       borderRadius: TAMANIO_CAMARA / 2,
-      backgroundColor: c.accentPrimary,
-      borderWidth: 2,
-      borderColor: c.card,
+      backgroundColor: 'rgba(0,0,0,0.35)',
       alignItems: 'center',
       justifyContent: 'center',
     },
-    cuerpo: {
+    cuerpoCompacto: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.lg,
-      padding: compacto ? spacing.md : spacing.lg,
+      padding: spacing.md,
     },
+    cuerpoCompleto: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, gap: spacing.md },
+    avatarSuperpuesto: { marginTop: -(tamanioAvatar / 2), alignSelf: 'flex-start' },
     avatarContenedor: { width: tamanioAvatar, height: tamanioAvatar },
     avatar: {
       width: tamanioAvatar,
       height: tamanioAvatar,
       borderRadius: tamanioAvatar / 2,
-      borderWidth: compacto ? 2 : 3,
-      borderColor: compacto ? c.card : c.primaryLight,
+      borderWidth: compacto ? 2 : 4,
+      borderColor: c.card,
     },
-    avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
+    avatarIniciales: { backgroundColor: c.primaryDark, alignItems: 'center', justifyContent: 'center' },
     camara: {
       position: 'absolute',
       right: -spacing.xxs,
@@ -228,8 +238,8 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       alignItems: 'center',
       justifyContent: 'center',
     },
-    textos: { flex: 1, gap: spacing.xs },
-    fila: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.md, rowGap: spacing.xxs },
+    textos: { flex: compacto ? 1 : undefined, gap: spacing.xs },
+    fila: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.lg, rowGap: spacing.xxs },
     dato: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
     datoTexto: { flexShrink: 1 },
   });

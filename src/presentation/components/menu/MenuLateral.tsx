@@ -2,6 +2,11 @@
 // igual), pero ahora es una hoja que sube desde abajo (docs/DECISION-UI-MOBILE.md): el acceso a los módulos es la grilla
 // de Inicio, así que acá solo van las acciones de la cuenta: Mi perfil, Cambiar puesto (solo con más de un puesto),
 // Ajustes y Cerrar sesión (con confirmación). Se abre con el avatar del encabezado (BotonMenu).
+//
+// Se cierra de cuatro formas: tocando el fondo, con la X de la hoja, con el botón atrás de Android o eligiendo una
+// acción. El fondo que se toca es SIEMPRE un Pressable visible para el sistema (sin opacidad animada); el oscurecido
+// es una capa aparte que no recibe toques. La animación de entrada arranca recién cuando el Modal ya está montado, y
+// el desmontaje tiene un seguro por tiempo por si la animación de salida no avisa que terminó.
 // Sin librerías nuevas: Modal + Animated de React Native.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
@@ -85,24 +90,33 @@ export const MenuLateral: React.FC = () => {
     if (!autenticado) cerrar();
   }, [autenticado, cerrar]);
 
-  // Animación de entrada y salida. Se desmonta el Modal recién cuando termina la animación de salida.
+  // 1) Al pedir abrir, se monta el Modal.
   useEffect(() => {
-    if (abierto) {
-      setMontado(true);
-      Animated.parallel([
-        Animated.timing(traslado, { toValue: 0, duration: DURACION, useNativeDriver: true }),
-        Animated.timing(opacidadFondo, { toValue: 1, duration: DURACION, useNativeDriver: true }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(traslado, { toValue: ALTO_PANTALLA, duration: DURACION, useNativeDriver: true }),
-        Animated.timing(opacidadFondo, { toValue: 0, duration: DURACION, useNativeDriver: true }),
-      ]).start(({ finished }) => {
-        if (finished) setMontado(false);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe reaccionar a `abierto`
+    if (abierto) setMontado(true);
   }, [abierto]);
+
+  // 2) Con el Modal ya montado, se anima la entrada.
+  useEffect(() => {
+    if (!abierto || !montado) return;
+    Animated.parallel([
+      Animated.timing(traslado, { toValue: 0, duration: DURACION, useNativeDriver: true }),
+      Animated.timing(opacidadFondo, { toValue: 1, duration: DURACION, useNativeDriver: true }),
+    ]).start();
+  }, [abierto, montado, traslado, opacidadFondo]);
+
+  // 3) Al pedir cerrar, se anima la salida y se desmonta. El temporizador es un seguro: si la animación no avisa que
+  //    terminó, el Modal se desmonta igual y la pantalla no queda tapada.
+  useEffect(() => {
+    if (abierto || !montado) return;
+    Animated.parallel([
+      Animated.timing(traslado, { toValue: ALTO_PANTALLA, duration: DURACION, useNativeDriver: true }),
+      Animated.timing(opacidadFondo, { toValue: 0, duration: DURACION, useNativeDriver: true }),
+    ]).start(({ finished }) => {
+      if (finished) setMontado(false);
+    });
+    const seguro = setTimeout(() => setMontado(false), DURACION + 150);
+    return () => clearTimeout(seguro);
+  }, [abierto, montado, traslado, opacidadFondo]);
 
   if (!montado) return null;
 
@@ -143,14 +157,15 @@ export const MenuLateral: React.FC = () => {
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={cerrar}>
       <View style={styles.raiz}>
-        <Animated.View style={[styles.fondo, { opacity: opacidadFondo }]}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={cerrar}
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar menú"
-          />
-        </Animated.View>
+        {/* Fondo que se toca para cerrar: sin opacidad animada, siempre recibe el toque. */}
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={cerrar}
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar menú"
+        />
+        {/* Oscurecido: solo visual, deja pasar los toques al fondo de arriba. */}
+        <Animated.View pointerEvents="none" style={[styles.oscurecido, { opacity: opacidadFondo }]} />
 
         <Animated.View
           style={[styles.hoja, { paddingBottom: insets.bottom + spacing.lg, transform: [{ translateY: traslado }] }]}
@@ -173,6 +188,15 @@ export const MenuLateral: React.FC = () => {
               </AppText>
               <PildoraPuesto />
             </View>
+            <Pressable
+              onPress={cerrar}
+              hitSlop={spacing.md}
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar menú"
+              style={styles.botonCerrar}
+            >
+              <AppIcon name="close" size={iconSizes.lg} color={globalColors.textSecondary} />
+            </Pressable>
           </View>
 
           <View style={styles.lista}>
@@ -193,7 +217,7 @@ export const MenuLateral: React.FC = () => {
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     raiz: { flex: 1, justifyContent: 'flex-end' },
-    fondo: { ...StyleSheet.absoluteFillObject, backgroundColor: c.overlay },
+    oscurecido: { ...StyleSheet.absoluteFillObject, backgroundColor: c.overlay },
     hoja: {
       backgroundColor: c.card,
       borderTopLeftRadius: borderRadius.xxl,
@@ -219,6 +243,14 @@ const createStyles = (c: ColorTokens) =>
     avatar: { width: scale(56), height: scale(56), borderRadius: scale(28) },
     avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
     cabeceraTextos: { flex: 1, gap: spacing.xs },
+    botonCerrar: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(20),
+      backgroundColor: c.surfaceSecondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     lista: { gap: spacing.xxs },
     separador: {
       height: StyleSheet.hairlineWidth,

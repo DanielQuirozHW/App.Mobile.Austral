@@ -1,5 +1,6 @@
-// Mosaico de un módulo en la grilla de Inicio: cuadro de color con ícono blanco y el nombre debajo. Tres por fila.
-// Los módulos que todavía no tienen contenido se ven atenuados y con la etiqueta "Próximamente".
+// Tarjeta de un módulo en la grilla de Inicio: cuadro de color con ícono blanco, el nombre y una línea que dice qué
+// hay adentro. Dos por fila. Los módulos que todavía no tienen contenido se ven atenuados y con la etiqueta
+// "Próximamente" (docs/DECISION-UI-MOBILE.md).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
@@ -11,21 +12,21 @@ import { AppText } from '../AppText';
 interface ModuloTileProps {
   titulo: string;
   icono: AppIconName;
-  /** Color del cuadro. */
+  /** Color del cuadro del ícono. */
   color: string;
+  /** Qué hay adentro, en una línea corta. Se omite si es "Próximamente". */
+  descripcion?: string;
   onPress: () => void;
   proximamente?: boolean;
-  /** Cantidad para la insignia roja (por ejemplo, notificaciones pendientes). 0 no la muestra. */
-  insignia?: number;
 }
 
 export const ModuloTile: React.FC<ModuloTileProps> = ({
   titulo,
   icono,
   color,
+  descripcion,
   onPress,
   proximamente = false,
-  insignia = 0,
 }) => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
@@ -35,63 +36,61 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={proximamente ? `${titulo}, próximamente` : titulo}
-      style={({ pressed }) => [styles.mosaico, pressed && styles.presionado]}
+      android_ripple={{ color: globalColors.hairline }}
+      style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
     >
       <View style={[styles.cuadro, { backgroundColor: color }, proximamente && styles.apagado]}>
-        <AppIcon name={icono} size={iconSizes.xxl} color="#FFFFFF" />
-        {insignia > 0 ? (
-          <View style={styles.insignia}>
-            <AppText variant="caption" style={styles.insigniaTexto}>
-              {insignia > 99 ? '99+' : String(insignia)}
+        <AppIcon name={icono} size={iconSizes.lg} color="#FFFFFF" />
+      </View>
+      <View style={styles.textos}>
+        <AppText variant="subtitle1" numberOfLines={2} style={proximamente ? styles.textoApagado : undefined}>
+          {titulo}
+        </AppText>
+        {proximamente ? (
+          <View style={styles.etiqueta}>
+            <AppText variant="caption" tone="tertiary">
+              Próximamente
             </AppText>
           </View>
+        ) : descripcion ? (
+          <AppText variant="caption" tone="secondary" numberOfLines={2}>
+            {descripcion}
+          </AppText>
         ) : null}
       </View>
-      <AppText variant="subtitle2" style={styles.titulo} numberOfLines={2}>
-        {titulo}
-      </AppText>
-      {proximamente ? (
-        <AppText variant="caption" tone="tertiary" style={styles.titulo}>
-          Próximamente
-        </AppText>
-      ) : null}
     </Pressable>
   );
 };
 
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
-    mosaico: {
-      width: '33.3333%',
-      alignItems: 'center',
-      gap: spacing.xs,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.xs,
-    },
-    presionado: { opacity: 0.8, transform: [{ scale: 0.96 }] },
-    cuadro: {
-      width: scale(64),
-      height: scale(64),
+    tarjeta: {
+      width: '48%',
+      minHeight: scale(128),
+      padding: spacing.lg,
+      gap: spacing.md,
+      backgroundColor: c.card,
       borderRadius: borderRadius.xl,
-      alignItems: 'center',
-      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: c.border,
       ...platformSpecific.shadow(2),
     },
-    apagado: { opacity: 0.45 },
-    titulo: { textAlign: 'center' },
-    insignia: {
-      position: 'absolute',
-      top: -scale(6),
-      right: -scale(6),
-      minWidth: scale(22),
-      height: scale(22),
-      paddingHorizontal: scale(5),
-      borderRadius: scale(11),
-      backgroundColor: c.danger,
-      borderWidth: 2,
-      borderColor: c.background,
+    presionada: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    cuadro: {
+      width: scale(46),
+      height: scale(46),
+      borderRadius: borderRadius.lg,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    insigniaTexto: { color: c.dangerOn, fontSize: scale(11), lineHeight: scale(13), fontWeight: '700' },
+    apagado: { opacity: 0.5 },
+    textos: { gap: spacing.xxs },
+    textoApagado: { opacity: 0.7 },
+    etiqueta: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xxs,
+      borderRadius: borderRadius.round,
+      backgroundColor: c.surfaceSecondary,
+    },
   });
