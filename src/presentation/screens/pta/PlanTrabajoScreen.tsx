@@ -1,6 +1,6 @@
 // Plan de Trabajo Anual: lista de planes del docente. Port de Portal-Austral-Dev ->
 // src/app/(dashboard)/planes-de-trabajo/page.tsx (solo rol docente).
-// Tirar para actualizar vuelve a leer la lista de planes (decisión 98).
+// Tirar para actualizar vuelve a leer la lista de planes (decisión 98). Sin título repetido: ya está en el encabezado.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { fechaUtcVisible } from '../../../domain/pta/fechas';
 import { filtrarPlanes } from '../../../domain/pta/resumen';
 import { AccionIcono } from '../../components/AccionIcono';
 import { AppButton } from '../../components/AppButton';
+import { AppIcon } from '../../components/AppIcon';
 import { AppText } from '../../components/AppText';
 import { InfoAlert } from '../../components/InfoAlert';
 import { Screen } from '../../components/Screen';
@@ -21,7 +22,7 @@ import type { RootStackParams } from '../../navigation/tipos';
 import { usePtaStore } from '../../stores/ptaStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { spacing } from '../../utils/responsive';
+import { iconSizes, spacing } from '../../utils/responsive';
 
 export const PlanTrabajoScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
@@ -54,10 +55,7 @@ export const PlanTrabajoScreen: React.FC = () => {
 
   return (
     <Screen scroll onRefresh={() => cargarListaDePlanes()} contentContainerStyle={styles.contenido}>
-      <View style={styles.titulos}>
-        <AppText variant="h5">Plan de Trabajo Anual</AppText>
-        <InfoAlert tipo="info">{TEXTO_AYUDA_LISTA}</InfoAlert>
-      </View>
+      <InfoAlert tipo="info">{TEXTO_AYUDA_LISTA}</InfoAlert>
 
       {error ? (
         <View style={styles.aviso}>
@@ -77,7 +75,8 @@ export const PlanTrabajoScreen: React.FC = () => {
 
       {visibles.length === 0 ? (
         <View style={styles.vacio}>
-          <AppText variant="body2" tone="secondary">
+          <AppIcon name="clipboard-outline" size={iconSizes.xxxl} color={globalColors.textTertiary} />
+          <AppText variant="body1" tone="secondary">
             No hay planes de trabajo en esta pestaña.
           </AppText>
         </View>
@@ -119,8 +118,7 @@ const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
     contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
-    titulos: { gap: spacing.sm },
     aviso: { gap: spacing.sm },
     lista: { gap: spacing.md },
-    vacio: { alignItems: 'center', paddingVertical: spacing.xl },
+    vacio: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxxl },
   });

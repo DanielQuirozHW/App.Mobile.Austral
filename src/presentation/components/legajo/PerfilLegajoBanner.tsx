@@ -1,6 +1,6 @@
 // Cabecera del legajo. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/_components/UserProfileBanner.tsx
 // (y PerfilHeader). Portada con botón para cambiarla, avatar con botón de cámara, nombre completo de la sesión,
-// puesto (DOCENTE / STAFF) y sede.
+// puesto (Docente / Staff) y sede.
 // `compacto` = la variante `compact` del portal (Documentación): avatar de 56 en vez de 72, menos relleno y nombre
 // en subtitle1. El portal no dibuja portada en ninguna variante; acá la portada se agrega a pedido de Daniel
 // (decisión 88) solo en la variante completa.
@@ -8,6 +8,8 @@
 // pasar a mayúsculas (verificado).
 // Borde del avatar: 3 px `azulLight` (primaryLight) en la variante completa, como la cabecera de Datos personales del
 // portal (decisión 92). La variante compacta conserva 2 px del color de la tarjeta (sin fuente para ajustarla).
+// Diferencia de la app mobile (docs/DECISION-UI-MOBILE.md): el puesto y la sede se muestran en mayúsculas y minúsculas
+// normales, no en MAYÚSCULAS como en el portal.
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
@@ -38,14 +40,18 @@ const ALTO_PORTADA = scale(110);
 const iniciales = (nombreCompleto: string): string =>
   nombreCompleto.split(/\s/).reduce((respuesta, palabra) => respuesta + palabra.slice(0, 1), '');
 
-// formatRol del portal.
+// formatRol del portal, pero con mayúsculas solo al principio.
 const formatearPuesto = (puesto: string): string => {
   const normalizado = puesto.toLowerCase().replace(/\s/g, '');
-  if (normalizado === 'docentecodocente' || normalizado === 'codocentedocente') return 'DOCENTE · STAFF';
-  if (normalizado === 'docente') return 'DOCENTE';
-  if (normalizado === 'codocente') return 'STAFF';
-  return puesto.toUpperCase();
+  if (normalizado === 'docentecodocente' || normalizado === 'codocentedocente') return 'Docente · Staff';
+  if (normalizado === 'docente') return 'Docente';
+  if (normalizado === 'codocente') return 'Staff';
+  return puesto.charAt(0).toUpperCase() + puesto.slice(1).toLowerCase();
 };
+
+// "ROSARIO" -> "Rosario": primera letra de cada palabra en mayúscula.
+const capitalizar = (texto: string): string =>
+  texto.toLowerCase().replace(/(^|\s)(\S)/g, (_coincidencia, espacio: string, letra: string) => espacio + letra.toUpperCase());
 
 type Destino = 'perfil' | 'portada';
 
@@ -101,6 +107,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
           <Pressable
             onPress={() => cambiarFoto('portada')}
             disabled={subiendo !== null}
+            hitSlop={spacing.sm}
             accessibilityRole="button"
             accessibilityLabel="Cambiar foto de portada"
             style={styles.camaraPortada}
@@ -108,7 +115,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
             {subiendo === 'portada' ? (
               <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
             ) : (
-              <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
+              <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
             )}
           </Pressable>
         </View>
@@ -128,6 +135,7 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
           <Pressable
             onPress={() => cambiarFoto('perfil')}
             disabled={subiendo !== null}
+            hitSlop={spacing.sm}
             accessibilityRole="button"
             accessibilityLabel="Cambiar foto de perfil"
             style={styles.camara}
@@ -135,29 +143,29 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
             {subiendo === 'perfil' ? (
               <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
             ) : (
-              <AppIcon name="camera-outline" size={scale(14)} color={globalColors.accentPrimaryOn} />
+              <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
             )}
           </Pressable>
         </View>
 
         <View style={styles.textos}>
-          <AppText variant={compacto ? 'subtitle1' : 'h6'} numberOfLines={2}>
+          <AppText variant={compacto ? 'subtitle1' : 'h5'} numberOfLines={2}>
             {user.fullname}
           </AppText>
           <View style={styles.fila}>
             {puesto ? (
               <View style={styles.dato}>
-                <AppIcon name="briefcase-outline" size={scale(14)} color={globalColors.textSecondary} />
-                <AppText variant="caption" tone="secondary" style={styles.datoTexto}>
+                <AppIcon name="briefcase-outline" size={scale(16)} color={globalColors.textSecondary} />
+                <AppText variant="body2" tone="secondary" style={styles.datoTexto}>
                   {formatearPuesto(puesto)}
                 </AppText>
               </View>
             ) : null}
             {localidadLabel ? (
               <View style={styles.dato}>
-                <AppIcon name="location-outline" size={scale(14)} color={globalColors.textSecondary} />
-                <AppText variant="caption" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
-                  {localidadLabel.toUpperCase()}
+                <AppIcon name="location-outline" size={scale(16)} color={globalColors.textSecondary} />
+                <AppText variant="body2" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
+                  {capitalizar(localidadLabel)}
                 </AppText>
               </View>
             ) : null}
@@ -223,5 +231,5 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
     textos: { flex: 1, gap: spacing.xs },
     fila: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.md, rowGap: spacing.xxs },
     dato: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
-    datoTexto: { letterSpacing: 0.5, fontWeight: '600', flexShrink: 1 },
+    datoTexto: { flexShrink: 1 },
   });

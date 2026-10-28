@@ -1,8 +1,10 @@
 // Notificaciones. Port de Portal-Austral-Dev -> src/app/(dashboard)/notificaciones/page.tsx:
 // pestañas Pendientes / Completadas / Todas con su cantidad, filtros "Módulo" y rango de fechas, "Ir" a la sección del
 // aviso, "Marcar como leída" y "Marcar todas como leídas" (con confirmación).
+// Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md): sin título repetido (ya está en el encabezado), sin botón
+// "Actualizar" (se tira para actualizar) y los filtros van plegados detrás de un botón "Filtros".
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -11,6 +13,7 @@ import {
   type FilaNotificacion,
 } from '../../../domain/notificaciones/notificaciones';
 import { AppButton } from '../../components/AppButton';
+import { AppIcon } from '../../components/AppIcon';
 import { AppText } from '../../components/AppText';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { InfoAlert } from '../../components/InfoAlert';
@@ -23,7 +26,7 @@ import type { RootStackParams } from '../../navigation/tipos';
 import { useRolStore } from '../../stores/rolStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { spacing } from '../../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, spacing } from '../../utils/responsive';
 
 type PestaniaNotificaciones = 'pendientes' | 'completadas' | 'todas';
 
@@ -48,6 +51,7 @@ export const NotificacionesScreen: React.FC = () => {
   const [modulo, setModulo] = useState<string>(TODOS);
   const [desde, setDesde] = useState<Date | null>(null);
   const [hasta, setHasta] = useState<Date | null>(null);
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [marcandoId, setMarcandoId] = useState<string | null>(null);
   const [confirmarTodas, setConfirmarTodas] = useState(false);
   const [marcandoTodas, setMarcandoTodas] = useState(false);
@@ -62,6 +66,7 @@ export const NotificacionesScreen: React.FC = () => {
     [filasDeLaPestania],
   );
   const moduloActivo = modulo !== TODOS && modulos.includes(modulo) ? modulo : TODOS;
+  const filtrosActivos = (moduloActivo !== TODOS ? 1 : 0) + (desde ? 1 : 0) + (hasta ? 1 : 0);
 
   const visibles = useMemo(
     () =>
@@ -134,8 +139,14 @@ export const NotificacionesScreen: React.FC = () => {
     }
   };
 
+  const limpiarFiltros = () => {
+    setModulo(TODOS);
+    setDesde(null);
+    setHasta(null);
+  };
+
   // Spinner de pantalla completa solo mientras no hay nada que mostrar: si se desmontara el scroll durante una
-  // actualización (tirar para actualizar o el botón), se cortaría el gesto.
+  // actualización (tirar para actualizar), se cortaría el gesto.
   if (cargando && todas.length === 0) {
     return (
       <View style={styles.centro}>
@@ -146,26 +157,12 @@ export const NotificacionesScreen: React.FC = () => {
 
   return (
     <Screen scroll onRefresh={() => refrescar()} contentContainerStyle={styles.contenido}>
-      <View style={styles.titulos}>
-        <AppText variant="h5">Notificaciones</AppText>
-        <AppText variant="body2" tone="secondary">
-          Todos los avisos del portal, con su módulo de origen y su estado.
-        </AppText>
-      </View>
-
       {error ? (
         <View style={styles.aviso}>
           <InfoAlert tipo="error">No se pudieron cargar las notificaciones. Intentá nuevamente.</InfoAlert>
           <AppButton title="Reintentar" variant="secondary" onPress={actualizar} loading={actualizando} />
         </View>
       ) : null}
-
-      <View style={styles.botones}>
-        {pendientes.length > 0 ? (
-          <AppButton title="Marcar todas como leídas" icon="checkmark-done-outline" onPress={() => setConfirmarTodas(true)} />
-        ) : null}
-        <AppButton title="Actualizar" variant="secondary" icon="refresh-outline" onPress={actualizar} loading={actualizando} />
-      </View>
 
       <Pestanias
         items={[
@@ -177,22 +174,65 @@ export const NotificacionesScreen: React.FC = () => {
         onCambiar={setPestania}
       />
 
-      <View style={styles.filtros}>
-        <AppText variant="overline" tone="secondary">
-          Módulo
-        </AppText>
-        <Pestanias
-          items={[{ clave: TODOS, etiqueta: 'Todos' }, ...modulos.map((m) => ({ clave: m, etiqueta: m }))]}
-          activa={moduloActivo}
-          onCambiar={setModulo}
-        />
-        <DateField label="Desde" value={desde} onChange={setDesde} maximumDate={hasta ?? undefined} />
-        <DateField label="Hasta" value={hasta} onChange={setHasta} minimumDate={desde ?? undefined} />
+      {/* Acciones: filtros plegables y marcar todas */}
+      <View style={styles.acciones}>
+        <Pressable
+          onPress={() => setFiltrosAbiertos((valor) => !valor)}
+          accessibilityRole="button"
+          accessibilityLabel="Filtros"
+          accessibilityState={{ expanded: filtrosAbiertos }}
+          android_ripple={{ color: globalColors.hairline }}
+          style={styles.accion}
+        >
+          <AppIcon name="options-outline" size={iconSizes.md} color={globalColors.accentPrimary} />
+          <AppText variant="subtitle2" tone="primary">
+            {filtrosActivos > 0 ? `Filtros (${filtrosActivos})` : 'Filtros'}
+          </AppText>
+          <AppIcon
+            name={filtrosAbiertos ? 'chevron-up' : 'chevron-down'}
+            size={iconSizes.sm}
+            color={globalColors.accentPrimary}
+          />
+        </Pressable>
+
+        {pendientes.length > 0 ? (
+          <Pressable
+            onPress={() => setConfirmarTodas(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Marcar todas como leídas"
+            android_ripple={{ color: globalColors.hairline }}
+            style={styles.accion}
+          >
+            <AppIcon name="checkmark-done-outline" size={iconSizes.md} color={globalColors.accentPrimary} />
+            <AppText variant="subtitle2" tone="primary">
+              Marcar todas como leídas
+            </AppText>
+          </Pressable>
+        ) : null}
       </View>
+
+      {filtrosAbiertos ? (
+        <View style={styles.filtros}>
+          <AppText variant="label" tone="secondary">
+            Módulo
+          </AppText>
+          <Pestanias
+            items={[{ clave: TODOS, etiqueta: 'Todos' }, ...modulos.map((m) => ({ clave: m, etiqueta: m }))]}
+            activa={moduloActivo}
+            onCambiar={setModulo}
+          />
+          <DateField label="Desde" value={desde} onChange={setDesde} maximumDate={hasta ?? undefined} />
+          <DateField label="Hasta" value={hasta} onChange={setHasta} minimumDate={desde ?? undefined} />
+          {filtrosActivos > 0 ? (
+            <AppButton title="Limpiar filtros" variant="secondary" onPress={limpiarFiltros} />
+          ) : null}
+        </View>
+      ) : null}
 
       {visibles.length === 0 ? (
         <View style={styles.vacio}>
-          <AppText variant="body2" tone="secondary">
+          <AppIcon name="notifications-off-outline" size={iconSizes.xxxl} color={globalColors.textTertiary} />
+          <AppText variant="body1" tone="secondary">
             No hay notificaciones en esta pestaña.
           </AppText>
         </View>
@@ -233,10 +273,24 @@ const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.background },
     contenido: { gap: spacing.lg, paddingBottom: spacing.xxxl },
-    titulos: { gap: spacing.xs },
     aviso: { gap: spacing.sm },
-    botones: { gap: spacing.sm },
-    filtros: { gap: spacing.sm },
+    acciones: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: spacing.lg, rowGap: spacing.xs },
+    accion: {
+      minHeight: platformSpecific.minTouchTarget,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      borderRadius: borderRadius.md,
+    },
+    filtros: {
+      gap: spacing.sm,
+      padding: spacing.lg,
+      backgroundColor: c.card,
+      borderRadius: borderRadius.card,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
     lista: { gap: spacing.md },
-    vacio: { alignItems: 'center', paddingVertical: spacing.xl },
+    vacio: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxxl },
   });
