@@ -1,6 +1,6 @@
 # Decisiones 99 en adelante
 
-Continuación de [`DECISIONES_89_en_adelante.md`](DECISIONES_89_en_adelante.md) (decisiones 89 a 98). La próxima es la **101**. (`DECISIONES_89_en_adelante.md` todavía dice "la próxima es la 99": vale esta lista; se unifica en el próximo reenvío de ese archivo.)
+Continuación de [`DECISIONES_89_en_adelante.md`](DECISIONES_89_en_adelante.md) (decisiones 89 a 98). La próxima es la **102**. (`DECISIONES_89_en_adelante.md` todavía dice "la próxima es la 99": vale esta lista; se unifica en el próximo reenvío de ese archivo.)
 
 ## 2026-10-27 (Cambiar puesto)
 
@@ -24,4 +24,12 @@ Continuación de [`DECISIONES_89_en_adelante.md`](DECISIONES_89_en_adelante.md) 
     - **No incluido**: tamaño de letra A- / A / A+ (Daniel: no hace falta), selector de tema del encabezado (`ModeToggler`, no se leyó; el modo de color está en Ajustes, decisión 92) y el `ChatIAWidget` que monta el portal (no se leyó).
     - **Frases del mes**: el portal las tiene en `src/@core/data/frases-mensuales.ts` (18, mismo orden y números que `frasesMensuales.ts` de la app). Son pasajes de libros publicados y **no se escriben ni se pegan en el chat ni en el repo desde acá** (decisión 89 se mantiene). En cambio se agregó `scripts/importar-frases.js`: Daniel lo corre en su PC con `node scripts/importar-frases.js <ruta al frases-mensuales.ts del portal>` y copia los textos de archivo a archivo (no los imprime). Busca cada entrada por libro y número, no escribe nada si falta alguna y se puede volver a correr. **El script no se ejecutó ni se probó**: el formato del archivo del portal se tomó de lo leído antes (`numero`, `libro`, `autor`, `texto`, con el texto entre comillas simples); si no lo reconoce, avisa y no toca nada.
     - **Sin verificar**: nombres de íconos de Ionicons nuevos (`ribbon-outline`, `library-outline`, `chatbubbles-outline`, `trending-up-outline`, `search-outline`, `stats-chart-outline`, `speedometer-outline`, `bar-chart-outline`, `key-outline`, `shield-checkmark-outline`, `star-outline`, `folder-open-outline`, `chevron-down`) contra el set instalado (`AppIconName` los marca si alguno no existe); cómo se ve el encabezado con tres botones en pantallas chicas; que `navigation.navigate(item.ruta as never)` en `MiPerfilScreen` funcione igual que antes (cambia solo el tipo).
+    - Nada probado ni llamado a la API.
+
+## 2026-10-27 (auditoría de lógica)
+
+101. **Auditoría completa de lógica app vs. portal** (pedido de Daniel, 2026-10-27 23:32). Solo lectura de código; resultado completo en [`AUDITORIA-LOGICA.md`](AUDITORIA-LOGICA.md).
+    - **Corregido**: motivo de rechazo guardado en los modales de líder, trim del motivo de licencia, colaborador de vacaciones por `name`, filtro inicial de `tipo` en Gestión, "Ir" de notificaciones conserva pestaña, sección y tipo, `LicenciasScreen` sigue los parámetros, vacaciones propias con un solo período solicitable (`elegirPeriodoSolicitable`), Canceladas sin acciones y feriados en ámbar.
+    - **Plan de trabajo**: el envío a Sec. Académico (endpoint, payload, confirmación, mensajes, estados) coincide con el portal. La fecha de lectura de observaciones se manda como `-03:00` y el portal como `+03:00`: mismo instante, no se cambia.
+    - **Sin comprobar**: tests existentes de `resolverDestino`, y que Docencia/Investigación reaccionen a cambio de parámetros ya montadas. El barrido campo por campo de las 18 secciones del PTA contra sus modales no se rehizo en esta pasada.
     - Nada probado ni llamado a la API.
