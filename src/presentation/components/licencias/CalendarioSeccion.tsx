@@ -5,7 +5,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import {
   NOMBRES_DIAS_SEMANA,
   armarEventos,
-  colorDeEstadoCalendario,
   colorDePersona,
   construirMes,
   eventosDelDia,
@@ -26,6 +25,9 @@ import { ModalDetalleCalendario } from './ModalDetalleCalendario';
 
 const MAX_PUNTOS = 3;
 
+/** Los feriados se dibujan en ámbar (#ff9800), como en Calendar.tsx del portal. */
+const COLOR_FERIADO = '#ff9800';
+
 export const CalendarioSeccion: React.FC = () => {
   const { globalColors, isDark } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
@@ -41,7 +43,7 @@ export const CalendarioSeccion: React.FC = () => {
   const semanas = useMemo(() => construirMes(mes), [mes]);
 
   const colorDe = (e: EventoCalendario): string =>
-    e.tipo === 'feriado' ? colorDeEstadoCalendario('Feriado') : colorDePersona(e.empleadoName, isDark);
+    e.tipo === 'feriado' ? COLOR_FERIADO : colorDePersona(e.empleadoName, isDark);
 
   // Personas con algo en el mes visible (referencias de color).
   const personasDelMes = useMemo(() => {
@@ -139,7 +141,7 @@ export const CalendarioSeccion: React.FC = () => {
           <AppText variant="subtitle2">Referencias</AppText>
           <View style={styles.referencias}>
             <View style={styles.referencia}>
-              <View style={[styles.punto, { backgroundColor: colorDeEstadoCalendario('Feriado') }]} />
+              <View style={[styles.punto, { backgroundColor: COLOR_FERIADO }]} />
               <AppText variant="caption">Feriado</AppText>
             </View>
             {personasDelMes.map((nombre) => (
