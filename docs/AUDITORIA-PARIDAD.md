@@ -2,7 +2,7 @@
 
 Pedido de Daniel: revisar **todos** los módulos del MVP contra el código del portal, dejarlos con la misma lógica y corregir lo que difiera. Se hizo **leyendo**: nada se ejecutó, nada se probó y no se llamó a la API. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `40f665d`. App contrastada en `main` (último commit de código de esta auditoría: `efac2e5`).
 
-Decisiones asociadas: **94**, **95**, **97** y **98** (`DECISIONES_89_en_adelante.md`).
+Decisiones asociadas: **94**, **95**, **97**, **98** y **100** (`DECISIONES_89_en_adelante.md` y `DECISIONES_99_en_adelante.md`).
 
 ## 1. Resultado por módulo
 
@@ -20,6 +20,7 @@ Decisiones asociadas: **94**, **95**, **97** y **98** (`DECISIONES_89_en_adelant
 | Aspecto general de las pantallas | tema del portal | Pasada de UI | `1cfe34e` |
 | Aspecto contra los overrides del tema (campos, tarjetas, diálogos, pestañas, chips) y márgenes de Notificaciones / Plan de Trabajo | `src/@core/theme/palette` y `overrides` | Corregido (ver 2c) | `edd1de0` |
 | Revisión estática de colores escritos a mano, pull-to-refresh, reintentos, Plan de trabajo habilitado | componentes y pantallas de la app | Corregido (ver 2d) | `efac2e5` |
+| Menú lateral, encabezado (Cambiar puesto, campana, cartel de puesto) y secciones en construcción | `navigation/vertical/index.tsx`, `AppBarContent.tsx`, `SwitchUser.tsx`, `NotificationDropdown.tsx`, `NavigateToChatGPT.tsx`, `UserDropdown.tsx` | Reescrito (ver 2e) | (decisión 100) |
 | Licencias (propias y del equipo) | ver 3 | **Sin divergencias encontradas** | (sin cambios) |
 | Vacaciones: panel, solicitud, aprobación, detalle, consultas, cancelación | ver 3 | Divergencia corregida en el panel (ver 2b) | `43ec0af` |
 | Calendario y pestañas de Licencias y vacaciones | `licencias/page.tsx`, `CalendarioWrapper.tsx`, `Calendar.tsx` | Dos divergencias corregidas (ver 2b) | `8faedbc` |
@@ -56,13 +57,32 @@ Pedido de Daniel (2026-10-27): "más importante que se vea bien a que siga la UI
 
 Pedido de Daniel (2026-10-27): "hace todos esos puntos, debían estar ya". **Leído, no ejecutado.**
 
-- **Colores escritos a mano → tokens.** `legajo/TarjetaDocumento.tsx`: `VERIFICADO` el verde `#4caf50` del check pasó a `success` y el punto de "temporal" a `warning`. `licencias/SelectorArchivos.tsx`: el borde de la zona de carga usa `inputBorder` (es un campo, no un divisor). Resto de lo leído: ya usaba tokens. `SeccionRegistros` conserva el borde punteado del estado vacío en `border` (divisor), a propósito.
+- **Colores escritos a mano → tokens.** `legajo/TarjetaDocumento.tsx`: el verde `#4caf50` del check pasó a `success` y el punto de "temporal" a `warning`. `licencias/SelectorArchivos.tsx`: el borde de la zona de carga usa `inputBorder` (es un campo, no un divisor). Resto de lo leído: ya usaba tokens. `SeccionRegistros` conserva el borde punteado del estado vacío en `border` (divisor), a propósito.
 - **Pull-to-refresh** (`components/Screen.tsx`, prop `onRefresh`): `RefreshControl` con `tintColor` / `colors` en `accentPrimary` y fondo `card`. Conectado en Inicio, Notificaciones, Documentación, Formación, Trayectoria, Extensión y Plan de trabajo (lista). Propio de la app (el portal es web). Licencias ya lo tenía.
 - **Reintentar en errores**: `licencias/ListaPaginada.tsx` (prop `onReintentar`, usada por `MisLicenciasSeccion`, `VacacionesSeccion` y `GestionSeccion`) y `NotificacionesScreen`.
 - **Notificaciones**: el spinner solo aparece sin datos cargados, para no desmontar el scroll durante el pull-to-refresh.
 - **Plan de trabajo habilitado** (`navigation/modulosMenu.ts`, `enDemo: true`). La lógica ya estaba contrastada con el portal en las decisiones 75 a 87.
 - **Leídos sin cambios necesarios**: `components/perfil/*` (`SeccionRegistros`, `SeccionProyectos`, `SeccionProducciones`, `AutoresDeProduccion`, `ParticipantesDelProyecto`, `ResultadosDelProyecto`, `SeccionesFormacion`, `SeccionesTrayectoria`, `CamposComunes`), `legajo/BloqueFamilia`, `legajo/ModalVerAdjuntos`, `navigation/RootNavigator`, `AccionIcono`, `ConfirmDialog`, `InfoAlert` (solo se quitó un import sin usar), `ToastHost`, `LoadingScreen`, `OverlayCerrandoSesion`, `ErrorBoundary`, `AuthLayout`, `AppCheckbox`, `theme/estadoColores.ts` y `components/pta/CajaPta`, `ActividadPta`, `ResumenPta`, `TotalesPta`, `SeccionPta`.
 - **`estadoColores.ts`**: la paleta de insignias del portal (`status-badge`) tiene versión clara y oscura; los colores de texto y fondo están definidos en ambos modos.
+
+## 2e. Menú, encabezado y secciones en construcción (decisión 100)
+
+Pedido de Daniel (2026-10-27 23:15): menú como el del portal, Promoción y lo que no se migra "en construcción", campana en todas las pantallas, Cambiar puesto bien verificado, sin tamaño de letra. Fuente: `HW-Austral/Portal-Austral-Dev`, rama `master`, sha `b18827e`. **Leído, no ejecutado.**
+
+**Contrastado (portal vs app):**
+
+- `navigation/vertical/index.tsx`: árbol completo, nombres, orden y reglas de visibilidad → `modulosMenu.ts` (`SECCIONES_DE_MENU`, `filtrarNodos`). Coinciden: Plan de Trabajo solo docente; Gestión del Desempeño para Staff; Funciones SA / VRAA / Referente MATHU solo en el puesto docente y con la posición correspondiente, cada hijo según el rol de su módulo; un grupo sin hijos no se muestra.
+- `SwitchUser.tsx`: solo con más de un puesto; va a la selección de puesto → `BotonCambiarPuesto.tsx` y el ítem del menú (misma condición; `marcarSeleccionPendiente()` → `SeleccionarPuesto`; `seleccionar(rol)` → Inicio).
+- `NotificationDropdown.tsx`: insignia con los pendientes (tope 99) y enlace "Ver todas las notificaciones" a `/notificaciones` → `CampanaNotificaciones.tsx` (lleva a la pantalla Notificaciones, que ya estaba contrastada).
+- `AppBarContent.tsx`: cartel "Usted se encuentra en el Portal Staff / Docente", con "Cargando perfil..." y "Perfil no identificado" → `PildoraPuesto.tsx`.
+- `UserDropdown.tsx`: "Mi perfil" lleva a `/legajo/datos-personales`; "Cerrar sesión" → cabecera y pie del menú.
+- `NavigateToChatGPT.tsx`: es el botón "Preguntas frecuentes" (PDF) y solo tiene documentos en `/licencias`. **No migrado** (los PDF son archivos del portal).
+
+**Aproximaciones (inferidas):** las banderas `NombramientosHabilitado` / `PromocionHabilitado` no se replican; Gestión del Desempeño del docente calibrador e Indicadores (los habilita la API) se muestran solo al puesto Staff; el ciclo de nombramiento extraordinario (depende de un período que pide la API) no figura.
+
+**Decisiones propias de la app:** sección "Aplicación" del menú con Notificaciones y Ajustes; la campana y Cambiar puesto van en el encabezado de cada pantalla; Promoción dentro de Docencia queda como pestaña "En construcción".
+
+**Sin leer del encabezado del portal:** `ModeToggler` y `ChatIAWidget`.
 
 ## 3. Licencias y vacaciones: qué se contrastó y qué no
 
@@ -81,7 +101,7 @@ Pedido de Daniel (2026-10-27): "hace todos esos puntos, debían estar ya". **Le�
 
 **Sin contrastar (queda para revisar):**
 
-- `RespuestaLider` de la app (compartido entre licencias y vacaciones): no se releyó en esta tanda el diálogo de confirmación del portal ("¿Desea aprobar esta licencia?" / "¿Desea rechazar esta licencia?", botones Si / No).
+- `RespuestaLider` de la app (compartido entre licencias y vacaciones): no se soltó a releér en esta tanda el diálogo de confirmación del portal ("¿Desea aprobar esta licencia?" / "¿Desea rechazar esta licencia?", botones Si / No).
 - `ModalCalendario.tsx` (detalle del evento) y `GestionSolicitudes` (grilla de gestión, filtros y el parámetro `?tipo=`), `columnsVacaciones.tsx` (acciones de la grilla, incluida la cancelación) y los hooks `useVacaciones`, `useLicenciasCalendario`, `useEsLiderEquipo`.
 - `getSubperiodovacacional` del store del portal (subperíodos por unidad organizativa): la app no lo tiene; no se buscó dónde se usa en el portal.
 - Si el portal tiene un flujo de "requiere más información" para licencias (la consulta trae `new_requieremasinformacion`): en los tres modales leídos no aparece; **no se buscó en el store ni en la página** si hay otro punto de entrada. Sin confirmar.
@@ -91,6 +111,8 @@ Pedido de Daniel (2026-10-27): "hace todos esos puntos, debían estar ya". **Le�
 Las decisiones de diseño de la app que no copian el portal a la letra. Todas están pensadas para celular o para evitar un defecto del portal.
 
 **Aspecto general** (decisiones 97 y 98): área táctil mínima 48 / 44 px en vez de 36; sin anillo de foco con sombra; sombra negra en vez de azul; sin efectos de hover; pestañas de dos niveles con el de arriba subrayado y el de abajo en chips; pull-to-refresh y botón "Reintentar" en errores de lista (propios de la app, el portal es web).
+
+**Menú y encabezado** (decisión 100): menú lateral desplegable en vez de la barra lateral fija; la campana lleva a la pantalla Notificaciones en vez de abrir un desplegable; Cambiar puesto, campana y menú en el encabezado de cada pantalla; el cartel del puesto va en Inicio y en el menú (no en el centro del encabezado); Notificaciones y Ajustes dentro del menú (sección "Aplicación"); sin tamaño de letra ni botón de ayuda.
 
 **Licencias y vacaciones**
 
@@ -137,12 +159,13 @@ Las decisiones de diseño de la app que no copian el portal a la letra. Todas es
 ## 5. Sin verificar / abierto
 
 - La escritura de `new_lugardetrabajouniv` del portal (ver Categorización externa): no se encontró dónde se persiste.
-- Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` y, del panel de vacaciones, `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline` (más los que ya figuran en `PENDIENTES.md`). `AppIconName` es el tipo de nombres de Ionicons: si alguno no existe, el compilador lo marca.
+- Íconos de Ionicons que no se confirmaron contra el set instalado: `person-circle-outline`, `alert-circle-outline`, `chevron-forward`, `folder-open-outline` y, del panel de vacaciones, `time-outline`, `hourglass-outline`, `checkmark-circle-outline` e `information-circle-outline`; del menú de la decisión 100, `ribbon-outline`, `library-outline`, `chatbubbles-outline`, `trending-up-outline`, `search-outline`, `stats-chart-outline`, `speedometer-outline`, `bar-chart-outline`, `key-outline`, `shield-checkmark-outline`, `star-outline` y `chevron-down` (más los que ya figuran en `PENDIENTES.md`). `AppIconName` es el tipo de nombres de Ionicons: si alguno no existe, el compilador lo marca.
 - `FormacionScreen` conserva `any` en el formulario (el valor del selector es una opción de lista).
-- **Revisión estática de colores escritos a mano y márgenes: lo que sigue sin leer** (la decisión 98 cerró el resto): los modales de formulario (`Modal*`, `FormInv*`) y los demás componentes de `components/pta/` (`ModalSeccionPta`, `DatosDocenciaPta`, `DatosInvestigacionPta`, `ejecutarPta`), `PlanTrabajoDetalleScreen`, `components/inicio`, `components/notificaciones` y `components/menu` (no se releyeron en esta tanda; las pantallas que los usan sí).
+- **Revisión estática de colores escritos a mano y márgenes: lo que sigue sin leer** (la decisión 98 cerró el resto): los modales de formulario (`Modal*`, `FormInv*`) y los demás componentes de `components/pta/` (`ModalSeccionPta`, `DatosDocenciaPta`, `DatosInvestigacionPta`, `ejecutarPta`), `PlanTrabajoDetalleScreen`, `components/inicio` y `components/notificaciones`. `components/menu` se reescribió en la decisión 100 (`MenuLateral`, `AccionesDeEncabezado`, `CampanaNotificaciones`, `BotonCambiarPuesto`, `PildoraPuesto`); `BotonMenu` no cambió.
 - **Pull-to-refresh sin conectar** en DatosPersonales (formulario: refrescar podría pisar lo que se edita), MiPerfil, GestionAcademica, Docencia, Investigación y Ajustes. Inicio refresca solo las notificaciones. No se verificó si las funciones `cargar*` devuelven una promesa (si no, el indicador se apaga enseguida; no rompe nada).
 - El aspecto de los demás overrides del tema del portal (`table`, `menu`, `alert`, `tooltip`, etc.) no se contrastó; la app no tiene equivalentes directos.
 - Lo que figura en "Sin contrastar" de la sección 3 (`RespuestaLider`, `ModalCalendario`, gestión, `columnsVacaciones`, hooks de lectura, subperíodos, "requiere más información").
+- **Menu y encabezado de la decisión 100**: nada se vio en pantalla. Pendiente de probar por Daniel: que el árbol se abra y se cierre bien, que cada entrada de Docencia / Investigación abra su pestaña, que las entradas en construcción abran la pantalla, y cómo entran los tres botones del encabezado en pantallas chicas.
 
 ## 6. Cómo leer esto
 

@@ -11,15 +11,12 @@ import { AppIcon } from '../../components/AppIcon';
 import { AppText } from '../../components/AppText';
 import { PerfilLegajoBanner } from '../../components/legajo/PerfilLegajoBanner';
 import { Screen } from '../../components/Screen';
-import { SECCIONES_DE_MI_PERFIL, type RutaDeMenu } from '../../navigation/modulosMenu';
+import { SECCIONES_DE_MI_PERFIL } from '../../navigation/modulosMenu';
 import type { RootStackParams } from '../../navigation/tipos';
 import { useRolStore } from '../../stores/rolStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
-
-// Rutas sin parámetros que se abren desde esta pantalla.
-type RutaSimple = Exclude<RutaDeMenu, 'Licencias'>;
 
 export const MiPerfilScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
@@ -37,7 +34,9 @@ export const MiPerfilScreen: React.FC = () => {
         {secciones.map((item) => (
           <Pressable
             key={item.ruta}
-            onPress={() => navigation.navigate(item.ruta as RutaSimple)}
+            // Todas estas rutas se abren sin parámetros (Docencia e Investigación abren en su pestaña inicial); el cast
+            // evita depender del tipo de parámetros de cada ruta.
+            onPress={() => navigation.navigate(item.ruta as never)}
             accessibilityRole="button"
             accessibilityLabel={item.titulo}
             android_ripple={{ color: globalColors.hairline }}
