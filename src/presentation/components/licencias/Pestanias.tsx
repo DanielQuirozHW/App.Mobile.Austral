@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { borderRadius, platformSpecific, spacing } from '../../utils/responsive';
+import { borderRadius, platformSpecific, scale, spacing } from '../../utils/responsive';
 import { AppText } from '../AppText';
 
 export interface ItemPestania<T extends string> {
@@ -17,7 +17,8 @@ interface PestaniasProps<T extends string> {
   activa: T;
   onCambiar: (clave: T) => void;
   /**
-   * 'chips' (por defecto): píldoras con scroll horizontal.
+   * 'chips' (por defecto): píldoras con scroll horizontal. Más bajas que el mínimo táctil (40 en lugar de 48) para
+   * ocupar menos pantalla; el área que responde al toque sí llega al mínimo (hitSlop).
    * 'subrayado': pestañas con línea inferior y la activa marcada con 2 px del color primario (Tabs del portal,
    * overrides/tabs.ts). Se usa en el nivel de arriba cuando hay dos filas de pestañas, para distinguirlas.
    * 'segmentado': control segmentado a todo el ancho, sin scroll, para pocas pestañas (hasta 4) de texto corto. Es el
@@ -80,6 +81,7 @@ export function Pestanias<T extends string>({ items, activa, onCambiar, estilo =
           <Pressable
             key={item.clave}
             onPress={() => onCambiar(item.clave)}
+            hitSlop={subrayado ? undefined : { top: spacing.xs, bottom: spacing.xs }}
             accessibilityRole="tab"
             accessibilityState={{ selected: seleccionada }}
             accessibilityLabel={texto}
@@ -122,7 +124,7 @@ const createStyles = (c: ColorTokens) =>
     fila: { flexDirection: 'row', gap: spacing.sm, paddingVertical: spacing.xs },
     // Chip outlined del portal (overrides/chip.ts): borde de 22 % de la tinta, igual que el de los campos.
     chip: {
-      minHeight: platformSpecific.minTouchTarget,
+      minHeight: scale(40),
       justifyContent: 'center',
       paddingHorizontal: spacing.lg,
       borderRadius: borderRadius.round,

@@ -6,8 +6,10 @@
 // Daniel (decisión 88) solo en la variante completa.
 // Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
 //  - en la variante completa el avatar se superpone al borde de la portada (como los perfiles de las apps);
+//  - la portada sin foto usa el mismo color que la tarjeta de saludo de Inicio (tokens `hero*`);
 //  - las iniciales son dos, como en el avatar del encabezado y del menú del usuario (el portal usa una por palabra);
-//  - el puesto y la sede se muestran con mayúsculas solo al principio, no en MAYÚSCULAS.
+//  - el nombre, el puesto y la sede se muestran con mayúsculas solo al principio de cada palabra (el CRM los guarda en
+//    MAYÚSCULAS), y la línea de puesto y sede va en el color de texto principal para que se lea bien.
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { actualizarFotoPerfil, actualizarFotoPortada } from '../../../application/auth/fotoPerfilService';
@@ -20,6 +22,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, scale, spacing } from '../../utils/responsive';
+import { nombrePropio } from '../../utils/texto';
 import { toast } from '../../utils/toast';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
@@ -43,10 +46,6 @@ const formatearPuesto = (puesto: string): string => {
   if (normalizado === 'codocente') return 'Staff';
   return puesto.charAt(0).toUpperCase() + puesto.slice(1).toLowerCase();
 };
-
-// "ROSARIO" -> "Rosario": primera letra de cada palabra en mayúscula.
-const capitalizar = (texto: string): string =>
-  texto.toLowerCase().replace(/(^|\s)(\S)/g, (_coincidencia, espacio: string, letra: string) => espacio + letra.toUpperCase());
 
 type Destino = 'perfil' | 'portada';
 
@@ -123,22 +122,22 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
   const datos = (
     <View style={styles.textos}>
       <AppText variant={compacto ? 'subtitle1' : 'h5'} numberOfLines={2}>
-        {user.fullname}
+        {nombrePropio(user.fullname)}
       </AppText>
       <View style={styles.fila}>
         {puesto ? (
           <View style={styles.dato}>
-            <AppIcon name="briefcase-outline" size={scale(16)} color={globalColors.textSecondary} />
-            <AppText variant="body2" tone="secondary" style={styles.datoTexto}>
+            <AppIcon name="briefcase-outline" size={scale(16)} color={globalColors.accentPrimary} />
+            <AppText variant="body2" style={styles.datoTexto}>
               {formatearPuesto(puesto)}
             </AppText>
           </View>
         ) : null}
         {localidadLabel ? (
           <View style={styles.dato}>
-            <AppIcon name="location-outline" size={scale(16)} color={globalColors.textSecondary} />
-            <AppText variant="body2" tone="secondary" style={styles.datoTexto} numberOfLines={2}>
-              {capitalizar(localidadLabel)}
+            <AppIcon name="location-outline" size={scale(16)} color={globalColors.accentPrimary} />
+            <AppText variant="body2" style={styles.datoTexto} numberOfLines={2}>
+              {nombrePropio(localidadLabel)}
             </AppText>
           </View>
         ) : null}
@@ -172,9 +171,9 @@ export const PerfilLegajoBanner: React.FC<PerfilLegajoBannerProps> = ({ localida
           style={styles.camaraPortada}
         >
           {subiendo === 'portada' ? (
-            <ActivityIndicator size="small" color={globalColors.accentPrimaryOn} />
+            <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <AppIcon name="camera-outline" size={scale(16)} color={globalColors.accentPrimaryOn} />
+            <AppIcon name="camera-outline" size={scale(16)} color="#FFFFFF" />
           )}
         </Pressable>
       </View>
@@ -195,7 +194,7 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
       borderColor: c.border,
       overflow: 'hidden',
     },
-    portada: { height: ALTO_PORTADA, backgroundColor: c.accentPrimary },
+    portada: { height: ALTO_PORTADA, backgroundColor: c.heroBackground },
     portadaImagen: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
     camaraPortada: {
       position: 'absolute',
@@ -241,5 +240,5 @@ const createStyles = (c: ColorTokens, tamanioAvatar: number, compacto: boolean) 
     textos: { flex: compacto ? 1 : undefined, gap: spacing.xs },
     fila: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.lg, rowGap: spacing.xxs },
     dato: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
-    datoTexto: { flexShrink: 1 },
+    datoTexto: { flexShrink: 1, fontWeight: '500' },
   });

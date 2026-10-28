@@ -1,10 +1,11 @@
 // Inicio de la app mobile (docs/DECISION-UI-MOBILE.md). De arriba hacia abajo:
 //  - barra con el nombre de la institución, la campana de notificaciones y el avatar (que abre el menú del usuario);
-//  - tarjeta de bienvenida con saludo según la hora, el nombre y la fecha, y dos pastillas: el puesto y, si hay, las
-//    notificaciones pendientes (que llevan a Notificaciones);
+//  - tarjeta de saludo con la hora, el nombre y la fecha, y dos pastillas: el puesto y, si hay, las notificaciones
+//    pendientes (que llevan a Notificaciones). Sus colores salen de los tokens `hero*`: azul de la marca en claro, verde
+//    azulado profundo con borde cian en oscuro (un bloque cian pleno encandila sobre fondo oscuro);
 //  - los módulos en tarjetas de dos columnas, con las MISMAS reglas de visibilidad del menú del portal
 //    (navigation/modulosMenu.ts: puesto elegido y funciones de gestión). Notificaciones y Ajustes NO van acá: ya se
-//    abren desde la campana y desde el avatar;
+//    abren desde la campana y desde el avatar. Los colores de cada módulo tienen variante para modo oscuro;
 //  - "Para hoy": frase del mes, cumpleaños y feriados del tablero del portal (decisión 89).
 // Un módulo con subopciones abre una pantalla de subopciones (screens/SubmenuScreen.tsx); los que todavía no tienen
 // contenido figuran con la etiqueta "Próximamente". Las secciones y las tarjetas entran en cascada (Aparece).
@@ -63,7 +64,7 @@ const fechaLarga = (fecha: Date): string => {
 };
 
 export const InicioScreen: React.FC = () => {
-  const { globalColors } = useThemeColors();
+  const { globalColors, isDark } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
@@ -117,7 +118,7 @@ export const InicioScreen: React.FC = () => {
           <View style={styles.pastillas}>
             {textoPuesto ? (
               <View style={styles.pastilla}>
-                <AppIcon name="briefcase-outline" size={iconSizes.sm} color={globalColors.accentPrimaryOn} />
+                <AppIcon name="briefcase-outline" size={iconSizes.sm} color={globalColors.heroText} />
                 <AppText variant="caption" style={styles.pastillaTexto}>
                   {textoPuesto}
                 </AppText>
@@ -130,11 +131,11 @@ export const InicioScreen: React.FC = () => {
                 accessibilityLabel={`${textoPendientes} notificaciones. Abrir notificaciones`}
                 style={({ pressed }) => [styles.pastilla, styles.pastillaAccion, pressed && styles.pastillaPresionada]}
               >
-                <AppIcon name="notifications" size={iconSizes.sm} color={globalColors.accentPrimaryOn} />
+                <AppIcon name="notifications" size={iconSizes.sm} color={globalColors.heroText} />
                 <AppText variant="caption" style={styles.pastillaTexto}>
                   {textoPendientes}
                 </AppText>
-                <AppIcon name="chevron-forward" size={iconSizes.sm} color={globalColors.accentPrimaryOn} />
+                <AppIcon name="chevron-forward" size={iconSizes.sm} color={globalColors.heroText} />
               </Pressable>
             ) : null}
           </View>
@@ -147,7 +148,7 @@ export const InicioScreen: React.FC = () => {
         </Aparece>
         <View style={styles.grilla}>
           {modulos.map(({ nodo, descripcion }, indice) => {
-            const color = colorDeModulo(nodo.id, indice);
+            const color = colorDeModulo(nodo.id, indice, isDark);
             return (
               <ModuloTile
                 key={nodo.id}
@@ -185,7 +186,9 @@ const createStyles = (c: ColorTokens) =>
       gap: spacing.xs,
       padding: spacing.xl,
       borderRadius: borderRadius.xxl,
-      backgroundColor: c.accentPrimary,
+      backgroundColor: c.heroBackground,
+      borderWidth: 1,
+      borderColor: c.heroBorder,
     },
     circuloGrande: {
       position: 'absolute',
@@ -194,7 +197,7 @@ const createStyles = (c: ColorTokens) =>
       width: scale(180),
       height: scale(180),
       borderRadius: scale(90),
-      backgroundColor: 'rgba(255,255,255,0.08)',
+      backgroundColor: c.heroCircle,
     },
     circuloChico: {
       position: 'absolute',
@@ -203,11 +206,11 @@ const createStyles = (c: ColorTokens) =>
       width: scale(90),
       height: scale(90),
       borderRadius: scale(45),
-      backgroundColor: 'rgba(255,255,255,0.06)',
+      backgroundColor: c.heroCircle,
     },
-    heroTitulo: { color: c.accentPrimaryOn },
-    heroSecundario: { color: c.accentPrimaryOn, opacity: 0.85 },
-    pastillas: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
+    heroTitulo: { color: c.heroText },
+    heroSecundario: { color: c.heroTextMuted },
+    pastillas: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
     pastilla: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -215,11 +218,11 @@ const createStyles = (c: ColorTokens) =>
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderRadius: borderRadius.round,
-      backgroundColor: 'rgba(255,255,255,0.18)',
+      backgroundColor: c.heroChip,
     },
-    pastillaAccion: { backgroundColor: 'rgba(255,255,255,0.28)' },
+    pastillaAccion: { backgroundColor: c.heroChipAction },
     pastillaPresionada: { opacity: 0.8 },
-    pastillaTexto: { color: c.accentPrimaryOn, fontWeight: '600' },
+    pastillaTexto: { color: c.heroText, fontWeight: '600' },
     seccion: { gap: spacing.md },
     grilla: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
   });

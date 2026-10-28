@@ -20,6 +20,7 @@ import { puedeVerLegajo, useRolStore } from '../../stores/rolStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
+import { nombrePropio } from '../../utils/texto';
 import { AppIcon, type AppIconName } from '../AppIcon';
 import { AppText } from '../AppText';
 import { inicialesDe } from './BotonMenu';
@@ -151,7 +152,7 @@ export const MenuLateral: React.FC = () => {
     ]);
   };
 
-  const nombre = user?.fullname || nombreParaBienvenida(user);
+  const nombre = nombrePropio(user?.fullname) || nombreParaBienvenida(user);
   const fotoUrl = user?.photoURL || undefined;
 
   return (

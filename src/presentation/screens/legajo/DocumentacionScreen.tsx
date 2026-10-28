@@ -1,6 +1,8 @@
 // Legajo > Documentación. Port de Portal-Austral-Dev -> src/app/(dashboard)/legajo/documentacion/page.tsx:
 // cabecera compacta del legajo, aviso informativo y la lista de documentos requeridos del empleado con sus
 // acciones "Ver adjuntos" y "Cargar archivo". Tirar para actualizar vuelve a leer la lista (decisión 98).
+// Mientras no terminó el primer intento de lectura se muestra la carga (no "Sin registros"): sin eso, en el primer cuadro
+// la lista está vacía y todavía no empezó a cargar, y se ve un instante el mensaje de lista vacía.
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { cargarDocumentacion, subirAdjuntosDeEmpleado } from '../../../application/documentacion/documentacionService';
@@ -24,10 +26,15 @@ export const DocumentacionScreen: React.FC = () => {
   const marcasTemporales = useDocumentacionStore((s) => s.marcasTemporales);
   const [verAdjuntos, setVerAdjuntos] = useState<DocumentoEmpleado | null>(null);
   const [cargarArchivo, setCargarArchivo] = useState<DocumentoEmpleado | null>(null);
+  const [primerIntentoTerminado, setPrimerIntentoTerminado] = useState(false);
 
   useEffect(() => {
-    void cargarDocumentacion();
+    void Promise.resolve(cargarDocumentacion())
+      .catch(() => undefined)
+      .finally(() => setPrimerIntentoTerminado(true));
   }, []);
+
+  const cargandoLista = (!primerIntentoTerminado || cargando) && documentos.length === 0;
 
   return (
     <Screen scroll onRefresh={() => cargarDocumentacion()} contentContainerStyle={styles.contenido}>
@@ -35,7 +42,7 @@ export const DocumentacionScreen: React.FC = () => {
 
       <InfoAlert tipo="info">Aquí deberás cargar los documentos asociados a tu legajo.</InfoAlert>
 
-      {cargando && documentos.length === 0 ? (
+      {cargandoLista ? (
         <View style={styles.centro}>
           <ActivityIndicator size="large" color={globalColors.accentPrimary} />
         </View>

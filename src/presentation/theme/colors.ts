@@ -7,6 +7,14 @@
 // Los tokens marcados "derivado" no existen tal cual en el portal: son variantes con transparencia
 // de colores del portal, necesarias para fondos de estado, superposición y sombras.
 //
+// Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
+//  - `textSecondary` y `textTertiary` son más oscuros que los del portal (en modo claro) y más claros (en modo oscuro):
+//    los grises del portal se leían poco en un celular, sobre todo los textos chicos. Contraste cercano a 5:1 o más;
+//  - en modo oscuro, fondo, tarjeta y borde están un poco más separados entre sí, y el borde de los campos es más
+//    visible, para que se distingan las tarjetas y los campos;
+//  - los tokens `hero*` son de la tarjeta de saludo de Inicio y de la portada del perfil. En claro es el azul de la
+//    marca; en oscuro es un verde azulado profundo con borde cian (un bloque cian pleno encandila sobre fondo oscuro).
+//
 // Regla: ningún componente escribe colores a mano. Todo sale de useThemeColors().globalColors.
 
 export const lightColors = {
@@ -31,10 +39,10 @@ export const lightColors = {
   inputBackground: '#FFFFFF',
   inputDisabled: '#F7F8FC', // derivado: el portal solo atenúa el borde del campo deshabilitado
 
-  // Texto (palette.text)
+  // Texto (palette.text). Secundario y terciario: más oscuros que los del portal (ver arriba).
   text: '#1A1C4B',
-  textSecondary: '#5A5C80',
-  textTertiary: '#9496B8',
+  textSecondary: '#4E5075',
+  textTertiary: '#6A6D92',
   textInverse: '#FFFFFF',
 
   // Bordes. `border` es el divisor del portal (palette.divider): borde de tarjetas, diálogos, tablas y líneas.
@@ -67,6 +75,15 @@ export const lightColors = {
   accentCtaOn: '#1A1C4B',
   accentBeige: '#F5EDD8', // customColors.beigeAcento
 
+  // Tarjeta de saludo de Inicio y portada del perfil (propios de la app)
+  heroBackground: '#2E3092',
+  heroBorder: 'transparent',
+  heroText: '#FFFFFF',
+  heroTextMuted: 'rgba(255, 255, 255, 0.85)',
+  heroChip: 'rgba(255, 255, 255, 0.18)',
+  heroChipAction: 'rgba(255, 255, 255, 0.28)',
+  heroCircle: 'rgba(255, 255, 255, 0.08)',
+
   // Pantalla de ingreso (login-portal/page.tsx)
   authBackground: '#FFF3E9',
   authInk: '#000000',
@@ -87,23 +104,23 @@ export const darkColors: ColorTokens = {
   secondaryLight: 'rgba(79, 195, 215, 0.12)',
   secondaryDark: '#3AABBF',
 
-  background: '#0E1014',
-  card: '#15171D',
-  surface: '#15171D',
-  surfaceElevated: '#1C1F27',
-  surfaceSecondary: '#1C1F27',
-  inputBackground: '#15171D',
-  inputDisabled: '#1C1F27',
+  background: '#0D0F13',
+  card: '#161920',
+  surface: '#161920',
+  surfaceElevated: '#1D2029',
+  surfaceSecondary: '#1D2029',
+  inputBackground: '#161920',
+  inputDisabled: '#1D2029',
 
   text: '#F0F2FF',
-  textSecondary: '#9BA3C2',
-  textTertiary: '#5A6080',
+  textSecondary: '#A9B0CE',
+  textTertiary: '#8089AB',
   textInverse: '#0E1014',
 
-  border: 'rgba(255, 255, 255, 0.08)',
-  borderLight: 'rgba(255, 255, 255, 0.08)',
-  hairline: 'rgba(255, 255, 255, 0.08)',
-  inputBorder: 'rgba(79, 195, 215, 0.12)',
+  border: 'rgba(255, 255, 255, 0.10)',
+  borderLight: 'rgba(255, 255, 255, 0.10)',
+  hairline: 'rgba(255, 255, 255, 0.10)',
+  inputBorder: 'rgba(79, 195, 215, 0.28)',
 
   success: '#66BB6A',
   successLight: 'rgba(102, 187, 106, 0.18)',
@@ -125,6 +142,14 @@ export const darkColors: ColorTokens = {
   accentCtaMuted: 'rgba(79, 195, 215, 0.16)',
   accentCtaOn: '#0E1014',
   accentBeige: '#F5EDD8',
+
+  heroBackground: '#182D33',
+  heroBorder: 'rgba(79, 195, 215, 0.30)',
+  heroText: '#F0F2FF',
+  heroTextMuted: '#A9B0CE',
+  heroChip: 'rgba(255, 255, 255, 0.08)',
+  heroChipAction: 'rgba(79, 195, 215, 0.24)',
+  heroCircle: 'rgba(79, 195, 215, 0.10)',
 
   authBackground: '#2E3092',
   authInk: '#FFFFFF',

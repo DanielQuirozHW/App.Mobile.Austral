@@ -28,13 +28,14 @@ const CON_CABECERA_DE_PERFIL = ['legajo', 'perfil'];
 
 export const SubmenuScreen: React.FC<Props> = ({ route }) => {
   const { id, color, ubicacion } = route.params;
-  const { globalColors } = useThemeColors();
+  const { globalColors, isDark } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const user = useAuthStore((s) => s.user);
   const role = useRolStore((s) => s.role);
 
   const nodo = useMemo(() => buscarNodoPorId(id), [id]);
-  const colorBase = color ?? colorDeModulo(id);
+  const colorBase = color ?? colorDeModulo(id, 0, isDark);
+  const alfaIcono = isDark ? '33' : '1F';
   const caminoActual = [ubicacion, nodo?.titulo].filter(Boolean).join(' › ');
 
   const filas = useMemo(() => {
@@ -75,13 +76,13 @@ export const SubmenuScreen: React.FC<Props> = ({ route }) => {
                   <View
                     style={[
                       styles.icono,
-                      { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${colorBase}1F` },
+                      { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${colorBase}${alfaIcono}` },
                     ]}
                   >
                     <AppIcon
                       name={hijo.icono}
                       size={iconSizes.lg}
-                      color={proximamente ? globalColors.textTertiary : colorBase}
+                      color={proximamente ? globalColors.textSecondary : colorBase}
                     />
                   </View>
                   <View style={styles.textos}>
@@ -89,9 +90,11 @@ export const SubmenuScreen: React.FC<Props> = ({ route }) => {
                       {hijo.titulo}
                     </AppText>
                     {proximamente ? (
-                      <AppText variant="caption" tone="tertiary">
-                        Próximamente
-                      </AppText>
+                      <View style={styles.etiqueta}>
+                        <AppText variant="caption" tone="primary" style={styles.etiquetaTexto}>
+                          Próximamente
+                        </AppText>
+                      </View>
                     ) : descripcion ? (
                       <AppText variant="caption" tone="secondary" numberOfLines={2}>
                         {descripcion}
@@ -139,6 +142,14 @@ const createStyles = (c: ColorTokens) =>
       justifyContent: 'center',
     },
     textos: { flex: 1, gap: spacing.xxs },
+    etiqueta: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xxs + 1,
+      borderRadius: borderRadius.round,
+      backgroundColor: c.accentPrimaryMuted,
+    },
+    etiquetaTexto: { fontWeight: '600' },
     // El divisor arranca alineado con el texto, no con el borde de la tarjeta.
     divisor: {
       height: StyleSheet.hairlineWidth,

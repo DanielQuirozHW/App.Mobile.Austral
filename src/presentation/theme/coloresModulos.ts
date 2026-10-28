@@ -1,9 +1,10 @@
-// Color de cada módulo en la grilla de Inicio y en las pantallas de subopciones. Cada módulo tiene un color propio
-// (cuadro de color con ícono blanco), que funciona igual en modo claro y oscuro. Los id son los del árbol de
-// navigation/modulosMenu.ts.
-const PALETA = ['#2E3092', '#0E8FA8', '#6A4CC2', '#E07B00', '#2E9E5B', '#D6336C', '#B7791F', '#4A5A8A'];
+// Color de cada módulo en la grilla de Inicio y en las pantallas de subopciones. El ícono va sobre un fondo suave de
+// este color. En modo oscuro se usan variantes más claras: los tonos del modo claro (el azul de Legajo, por ejemplo) casi no
+// se distinguen sobre fondo oscuro. Los id son los del árbol de navigation/modulosMenu.ts.
+const PALETA_CLARA = ['#2E3092', '#0E8FA8', '#6A4CC2', '#E07B00', '#2E9E5B', '#D6336C', '#B7791F', '#4A5A8A'];
+const PALETA_OSCURA = ['#8F93F5', '#4FC3D7', '#B39BFF', '#FFB155', '#5FD08A', '#FF7DAE', '#F0C15A', '#9DB0E8'];
 
-const POR_ID: Record<string, string> = {
+const CLARO_POR_ID: Record<string, string> = {
   legajo: '#2E3092',
   perfil: '#6A4CC2',
   licencias: '#0E8FA8',
@@ -17,5 +18,26 @@ const POR_ID: Record<string, string> = {
   'app-ajustes': '#5A5C80',
 };
 
-/** Color del módulo `id`; si no tiene uno asignado, uno de la paleta según su posición. */
-export const colorDeModulo = (id: string, indice = 0): string => POR_ID[id] ?? PALETA[indice % PALETA.length];
+const OSCURO_POR_ID: Record<string, string> = {
+  legajo: '#8F93F5',
+  perfil: '#B39BFF',
+  licencias: '#4FC3D7',
+  'plan-de-trabajo': '#FFB155',
+  gdd: '#5FD08A',
+  indicadores: '#FF7DAE',
+  'funciones-sa': '#F0C15A',
+  'funciones-vraa': '#9DB0E8',
+  'referente-mathu': '#D08BEA',
+  'app-notificaciones': '#FF7A7E',
+  'app-ajustes': '#A9B0CE',
+};
+
+/**
+ * Color del módulo `id` (hexadecimal de 6 dígitos). Si no tiene uno asignado, uno de la paleta según su posición.
+ * `oscuro`: true en modo oscuro.
+ */
+export const colorDeModulo = (id: string, indice = 0, oscuro = false): string => {
+  const porId = oscuro ? OSCURO_POR_ID : CLARO_POR_ID;
+  const paleta = oscuro ? PALETA_OSCURA : PALETA_CLARA;
+  return porId[id] ?? paleta[indice % paleta.length];
+};
