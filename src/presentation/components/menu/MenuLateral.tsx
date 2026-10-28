@@ -1,23 +1,13 @@
-// Menú lateral. Equivale al menú vertical del portal (navigation/vertical/index.tsx): el mismo árbol (Inicio, Legajo,
-// Perfil con Docencia e Investigación, Licencias y vacaciones, Plan de Trabajo, Gestión del Desempeño, Indicadores,
-// Funciones SA / VRAA, Referente MATHU) con grupos que se abren y se cierran. El árbol y sus reglas de visibilidad están
-// en navigation/modulosMenu.ts. Las entradas que no se migran abren "En construcción" (decisión 100).
-// En el celular se abre desde el botón de hamburguesa y se desliza desde la izquierda. Sin librerías nuevas:
-// Modal + Animated de React Native.
-// "Cambiar puesto" (decisiones 99 y 100): solo con más de un puesto; vuelve a la pantalla de selección de puesto.
+// Menú del usuario. Mantiene el nombre de archivo y de componente del antiguo menú lateral (AppNavigation lo monta
+// igual), pero ahora es una hoja que sube desde abajo (docs/DECISION-UI-MOBILE.md): el acceso a los módulos es la grilla
+// de Inicio, así que acá solo van las acciones de la cuenta: Mi perfil, Cambiar puesto (solo con más de un puesto),
+// Ajustes y Cerrar sesión (con confirmación). Se abre con el avatar del encabezado (BotonMenu).
+// Sin librerías nuevas: Modal + Animated de React Native.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cerrarSesion } from '../../../application/auth/authService';
 import { nombreParaBienvenida } from '../../../domain/inicio/tablero';
-import {
-  caminoANodo,
-  filtrarNodos,
-  irANodo,
-  nodoCoincide,
-  SECCIONES_DE_MENU,
-  type NodoDeMenu,
-} from '../../navigation/modulosMenu';
 import { irAModulo } from '../../navigation/navigationRef';
 import { useAuthStore } from '../../stores/authStore';
 import { useMenuStore } from '../../stores/menuStore';
@@ -25,16 +15,51 @@ import { puedeVerLegajo, useRolStore } from '../../stores/rolStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
-import { AppIcon } from '../AppIcon';
+import { AppIcon, type AppIconName } from '../AppIcon';
 import { AppText } from '../AppText';
+import { inicialesDe } from './BotonMenu';
 import { PildoraPuesto } from './PildoraPuesto';
 
-const ANCHO_PANEL = Math.min(scale(300), Dimensions.get('window').width * 0.85);
-const DURACION = 220;
+const ALTO_PANTALLA = Dimensions.get('window').height;
+const DURACION = 240;
 
-// getInitials del portal (primera letra de cada palabra).
-const iniciales = (nombreCompleto: string): string =>
-  nombreCompleto.split(/\s/).reduce((respuesta, palabra) => respuesta + palabra.slice(0, 1), '');
+interface FilaAccionProps {
+  icono: AppIconName;
+  titulo: string;
+  onPress: () => void;
+  peligro?: boolean;
+}
+
+const FilaAccion: React.FC<FilaAccionProps> = ({ icono, titulo, onPress, peligro = false }) => {
+  const { globalColors } = useThemeColors();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={titulo}
+      android_ripple={{ color: globalColors.hairline }}
+      style={({ pressed }) => [filaEstilos.fila, pressed && { backgroundColor: globalColors.accentPrimaryMuted }]}
+    >
+      <AppIcon name={icono} size={iconSizes.lg} color={peligro ? globalColors.danger : globalColors.textSecondary} />
+      <AppText variant="body1" tone={peligro ? 'danger' : 'default'} style={filaEstilos.texto}>
+        {titulo}
+      </AppText>
+      {peligro ? null : <AppIcon name="chevron-forward" size={iconSizes.md} color={globalColors.textTertiary} />}
+    </Pressable>
+  );
+};
+
+const filaEstilos = StyleSheet.create({
+  fila: {
+    minHeight: scale(56),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+  },
+  texto: { flex: 1 },
+});
 
 export const MenuLateral: React.FC = () => {
   const { globalColors } = useThemeColors();
@@ -46,68 +71,31 @@ export const MenuLateral: React.FC = () => {
   const seleccionPendiente = useRolStore((s) => s.seleccionPendiente);
   const marcarSeleccionPendiente = useRolStore((s) => s.marcarSeleccionPendiente);
   const abierto = useMenuStore((s) => s.abierto);
-  const rutaActual = useMenuStore((s) => s.rutaActual);
-  const paramsActual = useMenuStore((s) => s.paramsActual);
   const cerrar = useMenuStore((s) => s.cerrar);
 
   const [montado, setMontado] = useState(false);
-  const [expandidos, setExpandidos] = useState<Record<string, boolean>>({});
-  const desplazamiento = useRef(new Animated.Value(-ANCHO_PANEL)).current;
+  const traslado = useRef(new Animated.Value(ALTO_PANTALLA)).current;
   const opacidadFondo = useRef(new Animated.Value(0)).current;
 
   const autenticado = Boolean(user?.empleadoid) && !seleccionPendiente;
   const puedeCambiarPuesto = userRoles.length > 1;
-
-  // Lo que ve este usuario con este puesto (mismas reglas que el menú del portal).
-  const secciones = useMemo(
-    () =>
-      SECCIONES_DE_MENU.map((seccion) => ({
-        ...seccion,
-        nodos: filtrarNodos(seccion.nodos, { puesto: role, user }),
-      })).filter((seccion) => seccion.nodos.length > 0),
-    [role, user],
-  );
-
-  // Camino hasta la entrada de la pantalla abierta: sus grupos se abren y se resaltan.
-  const caminoActivo = useMemo(
-    () =>
-      caminoANodo(
-        secciones.flatMap((seccion) => seccion.nodos),
-        (nodo) => nodoCoincide(nodo, rutaActual, paramsActual),
-      ) ?? [],
-    [secciones, rutaActual, paramsActual],
-  );
-  const idsDelCaminoActivo = useMemo(() => new Set(caminoActivo.map((nodo) => nodo.id)), [caminoActivo]);
 
   // Si se pierde la sesión con el menú abierto, se cierra.
   useEffect(() => {
     if (!autenticado) cerrar();
   }, [autenticado, cerrar]);
 
-  // Al abrir el menú se despliegan los grupos que contienen la pantalla actual.
-  useEffect(() => {
-    if (!abierto) return;
-    setExpandidos((previo) => {
-      const siguiente = { ...previo };
-      caminoActivo.slice(0, -1).forEach((nodo) => {
-        siguiente[nodo.id] = true;
-      });
-      return siguiente;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe reaccionar a `abierto`
-  }, [abierto]);
-
   // Animación de entrada y salida. Se desmonta el Modal recién cuando termina la animación de salida.
   useEffect(() => {
     if (abierto) {
       setMontado(true);
       Animated.parallel([
-        Animated.timing(desplazamiento, { toValue: 0, duration: DURACION, useNativeDriver: true }),
+        Animated.timing(traslado, { toValue: 0, duration: DURACION, useNativeDriver: true }),
         Animated.timing(opacidadFondo, { toValue: 1, duration: DURACION, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(desplazamiento, { toValue: -ANCHO_PANEL, duration: DURACION, useNativeDriver: true }),
+        Animated.timing(traslado, { toValue: ALTO_PANTALLA, duration: DURACION, useNativeDriver: true }),
         Animated.timing(opacidadFondo, { toValue: 0, duration: DURACION, useNativeDriver: true }),
       ]).start(({ finished }) => {
         if (finished) setMontado(false);
@@ -118,11 +106,9 @@ export const MenuLateral: React.FC = () => {
 
   if (!montado) return null;
 
-  const alternar = (id: string) => setExpandidos((previo) => ({ ...previo, [id]: !previo[id] }));
-
-  const ir = (nodo: NodoDeMenu, camino: NodoDeMenu[]) => {
+  const irAMiPerfil = () => {
     cerrar();
-    irANodo(nodo, camino.map((padre) => padre.titulo).join(' › ') || undefined);
+    irAModulo(puedeVerLegajo(role) ? 'DatosPersonales' : 'MiPerfil');
   };
 
   const cambiarPuesto = () => {
@@ -130,10 +116,9 @@ export const MenuLateral: React.FC = () => {
     marcarSeleccionPendiente();
   };
 
-  // El menú del usuario del portal (UserDropdown) lleva a "Mi perfil" = /legajo/datos-personales.
-  const irAMiPerfil = () => {
+  const irAAjustes = () => {
     cerrar();
-    irAModulo(puedeVerLegajo(role) ? 'DatosPersonales' : 'MiPerfil');
+    irAModulo('Ajustes');
   };
 
   const salir = async () => {
@@ -145,67 +130,15 @@ export const MenuLateral: React.FC = () => {
     }
   };
 
-  const nombre = nombreParaBienvenida(user);
-  const fotoUrl = user?.photoURL || undefined;
-
-  const renderNodo = (nodo: NodoDeMenu, nivel: number, camino: NodoDeMenu[]): React.ReactNode => {
-    const sangria = { paddingLeft: spacing.md + nivel * spacing.lg };
-    const tamanioIcono = nivel === 0 ? iconSizes.lg : iconSizes.md;
-
-    if (nodo.hijos) {
-      const expandido = Boolean(expandidos[nodo.id]);
-      const contieneActivo = idsDelCaminoActivo.has(nodo.id);
-      return (
-        <View key={nodo.id}>
-          <Pressable
-            onPress={() => alternar(nodo.id)}
-            accessibilityRole="button"
-            accessibilityLabel={nodo.titulo}
-            accessibilityState={{ expanded: expandido }}
-            android_ripple={{ color: globalColors.hairline }}
-            style={[styles.item, sangria]}
-          >
-            <AppIcon
-              name={nodo.icono}
-              size={tamanioIcono}
-              color={contieneActivo ? globalColors.accentPrimary : globalColors.textSecondary}
-            />
-            <AppText variant="body2" style={contieneActivo ? styles.textoItemActivo : styles.textoItem}>
-              {nodo.titulo}
-            </AppText>
-            <AppIcon
-              name={expandido ? 'chevron-down' : 'chevron-forward'}
-              size={iconSizes.md}
-              color={globalColors.textTertiary}
-            />
-          </Pressable>
-          {expandido ? nodo.hijos.map((hijo) => renderNodo(hijo, nivel + 1, [...camino, nodo])) : null}
-        </View>
-      );
-    }
-
-    const activo = nodoCoincide(nodo, rutaActual, paramsActual);
-    return (
-      <Pressable
-        key={nodo.id}
-        onPress={() => ir(nodo, camino)}
-        accessibilityRole="button"
-        accessibilityLabel={nodo.titulo}
-        accessibilityState={{ selected: activo }}
-        android_ripple={{ color: globalColors.hairline }}
-        style={[styles.item, sangria, activo && styles.itemActivo]}
-      >
-        <AppIcon
-          name={nodo.icono}
-          size={tamanioIcono}
-          color={activo ? globalColors.accentPrimary : globalColors.textSecondary}
-        />
-        <AppText variant="body2" tone={activo ? 'primary' : 'default'} style={activo ? styles.textoItemActivo : styles.textoItem}>
-          {nodo.titulo}
-        </AppText>
-      </Pressable>
-    );
+  const confirmarSalida = () => {
+    Alert.alert('Cerrar sesión', '¿Querés cerrar tu sesión?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Cerrar sesión', style: 'destructive', onPress: () => void salir() },
+    ]);
   };
+
+  const nombre = user?.fullname || nombreParaBienvenida(user);
+  const fotoUrl = user?.photoURL || undefined;
 
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={cerrar}>
@@ -220,73 +153,36 @@ export const MenuLateral: React.FC = () => {
         </Animated.View>
 
         <Animated.View
-          style={[
-            styles.panel,
-            { paddingTop: insets.top, paddingBottom: insets.bottom, transform: [{ translateX: desplazamiento }] },
-          ]}
+          style={[styles.hoja, { paddingBottom: insets.bottom + spacing.lg, transform: [{ translateY: traslado }] }]}
         >
-          <Pressable
-            onPress={irAMiPerfil}
-            accessibilityRole="button"
-            accessibilityLabel="Mi perfil"
-            android_ripple={{ color: globalColors.hairline }}
-            style={styles.cabecera}
-          >
+          <View style={styles.agarre} />
+
+          <View style={styles.cabecera}>
             {fotoUrl ? (
               <Image source={{ uri: fotoUrl }} style={styles.avatar} accessibilityLabel={nombre} />
             ) : (
               <View style={[styles.avatar, styles.avatarIniciales]}>
-                <AppText variant="h6" style={{ color: globalColors.accentPrimaryOn }}>
-                  {iniciales(user?.fullname ?? '')}
+                <AppText variant="h5" style={{ color: globalColors.accentPrimaryOn }}>
+                  {inicialesDe(user?.fullname ?? '')}
                 </AppText>
               </View>
             )}
             <View style={styles.cabeceraTextos}>
               <AppText variant="subtitle1" numberOfLines={2}>
-                {user?.fullname || nombre}
+                {nombre}
               </AppText>
               <PildoraPuesto />
             </View>
-          </Pressable>
+          </View>
 
-          <ScrollView contentContainerStyle={styles.lista} showsVerticalScrollIndicator={false}>
-            {secciones.map((seccion, indice) => (
-              <View key={seccion.titulo ?? `seccion-${indice}`} style={styles.seccion}>
-                {seccion.titulo ? (
-                  <AppText variant="overline" tone="tertiary" style={styles.seccionTitulo}>
-                    {seccion.titulo}
-                  </AppText>
-                ) : null}
-                {seccion.nodos.map((nodo) => renderNodo(nodo, 0, []))}
-              </View>
-            ))}
-          </ScrollView>
-
-          <View style={styles.pie}>
+          <View style={styles.lista}>
+            <FilaAccion icono="person-circle-outline" titulo="Mi perfil" onPress={irAMiPerfil} />
             {puedeCambiarPuesto ? (
-              <Pressable
-                onPress={cambiarPuesto}
-                accessibilityRole="button"
-                accessibilityLabel="Cambiar puesto"
-                android_ripple={{ color: globalColors.hairline }}
-                style={styles.item}
-              >
-                <AppIcon name="swap-horizontal-outline" size={iconSizes.lg} color={globalColors.textSecondary} />
-                <AppText variant="body2">Cambiar puesto</AppText>
-              </Pressable>
+              <FilaAccion icono="swap-horizontal-outline" titulo="Cambiar puesto" onPress={cambiarPuesto} />
             ) : null}
-            <Pressable
-              onPress={salir}
-              accessibilityRole="button"
-              accessibilityLabel="Cerrar sesión"
-              android_ripple={{ color: globalColors.hairline }}
-              style={styles.item}
-            >
-              <AppIcon name="log-out-outline" size={iconSizes.lg} color={globalColors.danger} />
-              <AppText variant="body2" tone="danger">
-                Cerrar sesión
-              </AppText>
-            </Pressable>
+            <FilaAccion icono="settings-outline" titulo="Ajustes" onPress={irAAjustes} />
+            <View style={styles.separador} />
+            <FilaAccion icono="log-out-outline" titulo="Cerrar sesión" onPress={confirmarSalida} peligro />
           </View>
         </Animated.View>
       </View>
@@ -296,47 +192,38 @@ export const MenuLateral: React.FC = () => {
 
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
-    raiz: { flex: 1 },
+    raiz: { flex: 1, justifyContent: 'flex-end' },
     fondo: { ...StyleSheet.absoluteFillObject, backgroundColor: c.overlay },
-    panel: {
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      width: ANCHO_PANEL,
+    hoja: {
       backgroundColor: c.card,
-      borderRightWidth: 1,
-      borderRightColor: c.hairline,
+      borderTopLeftRadius: borderRadius.xxl,
+      borderTopRightRadius: borderRadius.xxl,
+      paddingTop: spacing.sm,
+      paddingHorizontal: spacing.sm,
       ...platformSpecific.shadow(8),
+    },
+    agarre: {
+      alignSelf: 'center',
+      width: scale(40),
+      height: scale(4),
+      borderRadius: borderRadius.round,
+      backgroundColor: c.border,
+      marginBottom: spacing.sm,
     },
     cabecera: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.md,
+      gap: spacing.lg,
       padding: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: c.hairline,
     },
-    avatar: { width: scale(48), height: scale(48), borderRadius: scale(24) },
+    avatar: { width: scale(56), height: scale(56), borderRadius: scale(28) },
     avatarIniciales: { backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
     cabeceraTextos: { flex: 1, gap: spacing.xs },
-    lista: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
-    seccion: { marginBottom: spacing.sm },
-    seccionTitulo: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-    item: {
-      minHeight: platformSpecific.minTouchTarget,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
-      paddingHorizontal: spacing.md,
-      borderRadius: borderRadius.sm,
-    },
-    itemActivo: { backgroundColor: c.accentPrimaryMuted },
-    textoItem: { flex: 1 },
-    textoItemActivo: { flex: 1, fontWeight: '700' },
-    pie: {
-      padding: spacing.sm,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: c.hairline,
+    lista: { gap: spacing.xxs },
+    separador: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: c.hairline,
+      marginVertical: spacing.xs,
+      marginHorizontal: spacing.lg,
     },
   });

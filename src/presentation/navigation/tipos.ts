@@ -1,6 +1,8 @@
 // Rutas de la app. Equivalen a las páginas del portal:
 //   Login -> (blank)/login, SeleccionarPuesto -> (blank)/seleccionar-puesto, Inicio -> "/",
 //   Notificaciones -> (dashboard)/notificaciones,
+//   Submenu -> propia de la app: pantalla de subopciones de un módulo con varias entradas (Legajo, Perfil, Funciones SA...).
+//     Reemplaza a los grupos desplegables del menú lateral del portal (docs/DECISION-UI-MOBILE.md),
 //   MiPerfil -> propia de la app: pantalla de entrada al módulo Mi perfil (legajo + perfil académico); el portal las
 //     agrupa en su menú lateral,
 //   DatosPersonales -> (dashboard)/legajo/datos-personales,
@@ -36,6 +38,8 @@ export type RootStackParams = {
   Login: undefined;
   SeleccionarPuesto: undefined;
   Inicio: undefined;
+  /** `id`: entrada del árbol de menú cuyas subopciones se listan; `color`: color del módulo raíz; `ubicacion`: camino de grupos. */
+  Submenu: { id: string; color?: string; ubicacion?: string };
   Notificaciones: undefined;
   MiPerfil: undefined;
   DatosPersonales: undefined;
@@ -46,7 +50,7 @@ export type RootStackParams = {
   Trayectoria: undefined;
   Extension: undefined;
   GestionAcademica: undefined;
-  /** `pestania`: pestaña con la que abre (el menú lateral entra directo a cada subpágina del portal). */
+  /** `pestania`: pestaña con la que abre (cada entrada de Perfil > Docencia entra directo a su subpágina del portal). */
   Docencia: { pestania?: PestaniaDocencia } | undefined;
   /** `seccion`: sección con la que abre. */
   Investigacion: { seccion?: SeccionInvestigacion } | undefined;

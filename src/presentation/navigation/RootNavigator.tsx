@@ -3,17 +3,21 @@
 //   - Firebase todavía no resolvió la sesión                -> Cargando
 //   - sin usuario con `empleadoid` (criterio del portal)  -> Login
 //   - usuario con varios puestos que aún no eligió       -> SeleccionarPuesto
-//   - resto                                              -> Inicio + Notificaciones + Ajustes + Mi perfil y sus
+//   - resto                                              -> Inicio (grilla de módulos) + Submenu (subopciones) +
+//                                                           Notificaciones + Ajustes + Mi perfil y sus
 //                                                           secciones + Licencias y vacaciones + Plan de trabajo
 //                                                           (Datos personales para docente / codocente; Plan de trabajo
 //                                                           solo para docente: allowedRoles ["docente"] de
 //                                                           planes-de-trabajo/page.tsx) + "En construcción" (la abren
 //                                                           las entradas del menú que no se migran, decisión 100)
 //
-// Encabezado de todas las pantallas (menos Inicio, que dibuja su propia barra): título + Cambiar puesto (con más de un
-// puesto), campana con contador de notificaciones y menú lateral (components/menu/AccionesDeEncabezado).
+// Navegación de la app mobile (docs/DECISION-UI-MOBILE.md): no hay menú lateral. Inicio muestra una grilla de módulos;
+// un módulo con varias entradas abre `Submenu`; las hojas abren su pantalla. "Atrás" vuelve un paso.
 //
-// MVP DE DEMOSTRACIÓN (docs/ALCANCE-MVP.md): todos los módulos están registrados y figuran en el menú, pero solo los que
+// Encabezado de todas las pantallas (menos Inicio, que dibuja su propia cabecera): título + campana con contador de
+// notificaciones + avatar del usuario (components/menu/AccionesDeEncabezado), que abre el menú del usuario.
+//
+// MVP DE DEMOSTRACIÓN (docs/ALCANCE-MVP.md): todos los módulos están registrados y figuran en la grilla, pero solo los que
 // tienen `enDemo: true` en navigation/modulosMenu.ts muestran su pantalla real; el resto abre ModuloVacioScreen.
 // Documentación: el menú del portal (navigation/vertical/index.tsx) la muestra a todos los roles. Falta leer el guard
 // del layout del dashboard por si restringe algo más (ver docs/PENDIENTES.md).
@@ -26,6 +30,7 @@ import { EncabezadoVisibleContext } from '../components/Screen';
 import { AjustesScreen } from '../screens/ajustes/AjustesScreen';
 import { InicioScreen } from '../screens/InicioScreen';
 import { ModuloVacioScreen } from '../screens/ModuloVacioScreen';
+import { SubmenuScreen } from '../screens/SubmenuScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SeleccionarPuestoScreen } from '../screens/auth/SeleccionarPuestoScreen';
 import { DatosPersonalesScreen } from '../screens/legajo/DatosPersonalesScreen';
@@ -43,6 +48,7 @@ import { PlanTrabajoDetalleScreen } from '../screens/pta/PlanTrabajoDetalleScree
 import { PlanTrabajoScreen } from '../screens/pta/PlanTrabajoScreen';
 import { useAuthStore } from '../stores/authStore';
 import { puedeVerLegajo, useRolStore } from '../stores/rolStore';
+import { buscarNodoPorId } from './grilla';
 import { moduloEnDemo, type RutaDeMenu } from './modulosMenu';
 import type { RootStackParams } from './tipos';
 
@@ -70,6 +76,7 @@ const conEncabezado = (Componente: React.ComponentType<any>): React.FC<any> => {
 const moduloODemo = (ruta: RutaDeMenu, real: React.ComponentType<any>): React.FC<any> =>
   conEncabezado(moduloEnDemo(ruta) ? real : ModuloVacioScreen);
 
+const Submenu = conEncabezado(SubmenuScreen);
 const Notificaciones = moduloODemo('Notificaciones', NotificacionesScreen);
 const MiPerfil = moduloODemo('MiPerfil', MiPerfilScreen);
 const DatosPersonales = moduloODemo('DatosPersonales', DatosPersonalesScreen);
@@ -128,6 +135,11 @@ export const RootNavigator: React.FC = () => {
       ) : (
         <>
           <Stack.Screen name="Inicio" component={InicioScreen} />
+          <Stack.Screen
+            name="Submenu"
+            component={Submenu}
+            options={({ route }) => opciones(buscarNodoPorId(route.params.id)?.titulo ?? 'Menú')}
+          />
           <Stack.Screen name="Notificaciones" component={Notificaciones} options={opciones('Notificaciones')} />
           <Stack.Screen name="MiPerfil" component={MiPerfil} options={opciones('Mi perfil')} />
           {puedeVerLegajo(role) ? (
