@@ -1,9 +1,11 @@
 // Perfil > Docencia. Port de Portal-Austral-Dev -> src/app/(dashboard)/perfil/docencia/*/page.tsx (categorización
-// docente, nombramientos, promoción, docencia y asesoramiento académico). Las cinco subpáginas del portal se muestran
-// como pestañas de una sola pantalla; los "Vigentes / Históricos" del portal son dos secciones apiladas.
-// Promoción > Postulación (pestaña que el portal muestra solo con la bandera PromocionHabilitado) no está migrada.
+// docente, nombramientos, docencia y asesoramiento académico). Las subpáginas del portal se muestran como pestañas de
+// una sola pantalla; los "Vigentes / Históricos" del portal son dos secciones apiladas. El menú lateral entra directo a
+// cada una con el parámetro de ruta `pestania` (decisión 100); sin parámetro abre en Categorización.
+// Promoción NO se migra (decisión 100): la pestaña figura, como la entrada del menú del portal, y muestra "En construcción".
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useRoute, type RouteProp } from '@react-navigation/native';
 import {
   cargarDocencia,
   eliminarAsesoramiento,
@@ -14,6 +16,7 @@ import {
 import { aFechaVisible } from '../../../domain/legajo/fechas';
 import { AppButton } from '../../components/AppButton';
 import { AppText } from '../../components/AppText';
+import { EnConstruccion } from '../../components/EnConstruccion';
 import { InfoAlert } from '../../components/InfoAlert';
 import { ItemPestania, Pestanias } from '../../components/licencias/Pestanias';
 import { ModalAsesoramiento } from '../../components/perfil/ModalAsesoramiento';
@@ -22,14 +25,13 @@ import { ModalDocenciaUA } from '../../components/perfil/ModalDocenciaUA';
 import { ModalLectura } from '../../components/perfil/ModalLectura';
 import { SeccionRegistros } from '../../components/perfil/SeccionRegistros';
 import { Screen } from '../../components/Screen';
+import type { PestaniaDocencia, RootStackParams } from '../../navigation/tipos';
 import { useDocenciaStore } from '../../stores/docenciaStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { spacing } from '../../utils/responsive';
 
-type Subpagina = 'categorizacion' | 'nombramientos' | 'promocion' | 'docencia' | 'asesoramiento';
-
-const PESTANIAS: ItemPestania<Subpagina>[] = [
+const PESTANIAS: ItemPestania<PestaniaDocencia>[] = [
   { clave: 'categorizacion', etiqueta: 'Categorización' },
   { clave: 'nombramientos', etiqueta: 'Nombramientos' },
   { clave: 'promocion', etiqueta: 'Promoción' },
@@ -37,7 +39,7 @@ const PESTANIAS: ItemPestania<Subpagina>[] = [
   { clave: 'asesoramiento', etiqueta: 'Asesoramiento' },
 ];
 
-const INFO: Record<Subpagina, { titulo: string; texto: string }> = {
+const INFO: Record<PestaniaDocencia, { titulo: string; texto: string }> = {
   categorizacion: {
     titulo: 'Categorización docente',
     texto: 'Aquí podrá visualizar la información relacionada a la categorización docente vigente.',
@@ -66,13 +68,13 @@ const AYUDA_BACK_OFFICE =
 export const DocenciaScreen: React.FC = () => {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
-  const [subpagina, setSubpagina] = useState<Subpagina>('categorizacion');
+  const route = useRoute<RouteProp<RootStackParams, 'Docencia'>>();
+  const [subpagina, setSubpagina] = useState<PestaniaDocencia>(route.params?.pestania ?? 'categorizacion');
 
   const categorizacionVigente = useDocenciaStore((s) => s.categorizacionVigente);
   const categorizacionHistorica = useDocenciaStore((s) => s.categorizacionHistorica);
   const nombramientosVigentes = useDocenciaStore((s) => s.nombramientosVigentes);
   const nombramientosHistoricos = useDocenciaStore((s) => s.nombramientosHistoricos);
-  const promociones = useDocenciaStore((s) => s.promociones);
   const docenciasUA = useDocenciaStore((s) => s.docenciasUA);
   const docenciasExternas = useDocenciaStore((s) => s.docenciasExternas);
   const asesoramientos = useDocenciaStore((s) => s.asesoramientos);
@@ -97,19 +99,24 @@ export const DocenciaScreen: React.FC = () => {
   }
 
   const info = INFO[subpagina];
+  const enConstruccion = subpagina === 'promocion';
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
       <Pestanias items={PESTANIAS} activa={subpagina} onCambiar={setSubpagina} />
 
-      <View style={styles.titulos}>
-        <AppText variant="h6">{info.titulo}</AppText>
-        <AppText variant="body2" tone="secondary">
-          {info.texto}
-        </AppText>
-      </View>
+      {enConstruccion ? (
+        <EnConstruccion titulo={info.titulo} ubicacion="Perfil › Docencia" compacto />
+      ) : (
+        <View style={styles.titulos}>
+          <AppText variant="h6">{info.titulo}</AppText>
+          <AppText variant="body2" tone="secondary">
+            {info.texto}
+          </AppText>
+        </View>
+      )}
 
-      {error ? (
+      {error && !enConstruccion ? (
         <View style={styles.aviso}>
           <InfoAlert tipo="error">{MSG_ERROR_CARGA_DOCENCIA}</InfoAlert>
           <AppButton title="Reintentar" variant="secondary" onPress={recargar} loading={cargando} />
@@ -266,51 +273,6 @@ export const DocenciaScreen: React.FC = () => {
             }
           />
         </>
-      ) : null}
-
-      {subpagina === 'promocion' ? (
-        <SeccionRegistros
-          numero={1}
-          titulo="Promoción"
-          ayuda={AYUDA_BACK_OFFICE}
-          items={promociones}
-          idDe={(p) => p.id}
-          tituloDe={(p) => (p.anioConvocatoria ? `Convocatoria ${p.anioConvocatoria}` : '—')}
-          subtituloDe={(p) => p.categoriaPromovida || undefined}
-          lineasDe={(p) => [
-            { label: 'Categoría de origen', valor: p.categoriaOrigen },
-            { label: 'Nivel de origen', valor: p.nivelOrigen },
-            { label: 'Categoría promovida', valor: p.categoriaPromovida },
-            { label: 'Nivel promovido', valor: p.nivelPromovido },
-            { label: 'Fecha de presentación', valor: p.fechaPresentacion },
-            { label: 'Estado', valor: p.estado },
-            { label: 'Fecha de resolución', valor: p.fechaResolucion },
-            { label: 'Resolución / Acta / Dictamen de aprobación o rechazo', valor: p.resolucion },
-          ]}
-          textoAgregar=""
-          soloLectura
-          textoVacio="No hay promociones."
-          renderModal={({ item, onClose }) =>
-            item ? (
-              <ModalLectura
-                titulo="Promoción"
-                subtitulo="Información de la promoción"
-                onClose={onClose}
-                filas={[
-                  { label: 'Año de convocatoria', valor: item.anioConvocatoria },
-                  { label: 'Categoría de origen', valor: item.categoriaOrigen },
-                  { label: 'Nivel de origen', valor: item.nivelOrigen },
-                  { label: 'Categoría promovida', valor: item.categoriaPromovida },
-                  { label: 'Nivel promovido', valor: item.nivelPromovido },
-                  { label: 'Fecha de presentación (fecha en la que se presenta a rectorado)', valor: item.fechaPresentacion },
-                  { label: 'Estado', valor: item.estado },
-                  { label: 'Fecha de resolución', valor: item.fechaResolucion },
-                  { label: 'Resolución / Acta / Dictamen de aprobación o rechazo', valor: item.resolucion },
-                ]}
-              />
-            ) : null
-          }
-        />
       ) : null}
 
       {subpagina === 'docencia' ? (

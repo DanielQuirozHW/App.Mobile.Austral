@@ -7,7 +7,11 @@
 //                                                           secciones + Licencias y vacaciones + Plan de trabajo
 //                                                           (Datos personales para docente / codocente; Plan de trabajo
 //                                                           solo para docente: allowedRoles ["docente"] de
-//                                                           planes-de-trabajo/page.tsx)
+//                                                           planes-de-trabajo/page.tsx) + "En construcción" (la abren
+//                                                           las entradas del menú que no se migran, decisión 100)
+//
+// Encabezado de todas las pantallas (menos Inicio, que dibuja su propia barra): título + Cambiar puesto (con más de un
+// puesto), campana con contador de notificaciones y menú lateral (components/menu/AccionesDeEncabezado).
 //
 // MVP DE DEMOSTRACIÓN (docs/ALCANCE-MVP.md): todos los módulos están registrados y figuran en el menú, pero solo los que
 // tienen `enDemo: true` en navigation/modulosMenu.ts muestran su pantalla real; el resto abre ModuloVacioScreen.
@@ -17,7 +21,7 @@ import React, { useEffect } from 'react';
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { escucharSesion } from '../../application/auth/authService';
 import { LoadingScreen } from '../components/LoadingScreen';
-import { BotonMenu } from '../components/menu/BotonMenu';
+import { AccionesDeEncabezado } from '../components/menu/AccionesDeEncabezado';
 import { EncabezadoVisibleContext } from '../components/Screen';
 import { AjustesScreen } from '../screens/ajustes/AjustesScreen';
 import { InicioScreen } from '../screens/InicioScreen';
@@ -77,15 +81,16 @@ const Investigacion = moduloODemo('Investigacion', InvestigacionScreen);
 const PlanesDeTrabajo = moduloODemo('PlanesDeTrabajo', PlanTrabajoScreen);
 const PlanTrabajoDetalle = conEncabezado(PlanTrabajoDetalleScreen);
 const Ajustes = moduloODemo('Ajustes', AjustesScreen);
+const EnConstruccion = conEncabezado(ModuloVacioScreen);
 
-const renderBotonMenu = (): React.ReactElement => <BotonMenu />;
+const renderAccionesDeEncabezado = (): React.ReactElement => <AccionesDeEncabezado />;
 
-/** Opciones comunes de las pantallas con encabezado: título, transición y botón del menú a la derecha. */
+/** Opciones comunes de las pantallas con encabezado: título, transición y acciones a la derecha. */
 const opciones = (title: string): NativeStackNavigationOptions => ({
   headerShown: true,
   title,
   animation: 'slide_from_right',
-  headerRight: renderBotonMenu,
+  headerRight: renderAccionesDeEncabezado,
 });
 
 export const RootNavigator: React.FC = () => {
@@ -135,6 +140,11 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="Docencia" component={Docencia} options={opciones('Docencia')} />
           <Stack.Screen name="Investigacion" component={Investigacion} options={opciones('Investigación')} />
           <Stack.Screen name="Ajustes" component={Ajustes} options={opciones('Ajustes')} />
+          <Stack.Screen
+            name="EnConstruccion"
+            component={EnConstruccion}
+            options={({ route }) => opciones(route.params.titulo)}
+          />
           {role === 'docente' ? (
             <>
               <Stack.Screen name="PlanesDeTrabajo" component={PlanesDeTrabajo} options={opciones('Plan de trabajo')} />
