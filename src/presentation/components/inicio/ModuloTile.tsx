@@ -1,7 +1,7 @@
 // Tarjeta de un módulo en la grilla de Inicio. Dos por fila. El ícono va sobre un fondo suave del color del módulo (no
 // relleno pleno): se ve más liviano y los colores conviven mejor. Los módulos que todavía no tienen contenido usan un
-// fondo gris y la etiqueta "Próximamente", sin atenuar toda la tarjeta (docs/DECISION-UI-MOBILE.md).
-// Entra con una animación en cascada (`demora`).
+// fondo gris y la etiqueta "Próximamente" en el azul de la marca (legible), sin atenuar toda la tarjeta
+// (docs/DECISION-UI-MOBILE.md). Entra con una animación en cascada (`demora`).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
@@ -46,7 +46,7 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
         style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
       >
         <View style={[styles.cuadro, { backgroundColor: proximamente ? globalColors.surfaceSecondary : `${color}1F` }]}>
-          <AppIcon name={icono} size={iconSizes.lg} color={proximamente ? globalColors.textTertiary : color} />
+          <AppIcon name={icono} size={iconSizes.lg} color={proximamente ? globalColors.textSecondary : color} />
         </View>
         <View style={styles.textos}>
           <AppText variant="subtitle1" tone={proximamente ? 'secondary' : 'default'} numberOfLines={2}>
@@ -54,7 +54,7 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
           </AppText>
           {proximamente ? (
             <View style={styles.etiqueta}>
-              <AppText variant="caption" tone="tertiary">
+              <AppText variant="caption" tone="primary" style={styles.etiquetaTexto}>
                 Próximamente
               </AppText>
             </View>
@@ -94,9 +94,10 @@ const createStyles = (c: ColorTokens) =>
     textos: { gap: spacing.xxs },
     etiqueta: {
       alignSelf: 'flex-start',
-      paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.xxs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xxs + 1,
       borderRadius: borderRadius.round,
-      backgroundColor: c.surfaceSecondary,
+      backgroundColor: c.accentPrimaryMuted,
     },
+    etiquetaTexto: { fontWeight: '600' },
   });

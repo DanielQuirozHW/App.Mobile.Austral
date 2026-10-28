@@ -7,6 +7,11 @@
 // Los tokens marcados "derivado" no existen tal cual en el portal: son variantes con transparencia
 // de colores del portal, necesarias para fondos de estado, superposición y sombras.
 //
+// Diferencia de la app mobile (docs/DECISION-UI-MOBILE.md): `textSecondary` y `textTertiary` son más oscuros que los
+// del portal (en modo claro) y más claros (en modo oscuro). Los grises del portal se leían poco en un celular, sobre todo
+// los textos chicos (descripciones, etiquetas, "Próximamente"). Con estos valores el contraste sobre el fondo de la
+// tarjeta queda cerca de 5:1 o más.
+//
 // Regla: ningún componente escribe colores a mano. Todo sale de useThemeColors().globalColors.
 
 export const lightColors = {
@@ -31,10 +36,10 @@ export const lightColors = {
   inputBackground: '#FFFFFF',
   inputDisabled: '#F7F8FC', // derivado: el portal solo atenúa el borde del campo deshabilitado
 
-  // Texto (palette.text)
+  // Texto (palette.text). Secundario y terciario: más oscuros que los del portal (ver arriba).
   text: '#1A1C4B',
-  textSecondary: '#5A5C80',
-  textTertiary: '#9496B8',
+  textSecondary: '#4E5075',
+  textTertiary: '#6A6D92',
   textInverse: '#FFFFFF',
 
   // Bordes. `border` es el divisor del portal (palette.divider): borde de tarjetas, diálogos, tablas y líneas.
@@ -96,8 +101,8 @@ export const darkColors: ColorTokens = {
   inputDisabled: '#1C1F27',
 
   text: '#F0F2FF',
-  textSecondary: '#9BA3C2',
-  textTertiary: '#5A6080',
+  textSecondary: '#A9B0CE',
+  textTertiary: '#8089AB',
   textInverse: '#0E1014',
 
   border: 'rgba(255, 255, 255, 0.08)',

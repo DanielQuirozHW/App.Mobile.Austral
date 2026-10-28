@@ -1,6 +1,8 @@
 // Plan de Trabajo Anual: lista de planes del docente. Port de Portal-Austral-Dev ->
 // src/app/(dashboard)/planes-de-trabajo/page.tsx (solo rol docente).
 // Tirar para actualizar vuelve a leer la lista de planes (decisión 98). Sin título repetido: ya está en el encabezado.
+// Mientras no terminó el primer intento de lectura se muestra la carga (no "No hay planes"): en el primer cuadro todavía
+// no empezó a cargar y se vería un instante el mensaje de lista vacía.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -33,9 +35,12 @@ export const PlanTrabajoScreen: React.FC = () => {
   const cargado = usePtaStore((s) => s.cargado);
   const error = usePtaStore((s) => s.error);
   const [pestania, setPestania] = useState<PestaniaLista>('desarrollo');
+  const [intentado, setIntentado] = useState(false);
 
   const recargar = useCallback(() => {
-    void cargarListaDePlanes();
+    void Promise.resolve(cargarListaDePlanes())
+      .catch(() => undefined)
+      .finally(() => setIntentado(true));
   }, []);
 
   useEffect(() => {
@@ -45,7 +50,7 @@ export const PlanTrabajoScreen: React.FC = () => {
   const visibles = useMemo(() => filtrarPlanes(planes, pestania), [planes, pestania]);
   const info = PESTANIAS_LISTA.find((p) => p.clave === pestania)?.info ?? '';
 
-  if (!cargado && cargando) {
+  if (!cargado && (!intentado || cargando)) {
     return (
       <View style={styles.centro}>
         <ActivityIndicator size="large" color={globalColors.accentPrimary} />
