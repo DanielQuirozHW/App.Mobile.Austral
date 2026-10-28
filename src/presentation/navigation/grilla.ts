@@ -32,6 +32,34 @@ export const esProximamente = (nodo: NodoDeMenu): boolean => {
   return false;
 };
 
+// Una línea que dice qué hay en cada pantalla (texto propio de la app, redactado a partir de lo que contiene cada una).
+// Se indexa por la ruta de la pantalla.
+const DESCRIPCION_POR_RUTA: Record<string, string> = {
+  DatosPersonales: 'Identidad, contacto, domicilio y familia',
+  Documentacion: 'Documentos asociados a tu legajo',
+  Formacion: 'Títulos, idiomas y certificaciones',
+  Trayectoria: 'Experiencia, consultorías y comités',
+  Extension: 'Actividades de extensión',
+  GestionAcademica: 'Cargos y encargos',
+  Licencias: 'Solicitudes y calendario',
+  PlanesDeTrabajo: 'Plan de trabajo anual',
+};
+
+/**
+ * La línea descriptiva de una entrada. Una pantalla usa su texto fijo; un grupo lista sus primeras subopciones (las que
+ * ve este usuario, `hijosVisibles`). Devuelve '' si no hay nada que decir.
+ */
+export const descripcionDeNodo = (nodo: NodoDeMenu, hijosVisibles: NodoDeMenu[]): string => {
+  if (nodo.hijos) {
+    const titulos = hijosVisibles.map((hijo) => hijo.titulo);
+    if (titulos.length === 0) return '';
+    if (titulos.length === 1) return titulos[0];
+    if (titulos.length === 2) return `${titulos[0]} y ${titulos[1].toLowerCase()}`;
+    return `${titulos[0]}, ${titulos[1].toLowerCase()} y más`;
+  }
+  return (nodo.ruta ? DESCRIPCION_POR_RUTA[nodo.ruta] : undefined) ?? '';
+};
+
 export interface OpcionesDeApertura {
   /** Color del módulo raíz: las subpantallas lo heredan. */
   color?: string;
