@@ -2,9 +2,11 @@
 // Secciones, textos, validaciones y flujo de guardado: los del portal. Diferencias propias de la app:
 //  - avisa antes de salir si hay cambios sin guardar (el portal solo usa `beforeunload` del navegador);
 //  - un solo escalonado de campos (una columna) en lugar de la grilla de 12 columnas;
-//  - sin el breadcrumb "Legajo > Datos personales" (LegajoPageHeader): el título de la pantalla ya lo dice.
+//  - sin el breadcrumb "Legajo > Datos personales" (LegajoPageHeader): el título de la pantalla ya lo dice;
+//  - las secciones son colapsables (docs/DECISION-UI-MOBILE.md): cerradas muestran un resumen; al intentar guardar con
+//    campos obligatorios vacíos se abre la sección que los tiene. El botón "Guardar cambios" queda fijo abajo.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm } from 'react-hook-form';
@@ -19,6 +21,7 @@ import { ESTADOS_CIVILES, SEXOS, TIPOS_DOCUMENTO, VINCULOS_EMERGENCIA, esEstadoC
 import { contratacionIndeterminada, esRelacionDependencia } from '../../../domain/legajo/tipoContratacion';
 import { esquemaDatosPersonales } from '../../../domain/legajo/validacion';
 import { AppButton } from '../../components/AppButton';
+import { AppIcon } from '../../components/AppIcon';
 import { AppText } from '../../components/AppText';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { FormDateField } from '../../components/form/FormDateField';
@@ -37,7 +40,7 @@ import { useFamiliaStore } from '../../stores/familiaStore';
 import { useLegajoStore } from '../../stores/legajoStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { borderRadius, spacing } from '../../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
 import { toast } from '../../utils/toast';
 
 type Props = NativeStackScreenProps<RootStackParams, 'DatosPersonales'>;
@@ -72,6 +75,25 @@ const ORDEN_CAMPOS: Array<keyof FormularioDatosPersonales> = [
   'vinculoEmergencia',
 ];
 
+// Qué campos tiene cada sección: sirve para abrir la que tiene errores al intentar guardar.
+const CAMPOS_POR_SECCION: Record<'identidad' | 'contacto' | 'domicilio' | 'emergencia', Array<keyof FormularioDatosPersonales>> = {
+  identidad: [
+    'new_apellidos',
+    'new_nombredepila',
+    'generoSegunDni',
+    'new_tipodocumento',
+    'numeroDocumento',
+    'new_cuitcuil',
+    'estadoCivil',
+    'paisNacimiento',
+    'fechaNacimiento',
+    'segundaNacionalidad',
+  ],
+  contacto: ['telefonoMovilPais', 'telefonoMovilDdn', 'telefonoMovilNumero', 'email'],
+  domicilio: ['calle', 'nroCalle', 'piso', 'depto', 'codigoPostal', 'pais', 'provincia', 'localidad'],
+  emergencia: ['nombreEmergencia', 'celularEmergencia', 'emailEmergencia', 'vinculoEmergencia'],
+};
+
 const MSG_DOCUMENTACION_FAMILIAR =
   'La documentación familiar (DNI y constancia) es requerida únicamente en caso de corresponder y solicitar algún beneficio.';
 
@@ -97,6 +119,10 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
   const [bajaConyugePendiente, setBajaConyugePendiente] = useState<FormularioDatosPersonales | null>(null);
   const [resaltarConyuge, setResaltarConyuge] = useState(false);
   const [altaConyugeAbierta, setAltaConyugeAbierta] = useState(false);
+  // Secciones abiertas. Arranca solo la primera; el resto se abre tocando el encabezado o al intentar guardar con errores.
+  const [abiertas, setAbiertas] = useState<Record<string, boolean>>({ identidad: true });
+
+  const alternarSeccion = (clave: string) => setAbiertas((previo) => ({ ...previo, [clave]: !previo[clave] }));
 
   const { control, handleSubmit, reset, setValue, getValues, watch, setFocus, clearErrors, formState } =
     useForm<FormularioDatosPersonales>({
@@ -156,6 +182,16 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
   const tipoDoc = watch('new_tipodocumento');
   const provincia = watch('provincia');
 
+  // Resúmenes de las secciones cerradas.
+  const apellido = watch('new_apellidos');
+  const nombrePila = watch('new_nombredepila');
+  const emailPersonal = watch('email');
+  const calle = watch('calle');
+  const nroCalle = watch('nroCalle');
+  const nombreEmergencia = watch('nombreEmergencia');
+  const resumenIdentidad = [apellido, nombrePila].filter(Boolean).join(', ');
+  const resumenDomicilio = [calle, nroCalle].filter(Boolean).join(' ');
+
   const tipoContratacion = legajo?.tipoContratacion;
   const habilitaFamilia = esRelacionDependencia(tipoContratacion);
   const contratacionSinResolver = contratacionIndeterminada(tipoContratacion);
@@ -206,8 +242,10 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
 
     if (habilitaFamilia && requiereConyuge && !conyuge?.id) {
       toast.error('Debe cargar los datos del cónyuge antes de actualizar.', 4000);
+      // La sección Familia tiene que estar abierta para ver y resaltar el campo del cónyuge.
+      setAbiertas((previo) => ({ ...previo, familia: true }));
       setResaltarConyuge(true);
-      setTimeout(() => scrollRef.current?.scrollAVista(conyugeRef.current), 100);
+      setTimeout(() => scrollRef.current?.scrollAVista(conyugeRef.current), 250);
       setTimeout(() => setResaltarConyuge(false), 3000);
       return;
     }
@@ -223,8 +261,21 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
 
   const alFormularioInvalido = (errores: Record<string, unknown>) => {
     toast.error('Faltan completar campos obligatorios.', 4000);
-    const primero = ORDEN_CAMPOS.find((campo) => errores[campo]);
-    if (primero) setFocus(primero);
+    const conError = ORDEN_CAMPOS.filter((campo) => errores[campo]);
+    if (conError.length === 0) return;
+
+    // Se abren las secciones que tienen campos con error.
+    setAbiertas((previo) => {
+      const siguiente = { ...previo };
+      (Object.keys(CAMPOS_POR_SECCION) as Array<keyof typeof CAMPOS_POR_SECCION>).forEach((clave) => {
+        if (CAMPOS_POR_SECCION[clave].some((campo) => errores[campo])) siguiente[clave] = true;
+      });
+      return siguiente;
+    });
+
+    // Los campos de una sección recién abierta se hacen visibles en el próximo cuadro: se espera antes de enfocar.
+    const primero = conError[0];
+    setTimeout(() => setFocus(primero), 200);
   };
 
   const enviar = handleSubmit(actualizarPerfil, alFormularioInvalido as any);
@@ -242,10 +293,10 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.centrado}>
         <ActivityIndicator size="large" color={globalColors.accentPrimary} />
         <AppText variant="h6" tone="secondary" style={styles.textoCentrado}>
-          Cargando datos del empleado...
+          Cargando tus datos...
         </AppText>
         <AppText variant="body2" tone="secondary" style={styles.textoCentrado}>
-          Por favor espere mientras se cargan sus datos personales
+          Un momento, por favor.
         </AppText>
       </View>
     );
@@ -269,8 +320,7 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
 
         <InfoAlert>
           <AppText variant="body2">
-            Revisá tus datos personales y mantenerlos actualizados. Si necesitás hacer algún cambio, modificá los campos
-            correspondientes y hacé clic en <AppText variant="subtitle2">Actualizar</AppText> al final de la página.
+            Revisá y mantené actualizados tus datos. Tocá una sección para editarla y guardá los cambios al final.
           </AppText>
         </InfoAlert>
 
@@ -280,17 +330,19 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
           </InfoAlert>
         ) : null}
 
-        {/* 01 · Identidad */}
-        <SeccionCard numero={1} titulo="Identidad" descripcion="Completá tus datos personales y de identificación oficial.">
+        {/* Identidad */}
+        <SeccionCard
+          icono="person-outline"
+          titulo="Identidad"
+          descripcion="Tus datos personales y de identificación oficial."
+          resumen={resumenIdentidad}
+          colapsable
+          abierta={Boolean(abiertas.identidad)}
+          onAlternar={() => alternarSeccion('identidad')}
+        >
           <FormTextField control={control} name="new_apellidos" label="Apellido(s)" required autoCapitalize="words" />
           <FormTextField control={control} name="new_nombredepila" label="Nombre(s)" required autoCapitalize="words" />
-          <FormSelectField
-            control={control}
-            name="generoSegunDni"
-            label="Sexo"
-            required
-            options={SEXOS}
-          />
+          <FormSelectField control={control} name="generoSegunDni" label="Sexo" required options={SEXOS} />
           <FormSelectField
             control={control}
             name="new_tipodocumento"
@@ -320,11 +372,15 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
           <FormSelectField control={control} name="segundaNacionalidad" label="Segunda nacionalidad" options={paises} />
         </SeccionCard>
 
-        {/* 02 · Contacto */}
+        {/* Contacto */}
         <SeccionCard
-          numero={2}
+          icono="call-outline"
           titulo="Contacto"
-          descripcion="Indicá tus datos de contacto: teléfono, celular y correo electrónico."
+          descripcion="Tu teléfono celular y tu correo electrónico."
+          resumen={emailPersonal}
+          colapsable
+          abierta={Boolean(abiertas.contacto)}
+          onAlternar={() => alternarSeccion('contacto')}
         >
           <AppText variant="label" tone="secondary">
             Celular personal
@@ -378,8 +434,16 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
           />
         </SeccionCard>
 
-        {/* 03 · Domicilio real */}
-        <SeccionCard numero={3} titulo="Domicilio real" descripcion="Indicá el domicilio donde residís actualmente.">
+        {/* Domicilio real */}
+        <SeccionCard
+          icono="home-outline"
+          titulo="Domicilio real"
+          descripcion="Donde residís actualmente."
+          resumen={resumenDomicilio}
+          colapsable
+          abierta={Boolean(abiertas.domicilio)}
+          onAlternar={() => alternarSeccion('domicilio')}
+        >
           <View style={styles.filaCampos}>
             <View style={styles.campoGrande}>
               <FormTextField control={control} name="calle" label="Calle" required />
@@ -444,20 +508,25 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
           </InfoAlert>
         ) : null}
 
-        {/* 04 · Familia (solo relación de dependencia) */}
+        {/* Familia (solo relación de dependencia) */}
         {habilitaFamilia ? (
           <SeccionCard
-            numero={4}
+            icono="people-outline"
             titulo="Familia"
-            descripcion="Indicá los datos de tu cónyuge e hijos/as menores a 22 años."
+            descripcion="Tu cónyuge e hijos/as menores de 22 años."
+            colapsable
+            abierta={Boolean(abiertas.familia)}
+            onAlternar={() => alternarSeccion('familia')}
             accionEncabezado={
-              <AppButton
-                title="Ayuda"
-                variant="secondary"
-                icon="information-circle-outline"
-                accessibilityLabel="Información sobre la documentación familiar"
+              <Pressable
                 onPress={() => Alert.alert('Documentación familiar', MSG_DOCUMENTACION_FAMILIAR)}
-              />
+                hitSlop={spacing.sm}
+                accessibilityRole="button"
+                accessibilityLabel="Información sobre la documentación familiar"
+                style={styles.botonAyuda}
+              >
+                <AppIcon name="information-circle-outline" size={iconSizes.lg} color={globalColors.accentPrimary} />
+              </Pressable>
             }
           >
             <BloqueFamilia
@@ -470,11 +539,15 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
           </SeccionCard>
         ) : null}
 
-        {/* Contacto de emergencia: aplica a todos; el número depende de si Familia está visible. */}
+        {/* Contacto de emergencia: aplica a todos. */}
         <SeccionCard
-          numero={habilitaFamilia ? 5 : 4}
+          icono="medkit-outline"
           titulo="Contacto de emergencia"
-          descripcion="Indicá los datos de la persona a contactar ante una situación de urgencia."
+          descripcion="A quién avisar ante una urgencia."
+          resumen={nombreEmergencia}
+          colapsable
+          abierta={Boolean(abiertas.emergencia)}
+          onAlternar={() => alternarSeccion('emergencia')}
         >
           <FormTextField
             control={control}
@@ -514,7 +587,7 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Barra inferior fija con la acción principal */}
       <View style={[styles.barra, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
-        <AppButton title="Actualizar" onPress={enviar} loading={actualizando} disabled={actualizando} />
+        <AppButton title="Guardar cambios" onPress={enviar} loading={actualizando} disabled={actualizando} grande />
       </View>
 
       {altaConyugeAbierta ? (
@@ -554,7 +627,7 @@ export const DatosPersonalesScreen: React.FC<Props> = ({ navigation }) => {
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
     pantalla: { flex: 1, backgroundColor: c.background },
-    contenido: { padding: spacing.lg, gap: spacing.lg },
+    contenido: { padding: spacing.lg, gap: spacing.md },
     centrado: {
       flex: 1,
       alignItems: 'center',
@@ -567,13 +640,20 @@ const createStyles = (c: ColorTokens) =>
     filaCampos: { flexDirection: 'row', gap: spacing.sm },
     campoChico: { flex: 1 },
     campoGrande: { flex: 2 },
+    botonAyuda: {
+      width: scale(40),
+      height: scale(40),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     barra: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.md,
       backgroundColor: c.card,
       borderTopWidth: 1,
       borderTopColor: c.border,
-      borderTopLeftRadius: borderRadius.lg,
-      borderTopRightRadius: borderRadius.lg,
+      borderTopLeftRadius: borderRadius.xl,
+      borderTopRightRadius: borderRadius.xl,
+      ...platformSpecific.shadow(6),
     },
   });
