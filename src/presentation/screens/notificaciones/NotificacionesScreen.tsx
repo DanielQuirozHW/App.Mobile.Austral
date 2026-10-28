@@ -73,6 +73,8 @@ export const NotificacionesScreen: React.FC = () => {
     [filasDeLaPestania, moduloActivo, desde, hasta],
   );
 
+  // "Ir" del portal hace router.push(ruta): abre la página con su pestaña / sección / filtro. Acá se pasa lo mismo como
+  // parámetros de la pantalla (pestania de Docencia, seccion de Investigación, seccion y tipo de Licencias).
   const irA = useCallback(
     (fila: FilaNotificacion) => {
       const destino = resolverDestino(fila.destino, { esDocente: role === 'docente' });
@@ -86,13 +88,13 @@ export const NotificacionesScreen: React.FC = () => {
       }
       switch (destino.nombre) {
         case 'Licencias':
-          navigation.navigate('Licencias', destino.seccion ? { seccion: destino.seccion } : undefined);
+          navigation.navigate('Licencias', { seccion: destino.seccion, tipo: destino.tipoGestion });
           break;
         case 'Docencia':
-          navigation.navigate('Docencia');
+          navigation.navigate('Docencia', { pestania: destino.pestania });
           break;
         case 'Investigacion':
-          navigation.navigate('Investigacion');
+          navigation.navigate('Investigacion', { seccion: destino.seccion });
           break;
         case 'PlanesDeTrabajo':
           navigation.navigate('PlanesDeTrabajo');
