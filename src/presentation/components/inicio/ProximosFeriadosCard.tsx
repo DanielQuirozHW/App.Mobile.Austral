@@ -1,5 +1,7 @@
 // Próximos feriados. Port de Portal-Austral-Dev -> src/@core/components/austral/ProximosFeriadosCard.tsx.
-// El primero de la lista se destaca ("PRÓXIMO"); los demás muestran el mes.
+// El primero de la lista se destaca ("PRÓXIMO"). Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md): el nombre
+// del feriado puede ocupar dos líneas (en una se cortaba: "Día de la Soberan...") y los demás no repiten el mes debajo de
+// "en N días" (ya está en el cuadro de la fecha).
 import React, { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import type { FeriadoProximo } from '../../../domain/inicio/tablero';
@@ -71,7 +73,7 @@ export const ProximosFeriadosCard: React.FC<ProximosFeriadosCardProps> = ({ feri
                   </View>
 
                   <View style={styles.info}>
-                    <AppText variant="body2" numberOfLines={1} style={styles.nombre}>
+                    <AppText variant="body2" numberOfLines={2} style={styles.nombre}>
                       {feriado.nombre}
                     </AppText>
                     <AppText variant="caption" tone="secondary">
@@ -83,9 +85,11 @@ export const ProximosFeriadosCard: React.FC<ProximosFeriadosCardProps> = ({ feri
                     <AppText variant="caption" tone="primary" style={styles.restantesTexto}>
                       en {feriado.diasRestantes} días
                     </AppText>
-                    <AppText variant="caption" tone="secondary" style={styles.restantesEtiqueta}>
-                      {esProximo ? 'PRÓXIMO' : feriado.mes}
-                    </AppText>
+                    {esProximo ? (
+                      <AppText variant="caption" tone="secondary" style={styles.restantesEtiqueta}>
+                        PRÓXIMO
+                      </AppText>
+                    ) : null}
                   </View>
                 </View>
               );

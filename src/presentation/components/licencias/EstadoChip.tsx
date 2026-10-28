@@ -12,14 +12,17 @@ interface EstadoChipProps {
   estado?: number | null;
 }
 
-/** Insignia de estado (StatusBadge del portal). */
+/**
+ * Insignia de estado (StatusBadge del portal). El texto puede ocupar hasta dos líneas: en una se cortaba ("Pendiente de
+ * validación por Dirección de Pers...") y el estado es justo lo que hay que poder leer completo.
+ */
 export const EstadoChip: React.FC<EstadoChipProps> = ({ texto }) => {
   const { isDark } = useThemeColors();
   const colores = useMemo(() => coloresDeInsignia(texto, isDark), [texto, isDark]);
   if (!texto) return null;
   return (
     <View style={[styles.caja, { backgroundColor: colores.fondo }]}>
-      <AppText variant="caption" numberOfLines={1} style={[styles.texto, { color: colores.color }]}>
+      <AppText variant="caption" numberOfLines={2} style={[styles.texto, { color: colores.color }]}>
         {texto}
       </AppText>
     </View>
@@ -32,7 +35,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: borderRadius.round,
+    borderRadius: borderRadius.lg,
   },
   texto: { fontWeight: '600' },
 });

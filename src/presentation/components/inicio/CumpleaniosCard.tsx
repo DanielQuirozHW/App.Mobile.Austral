@@ -1,12 +1,15 @@
 // Cumpleaños del día. Port de Portal-Austral-Dev -> src/@core/components/austral/CumpleaniosCard.tsx.
 // El portal también tiene una sección "Aniversarios del mes", pero su página principal le pasa siempre una lista
 // vacía, así que no se dibuja.
+// Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md): el nombre se muestra con mayúsculas solo al principio de
+// cada palabra (el CRM lo guarda en MAYÚSCULAS) y puede ocupar dos líneas en lugar de pisar el ícono de la derecha.
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { PersonaCumpleanios } from '../../../domain/inicio/tablero';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { scale, spacing } from '../../utils/responsive';
+import { nombrePropio } from '../../utils/texto';
 import { AppIcon } from '../AppIcon';
 import { AppText } from '../AppText';
 import { TarjetaTablero } from './TarjetaTablero';
@@ -26,7 +29,7 @@ export const CumpleaniosCard: React.FC<CumpleaniosCardProps> = ({ fechaLabel, cu
   return (
     <TarjetaTablero
       icono="gift-outline"
-      colorIcono={globalColors.secondary}
+      colorIcono={globalColors.info}
       titulo="Cumpleaños del día"
       derecha={
         <AppText variant="caption" tone="secondary" style={styles.fecha}>
@@ -49,15 +52,15 @@ export const CumpleaniosCard: React.FC<CumpleaniosCardProps> = ({ fechaLabel, cu
                 </AppText>
               </View>
               <View style={styles.datos}>
-                <AppText variant="body1" style={styles.nombre}>
-                  {persona.nombre} {persona.apellido}
+                <AppText variant="body1" numberOfLines={2} style={styles.nombre}>
+                  {nombrePropio(`${persona.nombre} ${persona.apellido}`)}
                 </AppText>
-                <AppText variant="caption" tone="secondary">
+                <AppText variant="caption" tone="secondary" numberOfLines={1}>
                   {persona.unidad}
                 </AppText>
               </View>
             </View>
-            <AppIcon name="sparkles-outline" size={scale(18)} color={globalColors.secondary} />
+            <AppIcon name="sparkles-outline" size={scale(18)} color={globalColors.info} />
           </View>
         ))}
       </View>
@@ -74,10 +77,12 @@ const createStyles = (c: ColorTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      gap: spacing.md,
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
     },
-    persona: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1 },
+    // `minWidth: 0` en los dos contenedores: sin eso el texto largo no se corta y pasa por debajo del ícono.
+    persona: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1, minWidth: 0 },
     // Avatar: customColors.azulLight de fondo y color primario en el texto (CumpleaniosCard del portal).
     avatar: {
       width: TAMANIO_AVATAR,
@@ -88,6 +93,6 @@ const createStyles = (c: ColorTokens) =>
       justifyContent: 'center',
     },
     iniciales: { color: c.primary, fontWeight: '700' },
-    datos: { flex: 1 },
+    datos: { flex: 1, minWidth: 0 },
     nombre: { fontWeight: '600' },
   });

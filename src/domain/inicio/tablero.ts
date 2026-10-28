@@ -113,12 +113,15 @@ export const calcularCumpleaniosDeHoy = (filas: unknown, ahora: Date): PersonaCu
     })
     .map((empleado) => {
       const partes = (empleado.new_name ?? '').trim().split(/\s+/);
+      // Las iniciales salen solo de las palabras con letras: el CRM escribe "APELLIDO , NOMBRE" y la coma suelta quedaba
+      // como una "palabra" (las iniciales eran "R,").
+      const palabras = partes.filter((parte) => /[A-Za-z\u00C0-\u017F]/.test(parte.charAt(0)));
       return {
         nombre: partes[0] ?? empleado.new_name ?? '',
         apellido: partes.slice(1).join(' '),
         unidad: empleado['_new_unidadorganizativa_value@OData.Community.Display.V1.FormattedValue'] ?? '',
-        iniciales: partes
-          .map((parte) => parte[0])
+        iniciales: palabras
+          .map((palabra) => palabra[0])
           .slice(0, 2)
           .join('')
           .toUpperCase(),

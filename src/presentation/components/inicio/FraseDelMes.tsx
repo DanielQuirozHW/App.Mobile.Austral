@@ -1,6 +1,8 @@
 // Mensaje del mes. Port de Portal-Austral-Dev -> src/@core/components/austral/FraseDelMes.tsx.
 // Claro: fondo beige (customColors.beigeAcento). Oscuro: el portal usa un degradado de papel a superficie elevada;
 // acá un color liso (surfaceElevated). Sin texto cargado (ver domain/inicio/frasesMensuales.ts) no se dibuja.
+// Diferencia de la app mobile: el rótulo "Mensaje · octubre de 2026" usa el cian profundo del tema (`info`) en lugar del
+// cian claro del portal, que sobre el beige casi no se leía.
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
@@ -70,8 +72,8 @@ const createStyles = (c: ColorTokens, isDark: boolean) =>
       opacity: 0.08,
     },
     kicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-    punto: { width: scale(5), height: scale(5), borderRadius: scale(3), backgroundColor: c.secondary },
-    kickerTexto: { color: c.secondary },
+    punto: { width: scale(5), height: scale(5), borderRadius: scale(3), backgroundColor: c.info },
+    kickerTexto: { color: c.info },
     frase: { lineHeight: scale(26), marginBottom: spacing.md },
     autor: { fontWeight: '600', color: c.text },
   });
