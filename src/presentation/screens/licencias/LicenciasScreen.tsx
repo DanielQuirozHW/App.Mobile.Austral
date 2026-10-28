@@ -1,6 +1,7 @@
 // Pantalla del módulo Licencias y vacaciones. Equivale a las páginas licencias/licencias, licencias/vacaciones,
 // el calendario y la gestión de solicitudes del equipo (solo para líderes) de Portal-Austral-Dev.
-// El portal abre con tarjetas de inicio y después muestra las pestañas; en el celular se va directo a las pestañas.
+// El portal abre con tarjetas de inicio y después muestra las pestañas; en el celular se va directo a las pestañas,
+// como control segmentado a todo el ancho (docs/DECISION-UI-MOBILE.md).
 // Como el portal, acepta ?seccion= (licencias | vacaciones | calendario | gestión) y ?tipo= (filtro inicial de la Gestión).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -70,7 +71,7 @@ export const LicenciasScreen: React.FC = () => {
   return (
     <View style={styles.pantalla}>
       <View style={styles.pestanias}>
-        <Pestanias items={items} activa={seccion} onCambiar={setSeccion} />
+        <Pestanias items={items} activa={seccion} onCambiar={setSeccion} estilo="segmentado" />
       </View>
       <ScrollView
         contentContainerStyle={[styles.contenido, { paddingBottom: insets.bottom + spacing.xl }]}
