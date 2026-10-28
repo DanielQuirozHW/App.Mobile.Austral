@@ -23,21 +23,34 @@ Desde esta decisión:
 | Encabezado | Cambiar puesto + campana + hamburguesa | Campana + avatar |
 | Tipografía | Montserrat, 11 a 14 | Del sistema, lectura de 16, títulos de 20 a 28, sin mayúsculas forzadas |
 | Botones y campos | Alto 44 y radio 6 | Botones 52/56 y campos 52, radios 12 a 20 |
-| Login | Fondo beige, rotulos en mayúsculas, "Portal SIP" | Fondo limpio, saludo corto, SSO como acción principal |
+| Login | Fondo beige, rótulos en mayúsculas, "Portal SIP" | Fondo limpio, saludo corto, SSO como acción principal |
 | Datos personales | Página larga con secciones 01 a 05 | Secciones colapsables con resumen y botón "Guardar cambios" fijo |
+| Avisos informativos | Caja con barra lateral de color (Alert de MUI) | Caja redondeada con ícono, sin barra |
+| Notificaciones | Título repetido, dos botones grandes, filtros siempre visibles | Sin título repetido, filtros plegables, "Marcar todas" como acción de texto |
+| Cabecera del perfil | Puesto y sede en MAYÚSCULAS | Capitalizados |
+| Módulos sin contenido | Aviso "En construcción" | "Próximamente" con botón para volver al inicio |
 
 ## Reglas que se mantienen
 
 - Quién ve qué: sale del árbol de `navigation/modulosMenu.ts` (`SECCIONES_DE_MENU` + `filtrarNodos`), el mismo que usaba
   el menú lateral. La grilla y las subpantallas se arman desde ahí.
 - Los módulos sin contenido (los que no están `enDemo` o están "en construcción") figuran con la etiqueta
-  "Próximamente" y abren la pantalla "En construcción".
+  "Próximamente" y abren la pantalla correspondiente.
+
+## Estado de la revisión por pantalla
+
+Revisadas y ajustadas a mano: Inicio, subpantallas, menú del usuario, login, selección de puesto, Datos personales,
+Notificaciones, Plan de trabajo, Ajustes, "Próximamente", cabecera del perfil y avisos informativos.
+
+Leidas y sin cambios propios (ya no repetían el título y heredan tipografía, botones y campos nuevos): Documentación,
+Formación, Licencias (y sus pestañas).
+
+Todavía sin revisar una por una: Trayectoria, Extensión, Gestión académica, Docencia, Investigación (afiliaciones,
+actividad, resultados), detalle del Plan de trabajo y los modales de Legajo y Licencias. Se ajustan según lo que se
+vea al probar.
 
 ## Pendientes de esta decisión
 
-- Solo se rediseñó a mano: Inicio, subpantallas, menú del usuario, login, selección de puesto y Datos personales.
-  El resto de las pantallas (Documentación, Perfil, Licencias, Plan de trabajo, Notificaciones, Ajustes) heredan la
-  nueva tipografía, colores, botones y campos, pero no se revisaron una por una. Se ajustan según lo que se vea al probar.
 - Los archivos `components/menu/BotonCambiarPuesto.tsx` y `components/inicio/SaludoInicio.tsx` ya no se usan.
   Quedan en el repo hasta confirmar que no hacen falta.
 - Las fuentes Montserrat ya no se necesitan: el paso de fuentes de `docs/SETUP-NATIVO.md` se puede omitir.

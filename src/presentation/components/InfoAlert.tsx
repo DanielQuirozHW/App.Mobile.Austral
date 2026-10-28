@@ -11,8 +11,9 @@ interface InfoAlertProps {
 }
 
 /**
- * Aviso en línea (Alert estándar de MUI del portal, overrides/alerts.ts): fondo con el color del estado en
- * transparencia, barra de 3 px a la izquierda, ícono del color del estado y texto del color de texto del tema.
+ * Aviso en línea de la app mobile (docs/DECISION-UI-MOBILE.md): caja redondeada con el color del estado en
+ * transparencia, ícono del color del estado y texto del color de texto del tema. Sin la barra lateral del Alert de
+ * MUI del portal.
  */
 export const InfoAlert: React.FC<InfoAlertProps> = ({ tipo = 'info', children }) => {
   const { globalColors } = useThemeColors();
@@ -23,7 +24,7 @@ export const InfoAlert: React.FC<InfoAlertProps> = ({ tipo = 'info', children })
     tipo === 'error' ? globalColors.dangerLight : tipo === 'advertencia' ? globalColors.warningLight : globalColors.infoLight;
 
   return (
-    <View accessibilityRole="alert" style={[styles.caja, { backgroundColor: fondo, borderLeftColor: color }]}>
+    <View accessibilityRole="alert" style={[styles.caja, { backgroundColor: fondo }]}>
       <AppIcon name={icono} size={iconSizes.lg} color={color} />
       <View style={styles.texto}>
         {typeof children === 'string' ? <AppText variant="body2">{children}</AppText> : children}
@@ -38,10 +39,8 @@ const createStyles = () =>
       flexDirection: 'row',
       alignItems: 'flex-start',
       gap: spacing.md,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.md,
-      borderLeftWidth: 3,
-      borderRadius: borderRadius.md,
+      padding: spacing.lg,
+      borderRadius: borderRadius.lg,
     },
     texto: { flex: 1, gap: spacing.xs },
   });
