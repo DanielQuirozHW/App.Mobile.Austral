@@ -53,18 +53,21 @@ const CargandoScreen: React.FC = () => <LoadingScreen />;
 /**
  * Envuelve una pantalla que se muestra debajo del encabezado nativo para que `Screen` no sume dos veces la zona
  * segura de arriba. Se llama una sola vez por pantalla, a nivel de módulo (no dentro de un render).
+ *
+ * Reenvía las props que inyecta react-navigation (`navigation` y `route`): sin eso, las pantallas que las usan
+ * (por ejemplo Datos personales con `navigation.addListener`) las recibían como `undefined`.
  */
-const conEncabezado = (Componente: React.ComponentType): React.FC => {
-  const Envuelta: React.FC = () => (
+const conEncabezado = (Componente: React.ComponentType<any>): React.FC<any> => {
+  const Envuelta: React.FC<any> = (props) => (
     <EncabezadoVisibleContext.Provider value>
-      <Componente />
+      <Componente {...props} />
     </EncabezadoVisibleContext.Provider>
   );
   return Envuelta;
 };
 
 /** La pantalla real si el módulo está en la demostración; si no, la pantalla vacía. */
-const moduloODemo = (ruta: RutaDeMenu, real: React.ComponentType): React.FC =>
+const moduloODemo = (ruta: RutaDeMenu, real: React.ComponentType<any>): React.FC<any> =>
   conEncabezado(moduloEnDemo(ruta) ? real : ModuloVacioScreen);
 
 const Notificaciones = moduloODemo('Notificaciones', NotificacionesScreen);
