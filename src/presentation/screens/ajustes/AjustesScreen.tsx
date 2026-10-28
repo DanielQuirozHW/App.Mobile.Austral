@@ -1,5 +1,5 @@
 // Ajustes. Pantalla propia de la app (el portal resuelve el tema con un selector en su configuración):
-// modo de color (sistema / claro / oscuro), datos de la cuenta y cierre de sesión.
+// modo de color (sistema / claro / oscuro), datos de la cuenta y cierre de sesión (con confirmación).
 import React, { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { cerrarSesion } from '../../../application/auth/authService';
@@ -43,14 +43,19 @@ export const AjustesScreen: React.FC = () => {
     }
   };
 
+  const confirmarSalida = () => {
+    Alert.alert('Cerrar sesión', '¿Querés cerrar tu sesión?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Cerrar sesión', style: 'destructive', onPress: () => void salir() },
+    ]);
+  };
+
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
       <View style={styles.seccion}>
-        <AppText variant="overline" tone="secondary">
-          Apariencia
-        </AppText>
+        <AppText variant="h6">Apariencia</AppText>
         <View style={styles.tarjeta}>
-          <AppText variant="subtitle1" style={styles.tarjetaTitulo}>
+          <AppText variant="subtitle2" tone="secondary" style={styles.tarjetaTitulo}>
             Modo de color
           </AppText>
           {OPCIONES.map((opcion) => {
@@ -71,7 +76,7 @@ export const AjustesScreen: React.FC = () => {
                   color={activa ? globalColors.accentPrimary : globalColors.textSecondary}
                 />
                 <View style={styles.opcionTextos}>
-                  <AppText variant="body2" style={activa ? styles.opcionTituloActiva : undefined}>
+                  <AppText variant="body1" style={activa ? styles.opcionTituloActiva : undefined}>
                     {opcion.titulo}
                   </AppText>
                   <AppText variant="caption" tone="secondary">
@@ -90,9 +95,7 @@ export const AjustesScreen: React.FC = () => {
       </View>
 
       <View style={styles.seccion}>
-        <AppText variant="overline" tone="secondary">
-          Cuenta
-        </AppText>
+        <AppText variant="h6">Cuenta</AppText>
         <View style={styles.tarjeta}>
           <FilaDeCuenta etiqueta="Nombre" valor={user?.fullname} />
           <FilaDeCuenta etiqueta="Correo electrónico" valor={user?.email} />
@@ -101,15 +104,14 @@ export const AjustesScreen: React.FC = () => {
       </View>
 
       <View style={styles.seccion}>
-        <AppText variant="overline" tone="secondary">
-          Aplicación
-        </AppText>
+        <AppText variant="h6">Acerca de</AppText>
         <View style={styles.tarjeta}>
-          <FilaDeCuenta etiqueta="Portal SIP – Universidad Austral" valor="Versión de demostración" />
+          <FilaDeCuenta etiqueta="Aplicación" valor="Universidad Austral" />
+          <FilaDeCuenta etiqueta="Versión" valor="Demostración" />
         </View>
       </View>
 
-      <AppButton title="Cerrar sesión" variant="secondary" icon="log-out-outline" onPress={salir} />
+      <AppButton title="Cerrar sesión" variant="secondary" icon="log-out-outline" onPress={confirmarSalida} />
     </Screen>
   );
 };
@@ -119,7 +121,7 @@ const FilaDeCuenta: React.FC<{ etiqueta: string; valor?: string }> = ({ etiqueta
     <AppText variant="caption" tone="secondary">
       {etiqueta}
     </AppText>
-    <AppText variant="body2">{valor || '—'}</AppText>
+    <AppText variant="body1">{valor || '—'}</AppText>
   </View>
 );
 
@@ -147,7 +149,7 @@ const createStyles = (c: ColorTokens) =>
       gap: spacing.md,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderRadius: borderRadius.sm,
+      borderRadius: borderRadius.md,
       borderWidth: 1,
       borderColor: 'transparent',
     },

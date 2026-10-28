@@ -1,11 +1,12 @@
-// Aviso "En construcción" de las secciones del menú del portal que no se migran (decisión 100). Se usa en pantalla
-// completa (ModuloVacioScreen) y, en versión compacta, dentro de una pestaña (Docencia > Promoción).
+// Aviso "Próximamente" de las secciones que todavía no están en la app (decisión 100: las entradas del menú del portal
+// que no se migran). Se usa en pantalla completa (ModuloVacioScreen) y, en versión compacta, dentro de una pestaña
+// (Docencia > Promoción). El texto es el de una app mobile (docs/DECISION-UI-MOBILE.md).
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { irAModulo } from '../navigation/navigationRef';
 import { ColorTokens } from '../theme/colors';
 import { useThemeColors } from '../theme/theme';
-import { iconSizes, scale, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, scale, spacing } from '../utils/responsive';
 import { AppButton } from './AppButton';
 import { AppIcon } from './AppIcon';
 import { AppText } from './AppText';
@@ -32,17 +33,19 @@ export const EnConstruccion: React.FC<EnConstruccionProps> = ({ titulo, ubicacio
           {ubicacion}
         </AppText>
       ) : null}
-      <AppText variant="h5" style={styles.texto}>
+      <AppText variant="h3" style={styles.texto}>
         {titulo}
       </AppText>
-      <AppText variant="subtitle1" tone="primary" style={styles.texto}>
-        En construcción
-      </AppText>
-      <AppText variant="body2" tone="secondary" style={styles.texto}>
-        Esta sección todavía no está disponible en la app.
+      <View style={styles.etiqueta}>
+        <AppText variant="subtitle2" tone="primary">
+          Próximamente
+        </AppText>
+      </View>
+      <AppText variant="body1" tone="secondary" style={styles.texto}>
+        Estamos trabajando en esta sección. Muy pronto vas a poder usarla desde la app.
       </AppText>
       {compacto ? null : (
-        <AppButton title="Volver al inicio" variant="secondary" icon="home-outline" onPress={() => irAModulo('Inicio')} />
+        <AppButton title="Volver al inicio" icon="home-outline" onPress={() => irAModulo('Inicio')} style={styles.boton} />
       )}
     </View>
   );
@@ -53,12 +56,19 @@ const createStyles = (c: ColorTokens) =>
     centro: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingHorizontal: spacing.xl },
     centroCompacto: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl },
     circulo: {
-      width: scale(80),
-      height: scale(80),
-      borderRadius: scale(40),
+      width: scale(96),
+      height: scale(96),
+      borderRadius: scale(48),
       backgroundColor: c.accentPrimaryMuted,
       alignItems: 'center',
       justifyContent: 'center',
     },
+    etiqueta: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.round,
+      backgroundColor: c.accentPrimaryMuted,
+    },
     texto: { textAlign: 'center' },
+    boton: { alignSelf: 'stretch', marginTop: spacing.md },
   });
