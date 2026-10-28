@@ -25,3 +25,25 @@ export const variablesDeEntornoFaltantes = (): string[] => {
   if (!env.apiServicePassword) faltantes.push('API_SERVICE_PASSWORD');
   return faltantes;
 };
+
+// Diagnóstico (solo en desarrollo): una línea "[ENV]" en el log de la app con DATOS DE FORMA de las variables, nunca
+// sus valores: si están definidas, cuántos caracteres tienen y si traen algo que suele romper la lectura del .env
+// (espacios en los bordes, comillas, #, $, barra invertida). Sirve para distinguir un .env mal leído de credenciales
+// que la API rechaza.
+if (__DEV__) {
+  const conflictivos = /[#$"'`\\\s]/;
+  const correoCrudo = process.env.API_SERVICE_EMAIL ?? '';
+  const claveCruda = process.env.API_SERVICE_PASSWORD ?? '';
+  const urlCruda = process.env.API_URL ?? '';
+  console.log(
+    `[ENV] API_URL: definida=${Boolean(env.apiUrl)}, usaHttps=${env.apiUrl.startsWith('https://')}, terminaConBarra=${env.apiUrl.endsWith(
+      '/',
+    )} | CORREO: definido=${Boolean(env.apiServiceEmail)}, longitud=${env.apiServiceEmail.length}, tieneArroba=${env.apiServiceEmail.includes(
+      '@',
+    )}, espaciosEnLosBordes=${correoCrudo !== env.apiServiceEmail} | CLAVE: definida=${Boolean(
+      env.apiServicePassword,
+    )}, longitud=${env.apiServicePassword.length}, espaciosEnLosBordes=${claveCruda !== env.apiServicePassword}, caracteresConflictivos=${conflictivos.test(
+      env.apiServicePassword,
+    )} | URL con espacios en los bordes=${urlCruda !== env.apiUrl}`,
+  );
+}
