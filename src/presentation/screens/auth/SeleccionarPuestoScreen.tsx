@@ -1,5 +1,5 @@
-// Selección de puesto. Fuente: Portal-Austral-Dev -> src/app/(blank)/seleccionar-puesto/page.tsx
-// y src/context/roleContext.tsx.
+// Selección de puesto. La lógica es la del portal (Portal-Austral-Dev -> src/app/(blank)/seleccionar-puesto/page.tsx y
+// src/context/roleContext.tsx). El diseño es el de la app mobile: tarjetas grandes y fáciles de tocar.
 import React, { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppIcon, AppIconName } from '../../components/AppIcon';
@@ -8,7 +8,7 @@ import { Screen } from '../../components/Screen';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { metaDeRol, useRolStore } from '../../stores/rolStore';
-import { borderRadius, iconSizes, scale, spacing } from '../../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
 
 const ICONO_POR_ROL: Record<string, AppIconName> = {
   docente: 'school-outline',
@@ -33,11 +33,11 @@ export const SeleccionarPuestoScreen: React.FC = () => {
         <View style={styles.circulo}>
           <AppIcon name="swap-horizontal-outline" size={iconSizes.xxl} color={globalColors.accentPrimaryOn} />
         </View>
-        <AppText variant="h4" style={styles.centrado}>
-          Seleccioná tu puesto
+        <AppText variant="h3" style={styles.centrado}>
+          ¿Con qué puesto querés ingresar?
         </AppText>
-        <AppText variant="body2" tone="secondary" style={styles.centrado}>
-          Este usuario tiene múltiples puestos asignados. Seleccioná con cuál querés ingresar.
+        <AppText variant="body1" tone="secondary" style={styles.centrado}>
+          Tu usuario tiene más de un puesto. Podés cambiarlo después desde tu perfil.
         </AppText>
       </View>
 
@@ -55,7 +55,7 @@ export const SeleccionarPuestoScreen: React.FC = () => {
             <View style={styles.iconoRol}>
               <AppIcon
                 name={ICONO_POR_ROL[puesto] ?? 'id-card-outline'}
-                size={iconSizes.lg}
+                size={iconSizes.xl}
                 color={globalColors.accentPrimary}
               />
             </View>
@@ -65,7 +65,7 @@ export const SeleccionarPuestoScreen: React.FC = () => {
                 {meta.descripcion}
               </AppText>
             </View>
-            <AppIcon name="chevron-forward" size={iconSizes.lg} color={globalColors.textSecondary} />
+            <AppIcon name="chevron-forward" size={iconSizes.lg} color={globalColors.textTertiary} />
           </Pressable>
         );
       })}
@@ -75,38 +75,38 @@ export const SeleccionarPuestoScreen: React.FC = () => {
 
 const createStyles = (c: ColorTokens) =>
   StyleSheet.create({
-    contenido: { flexGrow: 1, justifyContent: 'center', gap: spacing.lg },
-    cabecera: { alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+    contenido: { flexGrow: 1, justifyContent: 'center', gap: spacing.md },
+    cabecera: { alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl },
     centrado: { textAlign: 'center' },
-    // Portal: círculo de 64 con degradado primary -> primary.light. Sin degradado: color primario liso.
     circulo: {
-      width: scale(64),
-      height: scale(64),
+      width: scale(72),
+      height: scale(72),
       borderRadius: borderRadius.round,
       backgroundColor: c.accentPrimary,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: spacing.lg,
+      marginBottom: spacing.md,
     },
-    // Portal: Paper con radio 16, borde de 2 px del color primario con transparencia
     tarjeta: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.lg,
-      padding: spacing.xxl,
+      padding: spacing.xl,
+      minHeight: scale(88),
       borderRadius: borderRadius.xl,
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: c.border,
       backgroundColor: c.card,
+      ...platformSpecific.shadow(2),
     },
-    tarjetaPresionada: { borderColor: c.accentPrimary },
+    tarjetaPresionada: { borderColor: c.accentPrimary, transform: [{ scale: 0.99 }] },
     iconoRol: {
-      width: scale(48),
-      height: scale(48),
-      borderRadius: borderRadius.round,
+      width: scale(52),
+      height: scale(52),
+      borderRadius: borderRadius.lg,
       backgroundColor: c.accentPrimaryMuted,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    textos: { flex: 1 },
+    textos: { flex: 1, gap: spacing.xxs },
   });

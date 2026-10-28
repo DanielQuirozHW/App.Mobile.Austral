@@ -7,19 +7,15 @@ import { Screen } from './Screen';
 const Fondo: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { globalColors } = useThemeColors();
   return (
-    <Screen
-      scroll
-      style={{ backgroundColor: globalColors.accentBeige }}
-      contentContainerStyle={styles.contenido}
-    >
+    <Screen scroll style={{ backgroundColor: globalColors.background }} contentContainerStyle={styles.contenido}>
       <View style={styles.columna}>{children}</View>
     </Screen>
   );
 };
 
 /**
- * Fondo de las pantallas de ingreso. El portal las arma con un tema claro propio y fondo beige (#F5EDD8),
- * así que se ven igual aunque el sistema esté en modo oscuro (login/page.tsx).
+ * Fondo de las pantallas de ingreso. Siempre en modo claro (como el ingreso del portal), con el fondo limpio de la app
+ * en lugar del beige del portal (docs/DECISION-UI-MOBILE.md).
  */
 export const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ThemeProvider modo="light">
