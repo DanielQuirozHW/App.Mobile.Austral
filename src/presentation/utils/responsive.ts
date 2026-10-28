@@ -18,7 +18,7 @@ export const scaleFont = (size: number): number => {
   return Math.round(PixelRatio.roundToNearestPixel(acotado));
 };
 
-// El portal usa una unidad de 4 px (theme.spacing(n) = 0.25 rem × n).
+// Unidad de 4 px.
 export const spacing = {
   xxs: scale(2),
   xs: scale(4),
@@ -30,18 +30,18 @@ export const spacing = {
   xxxl: scale(32),
 };
 
-// Radios del portal: botones y campos 6 px (shape.borderRadius y overrides), tarjetas 10 px (overrides/card.ts).
+// Radios de la app mobile (docs/DECISION-UI-MOBILE.md): más redondeados que los del portal.
 export const borderRadius = {
   xs: scale(4),
-  sm: scale(6),
-  md: scale(8),
-  input: scale(6),
-  button: scale(6),
-  card: scale(10),
-  lg: scale(12),
-  xl: scale(16),
-  xxl: scale(20),
-  xxxl: scale(24),
+  sm: scale(8),
+  md: scale(12),
+  input: scale(12),
+  button: scale(14),
+  card: scale(16),
+  lg: scale(16),
+  xl: scale(20),
+  xxl: scale(24),
+  xxxl: scale(28),
   round: scale(999),
 };
 

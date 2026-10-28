@@ -15,9 +15,9 @@ interface AppButtonProps {
   loading?: boolean;
   disabled?: boolean;
   icon?: AppIconName;
-  /** true: el ícono va después del texto (endIcon del portal). */
+  /** true: el ícono va después del texto. */
   iconAlFinal?: boolean;
-  /** true: botón grande de la pantalla de ingreso (alto 52 y radio 10, como login/page.tsx). */
+  /** true: botón grande (alto 56), para la acción principal de una pantalla. */
   grande?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
@@ -30,8 +30,8 @@ const colorDeTexto = (variant: ButtonVariant, disabled: boolean, c: ColorTokens)
   return c.accentPrimary;
 };
 
-// Botones del portal (overrides/button.ts): texto en mayúsculas y negrita, radio 6, alto grande 44.
-// primary = contained, secondary = outlined con borde del color primario.
+// Botones de la app mobile: alto cómodo para el pulgar (52, o 56 el grande), esquinas redondeadas y texto sin
+// mayúsculas. primary = relleno, secondary = con borde del color primario.
 const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean, grande: boolean) => {
   const fondo = disabled
     ? c.inputDisabled
@@ -45,8 +45,8 @@ const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean,
 
   return StyleSheet.create({
     button: {
-      minHeight: grande ? scale(52) : platformSpecific.minTouchTarget,
-      borderRadius: grande ? borderRadius.card : platformSpecific.buttonRadius,
+      minHeight: Math.max(platformSpecific.minTouchTarget, scale(grande ? 56 : 52)),
+      borderRadius: grande ? borderRadius.xl : borderRadius.button,
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.sm,
       flexDirection: 'row',
@@ -54,12 +54,13 @@ const createStyles = (c: ColorTokens, variant: ButtonVariant, disabled: boolean,
       justifyContent: 'center',
       gap: spacing.sm,
       backgroundColor: fondo,
-      borderWidth: 1,
+      borderWidth: 1.5,
       borderColor: borde,
       ...(conSombra ? platformSpecific.shadow(2) : {}),
     },
     pressed: {
-      opacity: 0.85,
+      opacity: 0.88,
+      transform: [{ scale: 0.98 }],
       backgroundColor: variant === 'secondary' ? c.primaryLight : fondo,
     },
   });
@@ -85,7 +86,7 @@ export const AppButton = React.memo(function AppButton({
   );
   const color = colorDeTexto(variant, inactivo, globalColors);
 
-  // Con `loading` el portal cambia el ícono final por un spinner y mantiene el texto ("Ingresando...").
+  // Con `loading` se cambia el ícono final por un spinner y se mantiene el texto ("Ingresando...").
   const iconoInicio = icon && !iconAlFinal ? <AppIcon name={icon} size={iconSizes.md} color={color} /> : null;
   const iconoFinal = loading ? (
     <ActivityIndicator color={color} size="small" />

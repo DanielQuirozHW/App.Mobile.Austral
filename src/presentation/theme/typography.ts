@@ -1,21 +1,24 @@
 import { scaleFont } from '../utils/responsive';
 
-// Escala tipográfica del portal de Austral.
-// Fuente (HW-Austral/Portal-Austral-Dev): src/@core/theme/typography/index.ts (escala "normal")
-// y src/styles/fonts.ts (Montserrat, pesos 400/500/600/700).
+// Escala tipográfica de la app mobile.
 //
-// En React Native el peso se elige con el nombre de la fuente (una familia por peso), no con
-// fontWeight. Los archivos de fuente tienen que llamarse y estar registrados con estos nombres
-// (ver docs/SETUP-NATIVO.md).
+// Decisión de diseño (docs/DECISION-UI-MOBILE.md): la app usa la tipografía del sistema (Roboto en Android,
+// San Francisco en iOS) y una escala pensada para el celular: texto de lectura de 16, títulos más grandes, sin
+// mayúsculas forzadas. Ya no se usa Montserrat, así que no hace falta registrar fuentes en los proyectos nativos.
+//
+// `fontFamilies` se conserva por compatibilidad con código que todavía lo importe: todas apuntan al sistema.
 export const fontFamilies = {
-  regular: 'Montserrat-Regular',
-  medium: 'Montserrat-Medium',
-  semibold: 'Montserrat-SemiBold',
-  bold: 'Montserrat-Bold',
+  regular: 'System',
+  medium: 'System',
+  semibold: 'System',
+  bold: 'System',
 } as const;
 
+type Peso = '400' | '500' | '600' | '700';
+
 export interface TextToken {
-  fontFamily: string;
+  fontFamily?: string;
+  fontWeight: Peso;
   fontSize: number;
   lineHeight: number;
   letterSpacing?: number;
@@ -23,37 +26,35 @@ export interface TextToken {
 }
 
 const make = (
-  family: string,
+  peso: Peso,
   size: number,
   lineHeightFactor: number,
   letterSpacing?: number,
   uppercase?: boolean,
 ): TextToken => ({
-  fontFamily: family,
+  fontWeight: peso,
   fontSize: scaleFont(size),
   lineHeight: Math.round(scaleFont(size) * lineHeightFactor),
   ...(letterSpacing !== undefined ? { letterSpacing } : {}),
   ...(uppercase ? { textTransform: 'uppercase' as const } : {}),
 });
 
-// Tamaños en px de la escala "normal" del portal (rem × 16). El interletrado en em del portal
-// se pasó a px (em × tamaño).
 export const typography = {
-  h1: make(fontFamilies.bold, 28, 1.2),
-  h2: make(fontFamilies.semibold, 22, 1.25),
-  h3: make(fontFamilies.semibold, 17, 1.3),
-  h4: make(fontFamilies.semibold, 16, 1.3, 0.15),
-  h5: make(fontFamilies.medium, 15, 1.3, 0),
-  h6: make(fontFamilies.medium, 14, 1.3, 0.15),
-  subtitle1: make(fontFamilies.semibold, 14, 1.5, 0.15),
-  subtitle2: make(fontFamilies.medium, 12, 1.5, 0.1),
-  body1: make(fontFamilies.regular, 14, 1.5, 0.15),
-  body2: make(fontFamilies.regular, 12, 1.5, 0.15),
-  button: make(fontFamilies.bold, 13, 1.2, 0.52, true), // mayúsculas, 0.04em
-  label: make(fontFamilies.semibold, 11, 1.35, 0.44), // etiqueta de campo (MuiInputLabel)
-  caption: make(fontFamilies.medium, 11, 1.35, 0.88), // 0.08em
-  overline: make(fontFamilies.semibold, 11, 1.35, 1.54, true), // 0.14em
-  helper: make(fontFamilies.regular, 11, 1.35), // texto de ayuda y error de campo (MuiFormHelperText)
+  h1: make('700', 28, 1.2),
+  h2: make('700', 24, 1.25),
+  h3: make('600', 20, 1.3),
+  h4: make('600', 18, 1.3),
+  h5: make('600', 16, 1.3),
+  h6: make('600', 16, 1.3),
+  subtitle1: make('600', 16, 1.4),
+  subtitle2: make('600', 14, 1.4),
+  body1: make('400', 16, 1.45),
+  body2: make('400', 14, 1.45),
+  button: make('600', 16, 1.2, 0.2),
+  label: make('600', 13, 1.3, 0.1), // etiqueta de campo
+  caption: make('500', 12, 1.35, 0.1),
+  overline: make('600', 12, 1.3, 0.3), // rótulo de grupo (ya sin mayúsculas forzadas)
+  helper: make('400', 12, 1.35), // texto de ayuda y error de campo
 } as const;
 
 export type TypographyToken = keyof typeof typography;

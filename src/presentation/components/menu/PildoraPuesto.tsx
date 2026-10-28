@@ -1,6 +1,5 @@
-// Cartel del puesto elegido. Equivale al Chip del centro del encabezado del portal (layouts/components/vertical/
-// AppBarContent.tsx): "Usted se encuentra en el Portal Staff / Docente", con "Cargando perfil..." mientras se resuelve el
-// puesto y "Perfil no identificado" si no hay. Va en Inicio y en la cabecera del menú lateral.
+// Cartel del puesto elegido: "Portal Docente" / "Portal Staff", con "Cargando perfil..." mientras se resuelve el puesto
+// y "Perfil no identificado" si no hay. Va en Inicio y en el menú del usuario.
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { metaDeRol, useRolStore } from '../../stores/rolStore';
@@ -18,12 +17,12 @@ export const PildoraPuesto: React.FC = () => {
   const texto = cargando
     ? 'Cargando perfil...'
     : role
-      ? `Usted se encuentra en el Portal ${metaDeRol(role).label}`
+      ? `Portal ${metaDeRol(role).label}`
       : 'Perfil no identificado';
 
   return (
     <View style={styles.pildora} accessibilityRole="text">
-      <AppText variant="caption" tone="primary" numberOfLines={2}>
+      <AppText variant="caption" tone="primary" numberOfLines={1}>
         {texto}
       </AppText>
     </View>

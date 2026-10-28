@@ -11,13 +11,13 @@ import {
 import { useThemeColors } from '../theme/theme';
 import { ColorTokens } from '../theme/colors';
 import { typography as tipografia } from '../theme/typography';
-import { borderRadius, iconSizes, platformSpecific, spacing } from '../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../utils/responsive';
 import { AppIcon } from './AppIcon';
 import { AppText } from './AppText';
 
 interface AppTextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string;
-  /** Variante de la etiqueta: 'label' (11 px, 600) o 'overline' (mayúsculas, como el ingreso del portal). */
+  /** Variante de la etiqueta: 'label' (por defecto) o 'overline'. */
   labelVariant?: 'label' | 'overline';
   /** Mensaje de error. Si hay, el campo se marca en rojo. */
   error?: string;
@@ -33,22 +33,22 @@ interface EstadoVisual {
   editable: boolean;
 }
 
-// Campo del portal (overrides/input.ts): etiqueta arriba (no flotante), borde de 1.5 px, radio 6,
-// borde azul al enfocar, borde rojo con error. Deshabilitado: el texto conserva su color.
+// Campo de la app mobile: etiqueta arriba, alto de 52 para tocar cómodo, esquinas redondeadas, borde azul al enfocar y
+// rojo con error. Deshabilitado: el texto conserva su color.
 const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual) => {
   const borde = estado.hasError ? c.danger : estado.focused ? c.accentPrimary : c.inputBorder;
 
   return StyleSheet.create({
     wrapper: { gap: spacing.xs },
     inputRow: {
-      minHeight: platformSpecific.minTouchTarget,
+      minHeight: Math.max(platformSpecific.minTouchTarget, scale(52)),
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 1.5,
       borderColor: borde,
       borderRadius: borderRadius.input,
       backgroundColor: estado.editable ? c.inputBackground : c.inputDisabled,
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.lg,
     },
     input: {
       flex: 1,
