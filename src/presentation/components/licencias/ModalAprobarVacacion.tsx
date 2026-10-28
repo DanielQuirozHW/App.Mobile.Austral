@@ -33,6 +33,7 @@ const Contenido: React.FC<{ solicitud: SolicitudDeEquipo; onClose: () => void }>
       <RespuestaLider
         puedeResponder={puedeResponder}
         maxMotivo={MAX_MOTIVO_VACACION}
+        motivoInicial={solicitud.motivoRechazo}
         validarMotivo={validarMotivoRechazoVacacion}
         mostrarContador
         onResponder={(aprobar, motivo) => responderVacacion(solicitud, aprobar, motivo)}

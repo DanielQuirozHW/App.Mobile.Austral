@@ -1,5 +1,6 @@
 // Bloque "Motivo de rechazo" + Aprobar / Rechazar + confirmación. Port de la lógica común de
 // Portal-Austral-Dev -> ModalLicenciasEquipo y ModalAprobarVacacion:
+//  - El campo arranca con el motivo guardado en la solicitud (en el portal el formulario se inicializa con motivoRechazo).
 //  - Aprobar vacía el motivo y abre la confirmación.
 //  - Rechazar habilita el campo del motivo y exige completarlo antes de abrir la confirmación.
 //  - Confirmación: "¿Desea aprobar/rechazar esta licencia?" con Si / No.
@@ -15,6 +16,8 @@ interface RespuestaLiderProps {
   /** false: se muestra el motivo en solo lectura y no hay botones. */
   puedeResponder: boolean;
   maxMotivo: number;
+  /** Motivo ya guardado en la solicitud (vacío si no tiene). */
+  motivoInicial?: string;
   /** Devuelve el mensaje de error o null si el motivo es válido. */
   validarMotivo: (motivo: string) => string | null;
   /** Muestra "N caracter(es) restantes" (así lo hace el modal de vacaciones). */
@@ -29,12 +32,13 @@ type Pendiente = 'aprobar' | 'rechazar' | null;
 export const RespuestaLider: React.FC<RespuestaLiderProps> = ({
   puedeResponder,
   maxMotivo,
+  motivoInicial = '',
   validarMotivo,
   mostrarContador = false,
   onResponder,
   onTerminado,
 }) => {
-  const [motivo, setMotivo] = useState('');
+  const [motivo, setMotivo] = useState(motivoInicial);
   const [rechazando, setRechazando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendiente, setPendiente] = useState<Pendiente>(null);

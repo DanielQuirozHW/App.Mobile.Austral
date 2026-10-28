@@ -67,6 +67,7 @@ const Contenido: React.FC<{ licencia: Licencia; onClose: () => void }> = ({ lice
           <RespuestaLider
             puedeResponder={puedeResponder}
             maxMotivo={300}
+            motivoInicial={licencia.motivoRechazo}
             validarMotivo={validarMotivoRechazoLicencia}
             onResponder={(aprobar, motivo) => responderLicencia(licencia, aprobar, motivo)}
             onTerminado={onClose}
