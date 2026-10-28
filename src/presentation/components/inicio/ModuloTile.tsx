@@ -1,6 +1,6 @@
 // Tarjeta de un módulo en la grilla de Inicio. Dos por fila. El ícono va sobre un fondo suave del color del módulo (no
 // relleno pleno): se ve más liviano y los colores conviven mejor. Los módulos que todavía no tienen contenido usan un
-// fondo gris y la etiqueta "Próximamente" en el color de acento (legible), sin atenuar toda la tarjeta
+// fondo gris y la etiqueta "Próximamente" en ámbar (el color de "pendiente"), sin atenuar toda la tarjeta
 // (docs/DECISION-UI-MOBILE.md). Entra con una animación en cascada (`demora`).
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -56,7 +56,7 @@ export const ModuloTile: React.FC<ModuloTileProps> = ({
           </AppText>
           {proximamente ? (
             <View style={styles.etiqueta}>
-              <AppText variant="caption" tone="primary" style={styles.etiquetaTexto}>
+              <AppText variant="caption" style={styles.etiquetaTexto}>
                 Próximamente
               </AppText>
             </View>
@@ -99,7 +99,7 @@ const createStyles = (c: ColorTokens) =>
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.xxs + 1,
       borderRadius: borderRadius.round,
-      backgroundColor: c.accentPrimaryMuted,
+      backgroundColor: c.soonBackground,
     },
-    etiquetaTexto: { fontWeight: '600' },
+    etiquetaTexto: { fontWeight: '700', color: c.soonText },
   });

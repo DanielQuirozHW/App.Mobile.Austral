@@ -91,7 +91,7 @@ export const SubmenuScreen: React.FC<Props> = ({ route }) => {
                     </AppText>
                     {proximamente ? (
                       <View style={styles.etiqueta}>
-                        <AppText variant="caption" tone="primary" style={styles.etiquetaTexto}>
+                        <AppText variant="caption" style={styles.etiquetaTexto}>
                           Próximamente
                         </AppText>
                       </View>
@@ -147,9 +147,9 @@ const createStyles = (c: ColorTokens) =>
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.xxs + 1,
       borderRadius: borderRadius.round,
-      backgroundColor: c.accentPrimaryMuted,
+      backgroundColor: c.soonBackground,
     },
-    etiquetaTexto: { fontWeight: '600' },
+    etiquetaTexto: { fontWeight: '700', color: c.soonText },
     // El divisor arranca alineado con el texto, no con el borde de la tarjeta.
     divisor: {
       height: StyleSheet.hairlineWidth,

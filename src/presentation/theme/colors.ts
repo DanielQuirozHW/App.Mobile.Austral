@@ -10,14 +10,18 @@
 // Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md):
 //  - `textSecondary` y `textTertiary` son más oscuros que los del portal (en modo claro) y más claros (en modo oscuro):
 //    los grises del portal se leían poco en un celular, sobre todo los textos chicos. Contraste cercano a 5:1 o más;
+//  - en modo claro, fondo, superficies y bordes usan grises neutros azulados en lugar del lavanda del portal: con
+//    lavanda por todas partes (fondo, paneles, controles, bordes) las capas se confundían y todo se veía apagado.
+//    El fondo es un poco más oscuro que la tarjeta blanca para que las tarjetas se separen del fondo;
 //  - en modo oscuro, fondo, tarjeta y borde están un poco más separados entre sí, y el borde de los campos es más
 //    visible, para que se distingan las tarjetas y los campos;
-//  - `info` e `infoLight` (avisos informativos) usan el cian de la marca también en modo claro, como en el oscuro: en
-//    claro el aviso era una caja gris lavanda apagada. El cian del texto/ícono es un tono más profundo (#0B7A91)
-//    para que se lea sobre fondo claro;
+//  - `info` e `infoLight` (avisos informativos) usan el cian de la marca también en modo claro, como en el oscuro. El
+//    cian del texto/ícono es un tono más profundo (#0B7A91) para que se lea sobre fondo claro;
 //  - los tokens `hero*` son de la tarjeta de saludo de Inicio y de la portada del perfil. En claro es el azul de la
 //    marca con círculos cian; en oscuro es un verde azulado profundo con borde cian (un bloque cian pleno encandila
-//    sobre fondo oscuro).
+//    sobre fondo oscuro);
+//  - los tokens `soon*` son de la etiqueta "Próximamente": ámbar, el color de "pendiente" (igual que los estados de
+//    las solicitudes), para que no se confunda con un botón ni con una etiqueta de la marca.
 //
 // Regla: ningún componente escribe colores a mano. Todo sale de useThemeColors().globalColors.
 
@@ -34,14 +38,14 @@ export const lightColors = {
   secondaryLight: '#E0F6FA',
   secondaryDark: '#3AABBF',
 
-  // Fondos (bodyBg, paperBg, tableHeaderBg)
-  background: '#F7F8FC',
+  // Fondos (bodyBg, paperBg, tableHeaderBg). Grises neutros azulados (ver arriba).
+  background: '#F1F3F8',
   card: '#FFFFFF',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  surfaceSecondary: '#E8E9F6',
+  surfaceSecondary: '#EBEEF5',
   inputBackground: '#FFFFFF',
-  inputDisabled: '#F7F8FC', // derivado: el portal solo atenúa el borde del campo deshabilitado
+  inputDisabled: '#F1F3F8', // derivado: el portal solo atenúa el borde del campo deshabilitado
 
   // Texto (palette.text). Secundario y terciario: más oscuros que los del portal (ver arriba).
   text: '#1A1C4B',
@@ -51,10 +55,10 @@ export const lightColors = {
 
   // Bordes. `border` es el divisor del portal (palette.divider): borde de tarjetas, diálogos, tablas y líneas.
   // `inputBorder` es el borde de los campos (overrides/input.ts, notchedOutline): un poco más marcado.
-  border: 'rgba(46, 48, 146, 0.15)',
-  borderLight: 'rgba(46, 48, 146, 0.15)',
-  hairline: 'rgba(46, 48, 146, 0.15)',
-  inputBorder: 'rgba(46, 48, 146, 0.25)',
+  border: 'rgba(32, 44, 90, 0.11)',
+  borderLight: 'rgba(32, 44, 90, 0.11)',
+  hairline: 'rgba(32, 44, 90, 0.11)',
+  inputBorder: 'rgba(32, 44, 90, 0.26)',
 
   // Estados (palette.success / warning / error / info). Las variantes "Light" son derivadas.
   success: '#43A047',
@@ -87,6 +91,10 @@ export const lightColors = {
   heroChip: 'rgba(255, 255, 255, 0.18)',
   heroChipAction: 'rgba(255, 255, 255, 0.28)',
   heroCircle: 'rgba(79, 195, 215, 0.24)',
+
+  // Etiqueta "Próximamente" (propia de la app)
+  soonBackground: 'rgba(255, 180, 0, 0.20)',
+  soonText: '#8A5700',
 
   // Pantalla de ingreso (login-portal/page.tsx)
   authBackground: '#FFF3E9',
@@ -154,6 +162,9 @@ export const darkColors: ColorTokens = {
   heroChip: 'rgba(255, 255, 255, 0.08)',
   heroChipAction: 'rgba(79, 195, 215, 0.24)',
   heroCircle: 'rgba(79, 195, 215, 0.10)',
+
+  soonBackground: 'rgba(255, 167, 38, 0.18)',
+  soonText: '#FFB74D',
 
   authBackground: '#2E3092',
   authInk: '#FFFFFF',
