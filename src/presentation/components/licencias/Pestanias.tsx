@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
@@ -18,7 +18,8 @@ interface PestaniasProps<T extends string> {
   onCambiar: (clave: T) => void;
   /**
    * 'chips' (por defecto): píldoras con scroll horizontal. Más bajas que el mínimo táctil (40 en lugar de 48) para
-   * ocupar menos pantalla; el área que responde al toque sí llega al mínimo (hitSlop).
+   * ocupar menos pantalla; el área que responde al toque sí llega al mínimo (hitSlop). Al elegir una, la fila se desplaza
+   * para dejarla centrada y que no quede cortada en el borde.
    * 'subrayado': pestañas con línea inferior y la activa marcada con 2 px del color primario (Tabs del portal,
    * overrides/tabs.ts). Se usa en el nivel de arriba cuando hay dos filas de pestañas, para distinguirlas.
    * 'segmentado': control segmentado a todo el ancho, sin scroll, para pocas pestañas (hasta 4) de texto corto. Es el
@@ -27,11 +28,32 @@ interface PestaniasProps<T extends string> {
   estilo?: 'chips' | 'subrayado' | 'segmentado';
 }
 
+interface Posicion {
+  x: number;
+  ancho: number;
+}
+
 /** Pestañas (TabList del portal), en forma de chips con scroll, subrayadas o como control segmentado. */
 export function Pestanias<T extends string>({ items, activa, onCambiar, estilo = 'chips' }: PestaniasProps<T>) {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
   const subrayado = estilo === 'subrayado';
+
+  // Para centrar la pestaña elegida: se guarda dónde está cada una y cuánto mide la fila visible.
+  const scrollRef = useRef<ScrollView>(null);
+  const anchoVisible = useRef(0);
+  const posiciones = useRef<Record<string, Posicion>>({});
+
+  const centrar = useCallback((clave: string) => {
+    const posicion = posiciones.current[clave];
+    if (!posicion || !scrollRef.current || anchoVisible.current === 0) return;
+    const x = Math.max(0, posicion.x - (anchoVisible.current - posicion.ancho) / 2);
+    scrollRef.current.scrollTo({ x, animated: true });
+  }, []);
+
+  useEffect(() => {
+    centrar(activa);
+  }, [activa, centrar]);
 
   if (estilo === 'segmentado') {
     return (
@@ -67,12 +89,17 @@ export function Pestanias<T extends string>({ items, activa, onCambiar, estilo =
 
   return (
     <ScrollView
+      ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
       style={subrayado ? styles.barraSubrayado : undefined}
       contentContainerStyle={subrayado ? styles.filaSubrayado : styles.fila}
       keyboardShouldPersistTaps="handled"
       accessibilityRole="tablist"
+      onLayout={(e) => {
+        anchoVisible.current = e.nativeEvent.layout.width;
+        centrar(activa);
+      }}
     >
       {items.map((item) => {
         const seleccionada = item.clave === activa;
@@ -81,6 +108,10 @@ export function Pestanias<T extends string>({ items, activa, onCambiar, estilo =
           <Pressable
             key={item.clave}
             onPress={() => onCambiar(item.clave)}
+            onLayout={(e) => {
+              posiciones.current[item.clave] = { x: e.nativeEvent.layout.x, ancho: e.nativeEvent.layout.width };
+              if (item.clave === activa) centrar(item.clave);
+            }}
             hitSlop={subrayado ? undefined : { top: spacing.xs, bottom: spacing.xs }}
             accessibilityRole="tab"
             accessibilityState={{ selected: seleccionada }}

@@ -1,5 +1,7 @@
 // Calendario de licencias y vacaciones. Port de Portal-Austral-Dev -> CalendarioWrapper (react-big-calendar):
 // en el celular es una grilla mensual con puntos de color por persona, lista del día y detalle al tocar.
+// El encabezado usa el texto de la tarjeta "Calendario" de licencias/page.tsx (el calendario del portal no tiene
+// encabezado propio dentro de la pestaña).
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import {
@@ -20,6 +22,7 @@ import { borderRadius, platformSpecific, spacing } from '../../utils/responsive'
 import { AccionIcono } from '../AccionIcono';
 import { AppText } from '../AppText';
 import { InfoAlert } from '../InfoAlert';
+import { EncabezadoDeSeccion } from './EncabezadoDeSeccion';
 import { MSG_ERROR_DE_LECTURA } from './ListaPaginada';
 import { ModalDetalleCalendario } from './ModalDetalleCalendario';
 
@@ -60,6 +63,12 @@ export const CalendarioSeccion: React.FC = () => {
 
   return (
     <View style={styles.seccion}>
+      <EncabezadoDeSeccion
+        icono="calendar-outline"
+        titulo="Calendario"
+        subtitulo="Visualizá todas las licencias y vacaciones desde un solo lugar."
+      />
+
       {calendario.error && calendario.datos.length === 0 ? <InfoAlert tipo="error">{MSG_ERROR_DE_LECTURA}</InfoAlert> : null}
 
       <View style={styles.card}>

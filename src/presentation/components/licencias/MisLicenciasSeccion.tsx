@@ -1,5 +1,5 @@
-// Port de Portal-Austral-Dev -> licencias/licencias/page.tsx: pestañas Ingresadas / Aprobadas / Rechazadas /
-// Canceladas, ver detalle, cancelar y solicitar una licencia nueva.
+// Port de Portal-Austral-Dev -> licencias/licencias/page.tsx: encabezado "Licencias y Recesos Institucionales" con el
+// botón Solicitar, pestañas Ingresadas / Aprobadas / Rechazadas / Canceladas, ver detalle y cancelar.
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { cancelarLicencia, cargarModulo } from '../../../application/licencias/licenciasService';
@@ -14,9 +14,9 @@ import type { Licencia } from '../../../domain/licencias/tipos';
 import { useLicenciasStore } from '../../stores/licenciasStore';
 import { spacing } from '../../utils/responsive';
 import { AccionIcono } from '../AccionIcono';
-import { AppButton } from '../AppButton';
 import { AppText } from '../AppText';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { EncabezadoDeSeccion } from './EncabezadoDeSeccion';
 import { EstadoChip } from './EstadoChip';
 import { ListaPaginada } from './ListaPaginada';
 import { ModalSolicitarLicencia } from './ModalSolicitarLicencia';
@@ -63,7 +63,13 @@ export const MisLicenciasSeccion: React.FC = () => {
 
   return (
     <View style={styles.seccion}>
-      <AppButton title="Solicitar licencia" icon="add-circle-outline" onPress={() => setSolicitando(true)} />
+      <EncabezadoDeSeccion
+        icono="clipboard-outline"
+        titulo="Licencias y Recesos Institucionales"
+        subtitulo="Gestiona en esta sección tus licencias."
+        textoBoton="Solicitar licencia"
+        onBoton={() => setSolicitando(true)}
+      />
       <Pestanias items={items} activa={pestania} onCambiar={setPestania} />
 
       <ListaPaginada

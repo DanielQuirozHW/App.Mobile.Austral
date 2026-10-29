@@ -18,9 +18,9 @@ import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
 import { spacing } from '../../utils/responsive';
 import { AppButton } from '../AppButton';
-import { AppText } from '../AppText';
 import { AppTextField } from '../AppTextField';
 import { Etiqueta } from '../Etiqueta';
+import { EncabezadoDeSeccion } from './EncabezadoDeSeccion';
 import { EstadoChip } from './EstadoChip';
 import { ListaPaginada } from './ListaPaginada';
 import { ModalAprobarVacacion } from './ModalAprobarVacacion';
@@ -168,12 +168,11 @@ export const GestionSeccion: React.FC<GestionSeccionProps> = ({ tipoInicial }) =
 
   return (
     <View style={styles.seccion}>
-      <View>
-        <AppText variant="h6">Gestión de Solicitudes</AppText>
-        <AppText variant="body2" tone="secondary">
-          Revisá y aprobá las solicitudes de licencias y vacaciones de tu equipo.
-        </AppText>
-      </View>
+      <EncabezadoDeSeccion
+        icono="checkbox-outline"
+        titulo="Gestión de Solicitudes"
+        subtitulo="Revisá y aprobá las solicitudes de licencias y vacaciones de tu equipo."
+      />
 
       <Pestanias items={items} activa={pestania} onCambiar={setPestania} />
       {pestania !== 'pendientes' ? <Pestanias items={FILTROS_TIPO} activa={tipo} onCambiar={setTipo} /> : null}

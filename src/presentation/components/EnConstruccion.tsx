@@ -1,6 +1,7 @@
 // Aviso "Próximamente" de las secciones que todavía no están en la app (decisión 100: las entradas del menú del portal
-// que no se migran). Se usa en pantalla completa (ModuloVacioScreen) y, en versión compacta, dentro de una pestaña
-// (Docencia > Promoción). El texto es el de una app mobile (docs/DECISION-UI-MOBILE.md).
+// que no se migran, más las que están hechas pero todavía no se habilitan). Se usa en pantalla completa
+// (ModuloVacioScreen) y, en versión compacta, dentro de una pestaña (Docencia > Promoción y Nombramientos).
+// El texto es el de una app mobile (docs/DECISION-UI-MOBILE.md).
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { irAModulo } from '../navigation/navigationRef';
@@ -42,7 +43,7 @@ export const EnConstruccion: React.FC<EnConstruccionProps> = ({ titulo, ubicacio
         </AppText>
       </View>
       <AppText variant="body1" tone="secondary" style={styles.texto}>
-        Estamos trabajando en esta sección. Muy pronto vas a poder usarla desde la app.
+        Esta sección todavía se encuentra en construcción.
       </AppText>
       {compacto ? null : (
         <AppButton title="Volver al inicio" icon="home-outline" onPress={() => irAModulo('Inicio')} style={styles.boton} />

@@ -1,5 +1,5 @@
-// Port de Portal-Austral-Dev -> licencias/vacaciones/page.tsx: botón Solicitar, resumen del período vigente,
-// pestañas de solicitudes propias, ver y cancelar.
+// Port de Portal-Austral-Dev -> licencias/vacaciones/page.tsx: encabezado "Vacaciones" con el botón Solicitar, resumen del
+// período vigente, pestañas de solicitudes propias, ver y cancelar.
 //
 // Igual que el portal:
 //  - Se muestra UN solo período: el que todavía no venció y vence primero (elegirPeriodoSolicitable). El resumen
@@ -23,10 +23,10 @@ import { elegirPeriodoSolicitable } from '../../../domain/licencias/vacaciones';
 import { useLicenciasStore } from '../../stores/licenciasStore';
 import { spacing } from '../../utils/responsive';
 import { AccionIcono } from '../AccionIcono';
-import { AppButton } from '../AppButton';
 import { AppText } from '../AppText';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { InfoAlert } from '../InfoAlert';
+import { EncabezadoDeSeccion } from './EncabezadoDeSeccion';
 import { EstadoChip } from './EstadoChip';
 import { ListaPaginada, MSG_ERROR_DE_LECTURA } from './ListaPaginada';
 import { ModalSolicitarVacaciones } from './ModalSolicitarVacaciones';
@@ -84,12 +84,14 @@ export const VacacionesSeccion: React.FC = () => {
 
   return (
     <View style={styles.seccion}>
-      <AppButton
-        title="Solicitar"
-        icon="add-circle-outline"
-        disabled={!solicitable}
-        accessibilityLabel={solicitable ? 'Solicitar' : `Solicitar. ${MOTIVO_SIN_PERIODO}`}
-        onPress={() => setSolicitando(solicitable)}
+      <EncabezadoDeSeccion
+        icono="umbrella-outline"
+        titulo="Vacaciones"
+        subtitulo="¡Llegó tu momento de descansar y disfrutar! Solicitá tu licencia de vacaciones en esta sección."
+        textoBoton="Solicitar"
+        botonDeshabilitado={!solicitable}
+        accesibilidadBoton={solicitable ? 'Solicitar' : `Solicitar. ${MOTIVO_SIN_PERIODO}`}
+        onBoton={() => setSolicitando(solicitable)}
       />
 
       {solicitable ? <VacacionesPanel periodo={solicitable} /> : null}

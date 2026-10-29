@@ -1,6 +1,8 @@
 // Sección de Perfil con listado de registros y acciones Ver / Editar / Eliminar. Equivale a las secciones con grilla
 // del portal (Portal-Austral-Dev -> perfil/formacion y perfil/trayectoria): botón de alta, filas con acciones y
 // diálogo "Confirmar eliminación".
+// Diferencia propia de la app: la sección se puede cerrar tocando el encabezado (arranca cerrada y muestra cuántos
+// registros tiene) para no tener que recorrer pantallas enteras de tarjetas (docs/DECISION-UI-MOBILE.md).
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { mensajeDeErrorDeBaja } from '../../../config/api/apiError';
@@ -47,7 +49,14 @@ interface SeccionRegistrosProps<T> {
   mensajes?: { eliminando: string; eliminado: string; errorEliminar: string };
   onEliminar?: (item: T) => Promise<void>;
   renderModal: (p: PropsRenderModal<T>) => React.ReactNode;
+  /** true: la sección arranca abierta. Por defecto arranca cerrada. */
+  abiertaInicial?: boolean;
 }
+
+const resumenDeCantidad = (cantidad: number): string => {
+  if (cantidad === 0) return 'Sin registros';
+  return cantidad === 1 ? '1 registro' : `${cantidad} registros`;
+};
 
 export function SeccionRegistros<T>({
   numero,
@@ -68,6 +77,7 @@ export function SeccionRegistros<T>({
   mensajes,
   onEliminar,
   renderModal,
+  abiertaInicial = false,
 }: SeccionRegistrosProps<T>): React.ReactElement {
   const { globalColors } = useThemeColors();
   const styles = useMemo(() => createStyles(globalColors), [globalColors]);
@@ -93,7 +103,14 @@ export function SeccionRegistros<T>({
   };
 
   return (
-    <SeccionCard numero={numero} titulo={titulo} descripcion={descripcion}>
+    <SeccionCard
+      numero={numero}
+      titulo={titulo}
+      descripcion={descripcion}
+      resumen={resumenDeCantidad(items.length)}
+      colapsable
+      abiertaInicial={abiertaInicial}
+    >
       {ayuda ? <InfoAlert tipo="info">{ayuda}</InfoAlert> : null}
 
       {puedeAgregar && !soloLectura ? (
