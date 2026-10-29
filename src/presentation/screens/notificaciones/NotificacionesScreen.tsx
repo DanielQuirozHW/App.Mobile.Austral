@@ -3,8 +3,10 @@
 // aviso, "Marcar como leída" y "Marcar todas como leídas" (con confirmación).
 // Diferencias de la app mobile (docs/DECISION-UI-MOBILE.md): sin título repetido (ya está en el encabezado), sin botón
 // "Actualizar" (se tira para actualizar) y los filtros van plegados detrás de un botón "Filtros".
+// Cuando el destino de un aviso todavía no existe en la app (p. ej. Gestión del Desempeño) se muestra un aviso propio
+// (AppModal con el tema de la app), no el popup nativo de Android.
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -13,7 +15,8 @@ import {
   type FilaNotificacion,
 } from '../../../domain/notificaciones/notificaciones';
 import { AppButton } from '../../components/AppButton';
-import { AppIcon } from '../../components/AppIcon';
+import { AppIcon, type AppIconName } from '../../components/AppIcon';
+import { AppModal } from '../../components/AppModal';
 import { AppText } from '../../components/AppText';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { InfoAlert } from '../../components/InfoAlert';
@@ -26,9 +29,28 @@ import type { RootStackParams } from '../../navigation/tipos';
 import { useRolStore } from '../../stores/rolStore';
 import { ColorTokens } from '../../theme/colors';
 import { useThemeColors } from '../../theme/theme';
-import { borderRadius, iconSizes, platformSpecific, spacing } from '../../utils/responsive';
+import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../../utils/responsive';
 
 type PestaniaNotificaciones = 'pendientes' | 'completadas' | 'todas';
+
+/** Aviso informativo de una sola acción ("Entendido"). */
+interface AvisoInformativo {
+  titulo: string;
+  mensaje: string;
+  icono: AppIconName;
+}
+
+const AVISO_NO_DISPONIBLE: AvisoInformativo = {
+  titulo: 'Próximamente',
+  mensaje: 'Esta sección todavía se encuentra en construcción. Mientras tanto, podés consultarla desde el portal.',
+  icono: 'construct-outline',
+};
+
+const AVISO_ENLACE: AvisoInformativo = {
+  titulo: 'No se pudo abrir el enlace',
+  mensaje: 'Intentá nuevamente en unos instantes.',
+  icono: 'alert-circle-outline',
+};
 
 const TODOS = '__todos__';
 
@@ -56,6 +78,14 @@ export const NotificacionesScreen: React.FC = () => {
   const [confirmarTodas, setConfirmarTodas] = useState(false);
   const [marcandoTodas, setMarcandoTodas] = useState(false);
   const [actualizando, setActualizando] = useState(false);
+  const [aviso, setAviso] = useState<AvisoInformativo | null>(null);
+  // Se recuerda el último aviso mostrado para que el texto no desaparezca durante la animación de cierre del modal.
+  const [ultimoAviso, setUltimoAviso] = useState<AvisoInformativo>(AVISO_NO_DISPONIBLE);
+
+  const mostrarAviso = useCallback((nuevo: AvisoInformativo) => {
+    setUltimoAviso(nuevo);
+    setAviso(nuevo);
+  }, []);
 
   const todas = useMemo(() => [...pendientes, ...completadas], [pendientes, completadas]);
   const filasDeLaPestania = pestania === 'pendientes' ? pendientes : pestania === 'completadas' ? completadas : todas;
@@ -84,11 +114,11 @@ export const NotificacionesScreen: React.FC = () => {
     (fila: FilaNotificacion) => {
       const destino = resolverDestino(fila.destino, { esDocente: role === 'docente' });
       if (destino.tipo === 'url') {
-        void Linking.openURL(destino.url).catch(() => Alert.alert('No se pudo abrir el enlace.'));
+        void Linking.openURL(destino.url).catch(() => mostrarAviso(AVISO_ENLACE));
         return;
       }
       if (destino.tipo === 'noDisponible') {
-        Alert.alert('Esta sección todavía no está disponible en la app.');
+        mostrarAviso(AVISO_NO_DISPONIBLE);
         return;
       }
       switch (destino.nombre) {
@@ -108,7 +138,7 @@ export const NotificacionesScreen: React.FC = () => {
           navigation.navigate('Inicio');
       }
     },
-    [navigation, role],
+    [mostrarAviso, navigation, role],
   );
 
   const marcarUna = async (fila: FilaNotificacion) => {
@@ -264,6 +294,27 @@ export const NotificacionesScreen: React.FC = () => {
           puede demorar unos segundos.
         </AppText>
       </ConfirmDialog>
+
+      {/* Aviso propio: sección que todavía no está en la app (o enlace que no se pudo abrir) */}
+      <AppModal
+        visible={aviso !== null}
+        onClose={() => setAviso(null)}
+        variante="centrado"
+        scroll={false}
+        pie={<AppButton title="Entendido" onPress={() => setAviso(null)} />}
+      >
+        <View style={styles.avisoCuerpo}>
+          <View style={styles.avisoCirculo}>
+            <AppIcon name={ultimoAviso.icono} size={iconSizes.xxl} color={globalColors.accentPrimary} />
+          </View>
+          <AppText variant="h6" style={styles.avisoTexto}>
+            {ultimoAviso.titulo}
+          </AppText>
+          <AppText variant="body1" tone="secondary" style={styles.avisoTexto}>
+            {ultimoAviso.mensaje}
+          </AppText>
+        </View>
+      </AppModal>
     </Screen>
   );
 };
@@ -293,4 +344,14 @@ const createStyles = (c: ColorTokens) =>
     },
     lista: { gap: spacing.md },
     vacio: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxxl },
+    avisoCuerpo: { alignItems: 'center', gap: spacing.md, padding: spacing.xl },
+    avisoCirculo: {
+      width: scale(72),
+      height: scale(72),
+      borderRadius: scale(36),
+      backgroundColor: c.accentPrimaryMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avisoTexto: { textAlign: 'center' },
   });
