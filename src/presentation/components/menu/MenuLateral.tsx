@@ -7,6 +7,7 @@
 // acción. El fondo que se toca es SIEMPRE un Pressable visible para el sistema (sin opacidad animada); el oscurecido
 // es una capa aparte que no recibe toques. La animación de entrada arranca recién cuando el Modal ya está montado, y
 // el desmontaje tiene un seguro por tiempo por si la animación de salida no avisa que terminó.
+// La confirmación de "Cerrar sesión" es el ConfirmDialog de la app (con el tema), no el popup nativo de Android.
 // Sin librerías nuevas: Modal + Animated de React Native.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
@@ -23,6 +24,7 @@ import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../..
 import { nombrePropio } from '../../utils/texto';
 import { AppIcon, type AppIconName } from '../AppIcon';
 import { AppText } from '../AppText';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { inicialesDe } from './BotonMenu';
 import { PildoraPuesto } from './PildoraPuesto';
 
@@ -80,6 +82,7 @@ export const MenuLateral: React.FC = () => {
   const cerrar = useMenuStore((s) => s.cerrar);
 
   const [montado, setMontado] = useState(false);
+  const [confirmandoSalida, setConfirmandoSalida] = useState(false);
   const traslado = useRef(new Animated.Value(ALTO_PANTALLA)).current;
   const opacidadFondo = useRef(new Animated.Value(0)).current;
 
@@ -137,19 +140,14 @@ export const MenuLateral: React.FC = () => {
   };
 
   const salir = async () => {
+    setConfirmandoSalida(false);
     cerrar();
     try {
       await cerrarSesion();
     } catch {
+      // El menú ya se cerró, así que no hay un diálogo propio donde mostrar el error: se usa el aviso nativo.
       Alert.alert('No se pudo cerrar la sesión. Intentá nuevamente.');
     }
-  };
-
-  const confirmarSalida = () => {
-    Alert.alert('Cerrar sesión', '¿Querés cerrar tu sesión?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Cerrar sesión', style: 'destructive', onPress: () => void salir() },
-    ]);
   };
 
   const nombre = nombrePropio(user?.fullname) || nombreParaBienvenida(user);
@@ -207,9 +205,25 @@ export const MenuLateral: React.FC = () => {
             ) : null}
             <FilaAccion icono="settings-outline" titulo="Ajustes" onPress={irAAjustes} />
             <View style={styles.separador} />
-            <FilaAccion icono="log-out-outline" titulo="Cerrar sesión" onPress={confirmarSalida} peligro />
+            <FilaAccion
+              icono="log-out-outline"
+              titulo="Cerrar sesión"
+              onPress={() => setConfirmandoSalida(true)}
+              peligro
+            />
           </View>
         </Animated.View>
+
+        <ConfirmDialog
+          visible={confirmandoSalida}
+          titulo="Cerrar sesión"
+          textoConfirmar="Cerrar sesión"
+          peligroso
+          onCancelar={() => setConfirmandoSalida(false)}
+          onConfirmar={() => void salir()}
+        >
+          <AppText variant="body1">¿Querés cerrar tu sesión?</AppText>
+        </ConfirmDialog>
       </View>
     </Modal>
   );
