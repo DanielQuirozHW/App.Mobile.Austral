@@ -144,6 +144,7 @@ export const subirConstanciasDeTitulo = (tituloId: string, archivos: ArchivoPara
 // Especialidad, certificaciones, idiomas y áreas de expertise
 // ---------------------------------------------------------------------------
 
+// Portal (useFormacionStore.getEspecialidades): order createdon descending="true".
 export const leerEspecialidades = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_especialidadcertificadosaluds',
@@ -164,6 +165,7 @@ export const leerEspecialidades = (empleadoId: string): Promise<unknown> =>
     ],
     campoEmpleado: 'new_empleadoid',
     empleadoId,
+    descendente: true,
   });
 
 export const escribirEspecialidad = (metodo: Metodo, data: unknown): Promise<unknown> =>
@@ -200,6 +202,7 @@ export const leerCertificaciones = (empleadoId: string): Promise<unknown> =>
 export const escribirCertificacion = (metodo: Metodo, data: unknown): Promise<unknown> =>
   escribirRegistro(endpoints.certificacion(), metodo, data);
 
+// Portal (useFormacionStore.getIdiomasEmpleado): order createdon descending="true".
 export const leerIdiomas = (empleadoId: string): Promise<unknown> =>
   leerRegistrosDeEmpleado({
     coleccion: 'new_idiomaporcontactos',
@@ -217,6 +220,7 @@ export const leerIdiomas = (empleadoId: string): Promise<unknown> =>
     ],
     campoEmpleado: 'new_empleado',
     empleadoId,
+    descendente: true,
   });
 
 export const escribirIdioma = (metodo: Metodo, data: unknown): Promise<unknown> =>
