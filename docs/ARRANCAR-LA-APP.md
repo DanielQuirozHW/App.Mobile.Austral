@@ -82,3 +82,5 @@ Se puede seguir el avance en la pestaña Build de Android Studio.
 
 
 & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+npm run android
+git pull --no-rebase --no-edit
