@@ -2,6 +2,7 @@ import React from 'react';
 import { TextInputProps } from 'react-native';
 import { Control, useController } from 'react-hook-form';
 import { AppTextField } from '../AppTextField';
+import type { AppIconName } from '../AppIcon';
 
 interface FormTextFieldProps extends Omit<TextInputProps, 'style' | 'value' | 'onChangeText' | 'maxLength'> {
   control: Control<any>;
@@ -19,7 +20,14 @@ interface FormTextFieldProps extends Omit<TextInputProps, 'style' | 'value' | 'o
   /** Transformación propia del texto. Se aplica después de las anteriores. */
   transformar?: (texto: string) => string;
   onCambio?: (texto: string) => void;
+  /** Ícono a la izquierda. Si no se pasa, se usa el que corresponda al nombre del campo (ICONO_POR_CAMPO). */
+  icono?: AppIconName;
 }
+
+// Campos que el portal muestra con ícono. El nombre es el del campo del formulario.
+const ICONO_POR_CAMPO: Record<string, AppIconName> = {
+  new_cuitcuil: 'id-card-outline',
+};
 
 /** AppTextField conectado a react-hook-form. */
 export const FormTextField: React.FC<FormTextFieldProps> = ({
@@ -34,6 +42,7 @@ export const FormTextField: React.FC<FormTextFieldProps> = ({
   mayusculas,
   transformar,
   onCambio,
+  icono,
   editable,
   ...resto
 }) => {
@@ -56,6 +65,7 @@ export const FormTextField: React.FC<FormTextFieldProps> = ({
       label={label}
       required={required}
       editable={editable}
+      iconoIzquierdo={icono ?? ICONO_POR_CAMPO[name]}
       value={valor}
       onChangeText={alCambiar}
       onBlur={field.onBlur}

@@ -12,7 +12,7 @@ import { useThemeColors } from '../theme/theme';
 import { ColorTokens } from '../theme/colors';
 import { typography as tipografia } from '../theme/typography';
 import { borderRadius, iconSizes, platformSpecific, scale, spacing } from '../utils/responsive';
-import { AppIcon } from './AppIcon';
+import { AppIcon, AppIconName } from './AppIcon';
 import { AppText } from './AppText';
 
 interface AppTextFieldProps extends Omit<TextInputProps, 'style'> {
@@ -24,6 +24,8 @@ interface AppTextFieldProps extends Omit<TextInputProps, 'style'> {
   helperText?: string;
   /** Agrega un asterisco rojo a la etiqueta. */
   required?: boolean;
+  /** Ícono decorativo a la izquierda del texto (el portal lo usa, por ejemplo, en CUIT/CUIL). */
+  iconoIzquierdo?: AppIconName;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
@@ -50,6 +52,7 @@ const createStyles = (c: ColorTokens, t: typeof tipografia, estado: EstadoVisual
       backgroundColor: estado.editable ? c.inputBackground : c.inputDisabled,
       paddingHorizontal: spacing.lg,
     },
+    iconoIzquierdo: { marginRight: spacing.md },
     input: {
       flex: 1,
       ...t.body1,
@@ -78,6 +81,7 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
     error,
     helperText,
     required,
+    iconoIzquierdo,
     containerStyle,
     secureTextEntry,
     editable = true,
@@ -112,6 +116,15 @@ export const AppTextField = forwardRef<TextInput, AppTextFieldProps>(function Ap
       ) : null}
 
       <View style={styles.inputRow}>
+        {iconoIzquierdo ? (
+          <View style={styles.iconoIzquierdo} importantForAccessibility="no">
+            <AppIcon
+              name={iconoIzquierdo}
+              size={iconSizes.lg}
+              color={focused ? globalColors.accentPrimary : globalColors.textSecondary}
+            />
+          </View>
+        ) : null}
         <TextInput
           ref={ref}
           {...inputProps}
