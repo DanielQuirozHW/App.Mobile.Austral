@@ -127,7 +127,7 @@ export const ITEMS_DE_MENU: ItemDeMenu[] = [
   {
     ruta: 'Docencia',
     titulo: 'Docencia',
-    descripcion: 'Categorización, nombramientos, docencia y asesoramiento',
+    descripcion: 'Categorización, docencia y asesoramiento',
     icono: 'book-outline',
     grupo: 'Mi perfil',
     enDemo: true,
@@ -177,9 +177,9 @@ export const SECCIONES_DE_MI_PERFIL = ITEMS_DE_MENU.filter(
   (item) => item.grupo === 'Mi perfil' && item.ruta !== 'MiPerfil' && item.enDemo,
 );
 
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // Árbol del menú lateral (calcado de navigation/vertical/index.tsx del portal)
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Lo que hace falta para decidir qué entradas se ven: el puesto elegido y el usuario (sus funciones de gestión). */
 export interface ContextoDeMenu {
@@ -198,7 +198,10 @@ export interface NodoDeMenu {
   params?: Record<string, string>;
   /** true: es la entrada que corresponde a la pantalla abierta sin parámetros (la pestaña inicial). */
   porDefecto?: boolean;
-  /** true: figura en el menú pero no está migrada. */
+  /**
+   * true: figura en el menú pero no se ofrece todavía y abre "En construcción". Una entrada puede conservar su `ruta`
+   * (pantalla ya hecha, apagada a propósito): al sacarle la marca vuelve a abrir su pantalla.
+   */
   enConstruccion?: boolean;
   hijos?: NodoDeMenu[];
   /** Sin esta función, la ve todo el mundo. Un grupo sin hijos visibles no se muestra (como en el portal). */
@@ -271,12 +274,16 @@ const MENU_DEL_PORTAL: NodoDeMenu[] = [
             params: { pestania: 'categorizacion' },
             porDefecto: true,
           },
+          // Nombramientos está hecho pero todavía no se habilita (pedido de Daniel): figura como "Próximamente". Se
+          // conserva la `ruta` y los `params`; para habilitarlo se quita `enConstruccion` aquí y en DocenciaScreen
+          // (PESTANIAS_PROXIMAMENTE).
           {
             id: 'perfil-docencia-nombramientos',
             titulo: 'Nombramientos',
             icono: 'briefcase-outline',
             ruta: 'Docencia',
             params: { pestania: 'nombramientos' },
+            enConstruccion: true,
           },
           // Promoción no se migra (decisión 100): figura en el menú y abre "En construcción".
           {
@@ -474,11 +481,14 @@ export const caminoANodo = (
   return null;
 };
 
-/** Abre la pantalla de una entrada del menú. `ubicacion` es el camino de grupos (solo se usa en "En construcción"). */
+/**
+ * Abre la pantalla de una entrada del menú. `ubicacion` es el camino de grupos (solo se usa en "En construcción").
+ * Una entrada marcada `enConstruccion` abre "En construcción" aunque conserve su `ruta`.
+ */
 export const irANodo = (nodo: NodoDeMenu, ubicacion?: string): void => {
-  if (nodo.ruta) {
-    irAModulo(nodo.ruta, nodo.params);
+  if (nodo.enConstruccion) {
+    irAModulo('EnConstruccion', { id: nodo.id, titulo: nodo.titulo, ubicacion });
     return;
   }
-  if (nodo.enConstruccion) irAModulo('EnConstruccion', { id: nodo.id, titulo: nodo.titulo, ubicacion });
+  if (nodo.ruta) irAModulo(nodo.ruta, nodo.params);
 };

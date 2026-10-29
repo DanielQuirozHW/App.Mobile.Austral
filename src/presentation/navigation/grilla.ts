@@ -67,7 +67,11 @@ export interface OpcionesDeApertura {
   ubicacion?: string;
 }
 
-/** Abre una entrada del árbol: un grupo abre su pantalla de subopciones; una hoja abre su pantalla. */
+/**
+ * Abre una entrada del árbol: un grupo abre su pantalla de subopciones; una hoja abre su pantalla.
+ * Una hoja marcada `enConstruccion` abre "En construcción" aunque tenga `ruta` (así se apaga una pantalla ya hecha sin
+ * borrarla: se le quita la marca cuando se habilite).
+ */
 export const abrirNodo = (nodo: NodoDeMenu, opciones: OpcionesDeApertura = {}): void => {
   if (!navigationRef.isReady()) return;
   const navegador = navigationRef as unknown as { navigate: (ruta: string, params?: object) => void };
@@ -76,11 +80,11 @@ export const abrirNodo = (nodo: NodoDeMenu, opciones: OpcionesDeApertura = {}): 
     navegador.navigate('Submenu', { id: nodo.id, color: opciones.color, ubicacion: opciones.ubicacion });
     return;
   }
-  if (nodo.ruta) {
-    navegador.navigate(nodo.ruta, nodo.params);
-    return;
-  }
   if (nodo.enConstruccion) {
     navegador.navigate('EnConstruccion', { id: nodo.id, titulo: nodo.titulo, ubicacion: opciones.ubicacion });
+    return;
+  }
+  if (nodo.ruta) {
+    navegador.navigate(nodo.ruta, nodo.params);
   }
 };

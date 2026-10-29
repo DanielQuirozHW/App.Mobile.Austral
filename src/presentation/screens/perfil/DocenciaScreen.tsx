@@ -3,6 +3,8 @@
 // una sola pantalla; los "Vigentes / Históricos" del portal son dos secciones apiladas. El menú lateral entra directo a
 // cada una con el parámetro de ruta `pestania` (decisión 100); sin parámetro abre en Categorización.
 // Promoción NO se migra (decisión 100): la pestaña figura, como la entrada del menú del portal, y muestra "En construcción".
+// Nombramientos está hecho pero todavía no se habilita (pedido de Daniel): también muestra "En construcción". Para
+// habilitarlo se lo saca de PESTANIAS_PROXIMAMENTE (y se quita `enConstruccion` en navigation/modulosMenu.ts).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
@@ -38,6 +40,9 @@ const PESTANIAS: ItemPestania<PestaniaDocencia>[] = [
   { clave: 'docencia', etiqueta: 'Docencia' },
   { clave: 'asesoramiento', etiqueta: 'Asesoramiento' },
 ];
+
+/** Pestañas que todavía no se ofrecen: muestran "Próximamente" en lugar de su contenido. */
+const PESTANIAS_PROXIMAMENTE: PestaniaDocencia[] = ['nombramientos', 'promocion'];
 
 const INFO: Record<PestaniaDocencia, { titulo: string; texto: string }> = {
   categorizacion: {
@@ -99,7 +104,7 @@ export const DocenciaScreen: React.FC = () => {
   }
 
   const info = INFO[subpagina];
-  const enConstruccion = subpagina === 'promocion';
+  const enConstruccion = PESTANIAS_PROXIMAMENTE.includes(subpagina);
 
   return (
     <Screen scroll contentContainerStyle={styles.contenido}>
@@ -196,7 +201,7 @@ export const DocenciaScreen: React.FC = () => {
         </>
       ) : null}
 
-      {subpagina === 'nombramientos' ? (
+      {subpagina === 'nombramientos' && !enConstruccion ? (
         <>
           <SeccionRegistros
             numero={1}
